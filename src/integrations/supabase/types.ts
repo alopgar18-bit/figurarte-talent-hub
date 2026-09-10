@@ -510,6 +510,44 @@ export type Database = {
           },
         ]
       }
+      registro_accesos: {
+        Row: {
+          accion: Database["public"]["Enums"]["accion_registro_acceso"]
+          actor_email: string | null
+          actor_user_id: string | null
+          candidato_id: string | null
+          creado_en: string
+          detalle: string | null
+          id: string
+        }
+        Insert: {
+          accion: Database["public"]["Enums"]["accion_registro_acceso"]
+          actor_email?: string | null
+          actor_user_id?: string | null
+          candidato_id?: string | null
+          creado_en?: string
+          detalle?: string | null
+          id?: string
+        }
+        Update: {
+          accion?: Database["public"]["Enums"]["accion_registro_acceso"]
+          actor_email?: string | null
+          actor_user_id?: string | null
+          candidato_id?: string | null
+          creado_en?: string
+          detalle?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registro_accesos_candidato_id_fkey"
+            columns: ["candidato_id"]
+            isOneToOne: false
+            referencedRelation: "candidatos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       registros_captacion: {
         Row: {
           canal: string
@@ -676,6 +714,11 @@ export type Database = {
       }
     }
     Enums: {
+      accion_registro_acceso:
+        | "vio_ficha"
+        | "genero_dossier"
+        | "exporto_excel"
+        | "borro_candidato"
       categoria_candidato: "actor" | "modelo" | "figurante" | "casting_plus"
       estado_acceso_invitado: "activo" | "caducado"
       estado_proyecto: "borrador" | "en_curso" | "cerrado"
@@ -816,6 +859,12 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      accion_registro_acceso: [
+        "vio_ficha",
+        "genero_dossier",
+        "exporto_excel",
+        "borro_candidato",
+      ],
       categoria_candidato: ["actor", "modelo", "figurante", "casting_plus"],
       estado_acceso_invitado: ["activo", "caducado"],
       estado_proyecto: ["borrador", "en_curso", "cerrado"],

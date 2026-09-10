@@ -10,14 +10,29 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PanelRouteRouteImport } from './routes/panel/route'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as CastingSlugRouteImport } from './routes/casting/$slug'
+import { Route as PanelIndexRouteImport } from './routes/panel/index'
+import { Route as PanelAccesosInvitadosRouteImport } from './routes/panel/accesos-invitados'
+import { Route as PanelAdministracionRouteImport } from './routes/panel/administracion'
+import { Route as PanelCandidatosRouteImport } from './routes/panel/candidatos'
+import { Route as PanelCaptacionRouteImport } from './routes/panel/captacion'
+import { Route as PanelClientesRouteImport } from './routes/panel/clientes'
+import { Route as PanelDashboardRouteImport } from './routes/panel/dashboard'
+import { Route as PanelPortalClienteRouteImport } from './routes/panel/portal-cliente'
+import { Route as PanelProyectosRouteImport } from './routes/panel/proyectos'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PanelRouteRoute = PanelRouteRouteImport.update({
+  id: '/panel',
+  path: '/panel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegistroRoute = RegistroRouteImport.update({
@@ -40,45 +55,159 @@ const CastingSlugRoute = CastingSlugRouteImport.update({
   path: '/casting/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PanelIndexRoute = PanelIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PanelRouteRoute,
+} as any)
+const PanelAccesosInvitadosRoute = PanelAccesosInvitadosRouteImport.update({
+  id: '/accesos-invitados',
+  path: '/accesos-invitados',
+  getParentRoute: () => PanelRouteRoute,
+} as any)
+const PanelAdministracionRoute = PanelAdministracionRouteImport.update({
+  id: '/administracion',
+  path: '/administracion',
+  getParentRoute: () => PanelRouteRoute,
+} as any)
+const PanelCandidatosRoute = PanelCandidatosRouteImport.update({
+  id: '/candidatos',
+  path: '/candidatos',
+  getParentRoute: () => PanelRouteRoute,
+} as any)
+const PanelCaptacionRoute = PanelCaptacionRouteImport.update({
+  id: '/captacion',
+  path: '/captacion',
+  getParentRoute: () => PanelRouteRoute,
+} as any)
+const PanelClientesRoute = PanelClientesRouteImport.update({
+  id: '/clientes',
+  path: '/clientes',
+  getParentRoute: () => PanelRouteRoute,
+} as any)
+const PanelDashboardRoute = PanelDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => PanelRouteRoute,
+} as any)
+const PanelPortalClienteRoute = PanelPortalClienteRouteImport.update({
+  id: '/portal-cliente',
+  path: '/portal-cliente',
+  getParentRoute: () => PanelRouteRoute,
+} as any)
+const PanelProyectosRoute = PanelProyectosRouteImport.update({
+  id: '/proyectos',
+  path: '/proyectos',
+  getParentRoute: () => PanelRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/panel': typeof PanelRouteRouteWithChildren
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/casting/$slug': typeof CastingSlugRoute
+  '/panel/accesos-invitados': typeof PanelAccesosInvitadosRoute
+  '/panel/administracion': typeof PanelAdministracionRoute
+  '/panel/candidatos': typeof PanelCandidatosRoute
+  '/panel/captacion': typeof PanelCaptacionRoute
+  '/panel/clientes': typeof PanelClientesRoute
+  '/panel/dashboard': typeof PanelDashboardRoute
+  '/panel/portal-cliente': typeof PanelPortalClienteRoute
+  '/panel/proyectos': typeof PanelProyectosRoute
   '/auth/': typeof AuthIndexRoute
+  '/panel/': typeof PanelIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/casting/$slug': typeof CastingSlugRoute
+  '/panel/accesos-invitados': typeof PanelAccesosInvitadosRoute
+  '/panel/administracion': typeof PanelAdministracionRoute
+  '/panel/candidatos': typeof PanelCandidatosRoute
+  '/panel/captacion': typeof PanelCaptacionRoute
+  '/panel/clientes': typeof PanelClientesRoute
+  '/panel/dashboard': typeof PanelDashboardRoute
+  '/panel/portal-cliente': typeof PanelPortalClienteRoute
+  '/panel/proyectos': typeof PanelProyectosRoute
   '/auth': typeof AuthIndexRoute
+  '/panel': typeof PanelIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/panel': typeof PanelRouteRouteWithChildren
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/casting/$slug': typeof CastingSlugRoute
+  '/panel/accesos-invitados': typeof PanelAccesosInvitadosRoute
+  '/panel/administracion': typeof PanelAdministracionRoute
+  '/panel/candidatos': typeof PanelCandidatosRoute
+  '/panel/captacion': typeof PanelCaptacionRoute
+  '/panel/clientes': typeof PanelClientesRoute
+  '/panel/dashboard': typeof PanelDashboardRoute
+  '/panel/portal-cliente': typeof PanelPortalClienteRoute
+  '/panel/proyectos': typeof PanelProyectosRoute
   '/auth/': typeof AuthIndexRoute
+  '/panel/': typeof PanelIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/registro' | '/auth/callback' | '/casting/$slug' | '/auth/'
+  fullPaths:
+    | '/'
+    | '/panel'
+    | '/registro'
+    | '/auth/callback'
+    | '/casting/$slug'
+    | '/panel/accesos-invitados'
+    | '/panel/administracion'
+    | '/panel/candidatos'
+    | '/panel/captacion'
+    | '/panel/clientes'
+    | '/panel/dashboard'
+    | '/panel/portal-cliente'
+    | '/panel/proyectos'
+    | '/auth/'
+    | '/panel/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/registro' | '/auth/callback' | '/casting/$slug' | '/auth'
-  id:
-    | '__root__'
+  to:
     | '/'
     | '/registro'
     | '/auth/callback'
     | '/casting/$slug'
+    | '/panel/accesos-invitados'
+    | '/panel/administracion'
+    | '/panel/candidatos'
+    | '/panel/captacion'
+    | '/panel/clientes'
+    | '/panel/dashboard'
+    | '/panel/portal-cliente'
+    | '/panel/proyectos'
+    | '/auth'
+    | '/panel'
+  id:
+    | '__root__'
+    | '/'
+    | '/panel'
+    | '/registro'
+    | '/auth/callback'
+    | '/casting/$slug'
+    | '/panel/accesos-invitados'
+    | '/panel/administracion'
+    | '/panel/candidatos'
+    | '/panel/captacion'
+    | '/panel/clientes'
+    | '/panel/dashboard'
+    | '/panel/portal-cliente'
+    | '/panel/proyectos'
     | '/auth/'
+    | '/panel/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PanelRouteRoute: typeof PanelRouteRouteWithChildren
   RegistroRoute: typeof RegistroRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   CastingSlugRoute: typeof CastingSlugRoute
@@ -92,6 +221,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/panel': {
+      id: '/panel'
+      path: '/panel'
+      fullPath: '/panel'
+      preLoaderRoute: typeof PanelRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/registro': {
@@ -122,11 +258,103 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CastingSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/panel/': {
+      id: '/panel/'
+      path: '/'
+      fullPath: '/panel/'
+      preLoaderRoute: typeof PanelIndexRouteImport
+      parentRoute: typeof PanelRouteRoute
+    }
+    '/panel/accesos-invitados': {
+      id: '/panel/accesos-invitados'
+      path: '/accesos-invitados'
+      fullPath: '/panel/accesos-invitados'
+      preLoaderRoute: typeof PanelAccesosInvitadosRouteImport
+      parentRoute: typeof PanelRouteRoute
+    }
+    '/panel/administracion': {
+      id: '/panel/administracion'
+      path: '/administracion'
+      fullPath: '/panel/administracion'
+      preLoaderRoute: typeof PanelAdministracionRouteImport
+      parentRoute: typeof PanelRouteRoute
+    }
+    '/panel/candidatos': {
+      id: '/panel/candidatos'
+      path: '/candidatos'
+      fullPath: '/panel/candidatos'
+      preLoaderRoute: typeof PanelCandidatosRouteImport
+      parentRoute: typeof PanelRouteRoute
+    }
+    '/panel/captacion': {
+      id: '/panel/captacion'
+      path: '/captacion'
+      fullPath: '/panel/captacion'
+      preLoaderRoute: typeof PanelCaptacionRouteImport
+      parentRoute: typeof PanelRouteRoute
+    }
+    '/panel/clientes': {
+      id: '/panel/clientes'
+      path: '/clientes'
+      fullPath: '/panel/clientes'
+      preLoaderRoute: typeof PanelClientesRouteImport
+      parentRoute: typeof PanelRouteRoute
+    }
+    '/panel/dashboard': {
+      id: '/panel/dashboard'
+      path: '/dashboard'
+      fullPath: '/panel/dashboard'
+      preLoaderRoute: typeof PanelDashboardRouteImport
+      parentRoute: typeof PanelRouteRoute
+    }
+    '/panel/portal-cliente': {
+      id: '/panel/portal-cliente'
+      path: '/portal-cliente'
+      fullPath: '/panel/portal-cliente'
+      preLoaderRoute: typeof PanelPortalClienteRouteImport
+      parentRoute: typeof PanelRouteRoute
+    }
+    '/panel/proyectos': {
+      id: '/panel/proyectos'
+      path: '/proyectos'
+      fullPath: '/panel/proyectos'
+      preLoaderRoute: typeof PanelProyectosRouteImport
+      parentRoute: typeof PanelRouteRoute
+    }
   }
 }
 
+interface PanelRouteRouteChildren {
+  PanelAccesosInvitadosRoute: typeof PanelAccesosInvitadosRoute
+  PanelAdministracionRoute: typeof PanelAdministracionRoute
+  PanelCandidatosRoute: typeof PanelCandidatosRoute
+  PanelCaptacionRoute: typeof PanelCaptacionRoute
+  PanelClientesRoute: typeof PanelClientesRoute
+  PanelDashboardRoute: typeof PanelDashboardRoute
+  PanelPortalClienteRoute: typeof PanelPortalClienteRoute
+  PanelProyectosRoute: typeof PanelProyectosRoute
+  PanelIndexRoute: typeof PanelIndexRoute
+}
+
+const PanelRouteRouteChildren: PanelRouteRouteChildren = {
+  PanelAccesosInvitadosRoute: PanelAccesosInvitadosRoute,
+  PanelAdministracionRoute: PanelAdministracionRoute,
+  PanelCandidatosRoute: PanelCandidatosRoute,
+  PanelCaptacionRoute: PanelCaptacionRoute,
+  PanelClientesRoute: PanelClientesRoute,
+  PanelDashboardRoute: PanelDashboardRoute,
+  PanelPortalClienteRoute: PanelPortalClienteRoute,
+  PanelProyectosRoute: PanelProyectosRoute,
+  PanelIndexRoute: PanelIndexRoute,
+}
+
+const PanelRouteRouteWithChildren = PanelRouteRoute._addFileChildren(
+  PanelRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PanelRouteRoute: PanelRouteRouteWithChildren,
   RegistroRoute: RegistroRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   CastingSlugRoute: CastingSlugRoute,

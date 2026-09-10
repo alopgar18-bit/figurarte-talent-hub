@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/auth/")({
+  validateSearch: (search: Record<string, unknown>): { motivo?: "panel" } =>
+    search["motivo"] === "panel" ? { motivo: "panel" } : {},
   head: () => ({
     meta: [
       { title: "Acceder | FigurArte.es" },
@@ -27,6 +29,7 @@ export const Route = createFileRoute("/auth/")({
 });
 
 function AuthPage() {
+  const { motivo } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [estado, setEstado] = useState<"idle" | "enviando" | "enviado">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +56,15 @@ function AuthPage() {
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
           FigurArte<span className="text-primary">.</span>es
         </h1>
+
+        {motivo === "panel" && (
+          <div className="mt-6 border border-primary/40 bg-primary/5 p-4">
+            <p className="text-sm text-foreground">
+              El panel interno es solo para el equipo de FigurArte. Entra con tu email del
+              equipo para continuar.
+            </p>
+          </div>
+        )}
 
         {estado === "enviado" ? (
           <div className="mt-8 border border-border bg-card p-6">

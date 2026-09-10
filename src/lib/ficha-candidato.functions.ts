@@ -27,6 +27,14 @@ export const obtenerFichaCandidatoStaff = createServerFn({ method: "GET" })
     if (error) throw new Error("No se pudo cargar la ficha del candidato.");
     if (!candidato) return { candidato: null, castings: [] };
 
+    // Registro mínimo de accesos (RGPD): quién vio qué ficha y cuándo.
+    const { anotarAcceso } = await import("@/lib/registro-accesos.server");
+    await anotarAcceso(supabaseAdmin, {
+      userId: context.userId,
+      accion: "vio_ficha",
+      candidatoId: candidato.id,
+    });
+
     return {
       candidato: {
         ...candidato,
@@ -35,3 +43,4 @@ export const obtenerFichaCandidatoStaff = createServerFn({ method: "GET" })
       castings: castings ?? [],
     };
   });
+

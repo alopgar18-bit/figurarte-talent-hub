@@ -155,7 +155,11 @@ export const asignarCandidatosAProyecto = createServerFn({ method: "POST" })
     };
   });
 
-export type ResultadoConsentimiento = { liberadas: number };
+export type ResultadoConsentimiento = {
+  liberadas: number;
+  /** Alguna asignación en espera no se pudo cerrar: no se puede decir "liberado". */
+  falloLiberacion?: boolean;
+};
 
 /**
  * El candidato firma la cesión de imagen desde su área privada: se guarda el
@@ -182,19 +186,24 @@ export const darConsentimientoRgpd = createServerFn({ method: "POST" })
       .eq("id", candidato.id);
     if (errUpd) throw new Error("No se pudo guardar tu autorización.");
 
-    return { liberadas: await liberarPendientes(candidato.id) };
+    return await liberarPendientes(candidato.id);
   });
 
 /** Pasa las asignaciones en espera de un candidato a `proyecto_candidatos`. */
-async function liberarPendientes(candidatoId: string): Promise<number> {
+async function liberarPendientes(candidatoId: string): Promise<ResultadoConsentimiento> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  const { data: pendientes } = await supabaseAdmin
+  const { data: pendientes, error: errPend } = await supabaseAdmin
     .from("asignaciones_pendientes_rgpd")
     .select("id, proyecto_id")
     .eq("candidato_id", candidatoId);
 
-  if (!pendientes || pendientes.length === 0) return 0;
+  if (errPend) {
+    console.error("[rgpd] No se pudieron leer las asignaciones en espera:", errPend);
+    return { liberadas: 0, falloLiberacion: true };
+  }
+
+  if (!pendientes || pendientes.length === 0) return { liberadas: 0 };
 
   const { data: yaEstan } = await supabaseAdmin
     .from("proyecto_candidatos")
@@ -221,12 +230,19 @@ async function liberarPendientes(candidatoId: string): Promise<number> {
     }
   }
 
-  await supabaseAdmin
+  // Si el borrado falla, la asignación sigue "en espera": no se puede
+  // decirle al candidato que ya está apuntado.
+  const { error: errBorrado } = await supabaseAdmin
     .from("asignaciones_pendientes_rgpd")
     .delete()
     .eq("candidato_id", candidatoId);
 
-  return nuevos.length;
+  if (errBorrado) {
+    console.error("[rgpd] No se pudieron cerrar las asignaciones en espera:", errBorrado);
+    return { liberadas: nuevos.length, falloLiberacion: true };
+  }
+
+  return { liberadas: nuevos.length };
 }
 
 /** Igual que la anterior, pero invocable por el propio candidato si hiciera falta. */
@@ -240,5 +256,5 @@ export const liberarAsignacionesPendientes = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .maybeSingle();
     if (!candidato || !candidato.consentimiento_rgpd) return { liberadas: 0 };
-    return { liberadas: await liberarPendientes(candidato.id) };
+    return await liberarPendientes(candidato.id);
   });

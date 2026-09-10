@@ -114,13 +114,12 @@ export function FormularioCaptacion({
   >(null);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [duplicado, setDuplicado] = useState(false);
-  const [exito, setExito] = useState<string | null>(null);
+  const [exito, setExito] = useState<{ avisoCasting: boolean } | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setDuplicado(false);
+    
 
     if (!categoria) return setError("Elige una categoría para continuar.");
     if (nombre.trim().length < 2) return setError("Escribe tu nombre completo.");
@@ -169,9 +168,10 @@ export function FormularioCaptacion({
         },
       });
 
-      if (res.estado === "duplicado") setDuplicado(true);
+      if (res.estado === "limite")
+        setError("Demasiados intentos. Prueba de nuevo en unos minutos.");
       else if (res.estado === "error") setError(res.mensaje);
-      else setExito(res.codigo);
+      else setExito({ avisoCasting: res.avisoCasting === true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Algo ha fallado. Inténtalo de nuevo.");
     } finally {
@@ -186,12 +186,19 @@ export function FormularioCaptacion({
           <Check className="h-6 w-6 text-primary" />
         </div>
         <h2 className="mt-4 text-2xl font-black tracking-tight">
-          Candidatura recibida
+          Hemos recibido tu solicitud
         </h2>
         <p className="mt-2 text-muted-foreground">
-          En breve revisamos tu perfil. Tu referencia es{" "}
-          <span className="font-semibold text-foreground">{exito}</span>.
+          Revisa tu correo: te hemos enviado los datos de acceso a tu área de
+          candidato.
         </p>
+        {exito.avisoCasting && (
+          <p className="mx-auto mt-4 max-w-md rounded-md border border-primary/40 bg-primary/10 p-4 text-sm">
+            Tu candidatura se ha registrado, pero no hemos podido apuntarte
+            automáticamente a este casting. Escríbenos o vuelve a intentarlo
+            desde tu área de candidato.
+          </p>
+        )}
         <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
           Termina de completar tu perfil cuando quieras entrando en tu área de
           candidato: apellidos, datos físicos, habilidades e idiomas ayudan a que
@@ -370,15 +377,6 @@ export function FormularioCaptacion({
         </Label>
       </div>
 
-      {duplicado && (
-        <div className="rounded-md border border-primary/40 bg-primary/10 p-4 text-sm">
-          Ya tienes una ficha con este email. Accede con tu enlace mágico en{" "}
-          <Link to="/auth" className="font-semibold text-primary underline">
-            /auth
-          </Link>{" "}
-          para verla o actualizarla.
-        </div>
-      )}
 
       {error && (
         <div className="rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">

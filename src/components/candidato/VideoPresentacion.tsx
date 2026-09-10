@@ -57,6 +57,10 @@ export function VideoPresentacion({
         );
         return;
       }
+      if (resultado.estado === "limite") {
+        toast.error("Demasiados intentos, prueba de nuevo en unos minutos.");
+        return;
+      }
       if (resultado.estado === "error") {
         toast.error(resultado.mensaje);
         return;

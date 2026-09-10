@@ -33,8 +33,9 @@ const candidaturaSchema = z.object({
 export type CandidaturaInput = z.input<typeof candidaturaSchema>;
 
 export type CandidaturaResultado =
-  | { estado: "ok"; codigo: string }
-  | { estado: "duplicado" }
+  /** Respuesta idéntica exista o no ya el email: no revela si hay ficha previa. */
+  | { estado: "ok"; avisoCasting?: boolean }
+  | { estado: "limite" }
   | { estado: "error"; mensaje: string };
 
 async function enviarConfirmacionResend({
@@ -104,9 +105,68 @@ Puedes entrar aquí cuando quieras: ${authUrl}
   }
 }
 
+/**
+ * Si el email ya tiene ficha, en lugar de crear un duplicado le enviamos un
+ * correo con el acceso a su área. Por fuera la respuesta es la misma.
+ */
+async function enviarRecuperacionAcceso(email: string) {
+  const apiKey = process.env["RESEND_API_KEY"];
+  if (!apiKey) {
+    console.error("[email] RESEND_API_KEY no está configurado");
+    return;
+  }
+
+  const request = getRequest();
+  const host = request?.headers.get("host") ?? "figurarte-casting.lovable.app";
+  const authUrl = `https://${host}/auth`;
+
+  const html = plantillaEmail(`
+    <p style="margin:0 0 16px;">Hola,</p>
+    <p style="margin:0 0 16px;">Hemos recibido una solicitud de registro con este correo, y ya tienes una ficha en <strong>FigurArte</strong>.</p>
+    <p style="margin:0 0 16px;">No hace falta que te registres de nuevo: entra en tu área de candidato con tu enlace de acceso y actualiza tus datos cuando quieras.</p>
+    ${botonEmail("Entrar en mi área de candidato", authUrl)}
+    <p style="margin:16px 0 0;font-size:13px;color:#6b6b6b;">Si no has sido tú, puedes ignorar este mensaje.</p>
+  `.trim());
+
+  const text = `Hola,
+
+Hemos recibido una solicitud de registro con este correo, y ya tienes una ficha en FigurArte.
+
+No hace falta que te registres de nuevo. Entra en tu área de candidato aquí: ${authUrl}
+
+Si no has sido tú, puedes ignorar este mensaje.
+
+— FIGURARTE · Agencia de casting & producción`;
+
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        from: "FIGURARTE Casting & Producción <casting@figurarte.app>",
+        to: [email],
+        subject: "Tu acceso a FigurArte",
+        html,
+        text,
+      }),
+    });
+    if (!response.ok) {
+      console.error(`[email] Resend respondió ${response.status}: ${await response.text()}`);
+    }
+  } catch (err) {
+    console.error("[email] Error enviando recuperación de acceso:", err);
+  }
+}
+
 export const crearCandidatura = createServerFn({ method: "POST" })
   .inputValidator((data: CandidaturaInput) => candidaturaSchema.parse(data))
   .handler(async ({ data }): Promise<CandidaturaResultado> => {
+    const { dentroDeLimite, LIMITES } = await import("@/lib/rate-limit.server");
+    if (!dentroDeLimite("registro", LIMITES.registro)) return { estado: "limite" };
+
     const { supabaseAdmin } = await import(
       "@/integrations/supabase/client.server"
     );
@@ -118,7 +178,12 @@ export const crearCandidatura = createServerFn({ method: "POST" })
       .ilike("email", email)
       .maybeSingle();
 
-    if (existente) return { estado: "duplicado" };
+    // Mismo resultado visible que un alta nueva: no revelamos si ya existe.
+    if (existente) {
+      await enviarRecuperacionAcceso(email);
+      return { estado: "ok" };
+    }
+
 
     const { data: creado, error } = await supabaseAdmin
       .from("candidatos")
@@ -142,12 +207,20 @@ export const crearCandidatura = createServerFn({ method: "POST" })
       return { estado: "error", mensaje: "No se pudo registrar la candidatura." };
     }
 
+    // La vinculación al casting sí afecta a datos: si falla, se avisa.
+    let avisoCasting = false;
     if (data.proyecto_id) {
-      await supabaseAdmin.from("proyecto_candidatos").insert({
-        proyecto_id: data.proyecto_id,
-        candidato_id: creado.id,
-        origen: "web_directa",
-      });
+      const { error: errCasting } = await supabaseAdmin
+        .from("proyecto_candidatos")
+        .insert({
+          proyecto_id: data.proyecto_id,
+          candidato_id: creado.id,
+          origen: "web_directa",
+        });
+      if (errCasting && errCasting.code !== "23505") {
+        console.error("[registro] No se pudo apuntar al casting:", errCasting);
+        avisoCasting = true;
+      }
     }
 
     // Trazabilidad de captación RRSS: nunca debe romper el registro.
@@ -169,5 +242,5 @@ export const crearCandidatura = createServerFn({ method: "POST" })
       codigo: creado.codigo,
     });
 
-    return { estado: "ok", codigo: creado.codigo };
+    return { estado: "ok", avisoCasting };
   });

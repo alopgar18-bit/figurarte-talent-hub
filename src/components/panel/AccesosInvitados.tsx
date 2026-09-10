@@ -62,7 +62,11 @@ export function AccesosInvitados() {
 
   async function cargar() {
     setCargando(true);
-    const [{ data: acc, error: errAcc }, { data: cli }, { data: pro }] = await Promise.all([
+    const [
+      { data: acc, error: errAcc },
+      { data: cli, error: errCli },
+      { data: pro, error: errPro },
+    ] = await Promise.all([
       supabase
         .from("accesos_invitados")
         .select("id,cliente_id,proyecto_id,creado_en,caduca_en,ultima_visita,estado")
@@ -70,7 +74,9 @@ export function AccesosInvitados() {
       supabase.from("clientes").select("id,razon_social").order("razon_social"),
       supabase.from("proyectos_casting").select("id,nombre,cliente_id").order("nombre"),
     ]);
-    if (errAcc) setError("No se pudieron cargar los accesos.");
+    if (errAcc) setError("No se pudieron cargar los accesos. Reintenta.");
+    else if (errCli) setError("No se pudieron cargar los clientes. Reintenta.");
+    else if (errPro) setError("No se pudieron cargar los proyectos. Reintenta.");
     else setError(null);
     setAccesos((acc ?? []) as Acceso[]);
     setClientes((cli ?? []) as Cliente[]);

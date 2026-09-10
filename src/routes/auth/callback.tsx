@@ -47,6 +47,7 @@ function CallbackPage() {
   );
   const [acceso, setAcceso] = useState<AccesoResuelto | null>(null);
   const [castingInscrito, setCastingInscrito] = useState<string | null>(null);
+  const [falloCasting, setFalloCasting] = useState(false);
 
   useEffect(() => {
     let cancelado = false;
@@ -64,11 +65,15 @@ function CallbackPage() {
         if (proyectoId && resultado.tipo === "candidato") {
           try {
             const insc = await inscribir({ data: { proyecto_id: proyectoId } });
-            if (!cancelado && (insc.estado === "inscrito" || insc.estado === "ya_inscrito")) {
+            if (cancelado) return;
+            if (insc.estado === "inscrito" || insc.estado === "ya_inscrito") {
               setCastingInscrito(insc.nombreCasting);
+            } else {
+              // Afecta a datos: no puede quedarse en silencio.
+              setFalloCasting(true);
             }
           } catch {
-            /* si falla la inscripción, la sesión sigue siendo válida */
+            if (!cancelado) setFalloCasting(true);
           }
         }
         if (cancelado) return;
@@ -172,6 +177,13 @@ function CallbackPage() {
                   </>
                 )}
               </p>
+              {falloCasting && (
+                <p className="mt-3 rounded-md border border-primary/40 bg-primary/10 p-3 text-sm">
+                  Tu sesión está activa, pero no hemos podido apuntarte
+                  automáticamente a este casting. Escríbenos o vuelve a
+                  intentarlo desde tu área de candidato.
+                </p>
+              )}
               <Button asChild className="mt-4 w-full">
                 <Link to="/candidato">Ir a mi ficha</Link>
               </Button>

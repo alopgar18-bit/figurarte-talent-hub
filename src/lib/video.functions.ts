@@ -9,6 +9,7 @@ const entrada = z.object({
 
 export type ResultadoVideo =
   | { estado: "no_disponible" }
+  | { estado: "limite" }
   | { estado: "ok"; videoId: string; url: string }
   | { estado: "error"; mensaje: string };
 
@@ -24,6 +25,10 @@ export const subirVideoYoutube = createServerFn({ method: "POST" })
   .inputValidator((data: z.input<typeof entrada>) => entrada.parse(data))
   .handler(async ({ data, context }): Promise<ResultadoVideo> => {
     const { userId } = context;
+
+    // Límite de frecuencia: 5 intentos por IP y hora.
+    const { dentroDeLimite, LIMITES } = await import("@/lib/rate-limit.server");
+    if (!dentroDeLimite("video", LIMITES.video)) return { estado: "limite" };
 
     const clientId = process.env["YOUTUBE_CLIENT_ID"];
     const clientSecret = process.env["YOUTUBE_CLIENT_SECRET"];

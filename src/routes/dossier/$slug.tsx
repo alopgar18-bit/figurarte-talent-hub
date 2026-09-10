@@ -66,9 +66,18 @@ function diasRestantes(iso: string | null): number | null {
 }
 
 function PaginaDossier() {
-  const { dossier } = Route.useLoaderData();
+  const { dossier, limitado } = Route.useLoaderData();
   const { slug } = Route.useParams();
   const [indice, setIndice] = useState(0);
+
+  if (limitado) {
+    return (
+      <Aviso
+        titulo="Demasiados intentos"
+        texto="Has abierto muchos dossiers seguidos. Prueba de nuevo en unos minutos."
+      />
+    );
+  }
 
   if (!dossier) {
     return <Aviso titulo="Dossier no encontrado" texto="Comprueba el enlace que te han enviado." />;

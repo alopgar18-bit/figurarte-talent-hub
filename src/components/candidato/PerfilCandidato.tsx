@@ -437,6 +437,68 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         nombre={texto(f["nombre"])}
         codigo={ficha.codigo}
       />
+
+      <section className="border border-border bg-card p-4 sm:p-6">
+        <h2 className="text-lg font-semibold text-card-foreground">Tus datos y tus derechos</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Puedes descargar una copia de todo lo que guardamos sobre ti o pedir que lo
+          eliminemos por completo.
+        </p>
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+          <Button variant="outline" onClick={descargar} disabled={descargando}>
+            {descargando ? "Preparando…" : "Descargar mis datos"}
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              setConfirmacion("");
+              setDialogoBorrado(true);
+            }}
+          >
+            Eliminar mi cuenta y mis datos
+          </Button>
+        </div>
+      </section>
+
+      <Dialog open={dialogoBorrado} onOpenChange={setDialogoBorrado}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Eliminar tu cuenta y tus datos</DialogTitle>
+            <DialogDescription>
+              Se borrarán tu ficha, tus fotos, tu vídeo y tu historial de proyectos. Es
+              definitivo: no podremos recuperarlo.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="confirmar_borrado">
+              Escribe ELIMINAR para confirmar
+            </Label>
+            <Input
+              id="confirmar_borrado"
+              value={confirmacion}
+              onChange={(e) => setConfirmacion(e.target.value)}
+              placeholder="ELIMINAR"
+            />
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setDialogoBorrado(false)}
+              disabled={borrando}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={confirmacion.trim().toUpperCase() !== "ELIMINAR" || borrando}
+              onClick={confirmarBorrado}
+            >
+              {borrando ? "Eliminando…" : "Eliminar definitivamente"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
+
 }

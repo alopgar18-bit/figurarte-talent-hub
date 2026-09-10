@@ -9,6 +9,7 @@ const entrada = z.object({
 
 export type ResultadoVideo =
   | { estado: "no_disponible" }
+  | { estado: "limite" }
   | { estado: "ok"; videoId: string; url: string }
   | { estado: "error"; mensaje: string };
 

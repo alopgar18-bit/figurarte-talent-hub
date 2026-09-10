@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { crearSolicitudProyecto } from "@/lib/portal.functions";
 import { CheckCircle2, Info, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -50,6 +52,7 @@ export function SolicitarProyecto({ clienteId }: { clienteId: string }) {
 
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [cargando, setCargando] = useState(true);
+  const enviarSolicitud = useServerFn(crearSolicitudProyecto);
 
   async function cargar() {
     const { data } = await supabase
@@ -71,19 +74,22 @@ export function SolicitarProyecto({ clienteId }: { clienteId: string }) {
       return;
     }
     setEnviando(true);
-    const { error } = await supabase.from("solicitudes_proyecto").insert({
-      cliente_id: clienteId,
-      nombre_proyecto: nombre.trim(),
-      categoria,
-      num_candidatos_aprox: numero.trim() ? Number(numero) : null,
-      descripcion: descripcion.trim() || null,
-      fecha_necesaria: fecha || null,
-    });
-    setEnviando(false);
-    if (error) {
+    try {
+      await enviarSolicitud({
+        data: {
+          nombreProyecto: nombre.trim(),
+          categoria,
+          numAprox: numero.trim() ? Number(numero) : null,
+          descripcion: descripcion.trim() || null,
+          fechaNecesaria: fecha || null,
+        },
+      });
+    } catch {
+      setEnviando(false);
       toast.error("No se pudo enviar la solicitud. Inténtalo de nuevo.");
       return;
     }
+    setEnviando(false);
     setEnviada(true);
     setNombre("");
     setNumero("");

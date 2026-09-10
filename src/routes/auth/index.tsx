@@ -57,6 +57,15 @@ function AuthPage() {
           FigurArte<span className="text-primary">.</span>es
         </h1>
 
+        {motivo === "panel" && (
+          <div className="mt-6 border border-primary/40 bg-primary/5 p-4">
+            <p className="text-sm text-foreground">
+              El panel interno es solo para el equipo de FigurArte. Entra con tu email del
+              equipo para continuar.
+            </p>
+          </div>
+        )}
+
         {estado === "enviado" ? (
           <div className="mt-8 border border-border bg-card p-6">
             <h2 className="text-lg font-semibold text-card-foreground">Revisa tu correo</h2>

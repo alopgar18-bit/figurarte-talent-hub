@@ -832,6 +832,69 @@ export function DetalleProyecto({ id }: { id: string }) {
         )}
       </Tarjeta>
 
+      <Dialog open={dialogoDossier} onOpenChange={setDialogoDossier}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Generar dossier</DialogTitle>
+            <DialogDescription>
+              Elige qué candidatos incluir y hasta cuándo estará disponible el enlace.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="max-h-64 space-y-2 overflow-y-auto border border-border p-3">
+              {asociaciones.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Este proyecto todavía no tiene candidatos asociados.
+                </p>
+              )}
+              {asociaciones.map((a) => {
+                const c = candidatos[a.candidato_id];
+                if (!c) return null;
+                return (
+                  <label
+                    key={a.candidato_id}
+                    className="flex cursor-pointer items-center gap-3 text-sm"
+                  >
+                    <Checkbox
+                      checked={!!seleccionDossier[a.candidato_id]}
+                      onCheckedChange={(v) =>
+                        setSeleccionDossier((prev) => ({
+                          ...prev,
+                          [a.candidato_id]: v === true,
+                        }))
+                      }
+                    />
+                    <span className="min-w-0">
+                      <span className="block truncate font-medium">{c.nombre}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {c.codigo} · {a.estado}
+                      </span>
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="caducidad">Fecha de caducidad</Label>
+              <Input
+                id="caducidad"
+                type="date"
+                value={caducidadDossier}
+                onChange={(e) => setCaducidadDossier(e.target.value)}
+              />
+            </div>
+            <Button
+              className="w-full"
+              onClick={generarDossier}
+              disabled={generandoDossier || asociaciones.length === 0}
+            >
+              {generandoDossier && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Generar y abrir dossier
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={dialogoAnadir} onOpenChange={setDialogoAnadir}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>

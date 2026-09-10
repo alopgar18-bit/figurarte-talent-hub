@@ -43,6 +43,22 @@ export function CabeceraPublica({ ancho = "max-w-6xl" }: { ancho?: string }) {
           </Link>
         </nav>
       </div>
+
+      {/* Móvil: los mismos enlaces en una fila deslizable */}
+      <nav className="flex items-center gap-1 overflow-x-auto border-t border-border px-2 py-1.5 text-sm font-medium md:hidden">
+        {ENLACES.map((enlace) => (
+          <Link
+            key={enlace.hash}
+            to="/"
+            hash={enlace.hash}
+            className={`${
+              enlace.oculto === "sm" ? "sm:hidden" : ""
+            } whitespace-nowrap px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground`}
+          >
+            {enlace.etiqueta}
+          </Link>
+        ))}
+      </nav>
     </header>
   );
 }

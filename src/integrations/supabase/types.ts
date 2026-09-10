@@ -314,6 +314,39 @@ export type Database = {
         }
         Relationships: []
       }
+      convocatorias_rrss: {
+        Row: {
+          categoria: Database["public"]["Enums"]["categoria_candidato"]
+          creado_en: string
+          enlaces_por_canal: Json
+          fecha_cierre: string | null
+          id: string
+          imagen_generada_url: string | null
+          nombre: string
+          texto_generado: string
+        }
+        Insert: {
+          categoria: Database["public"]["Enums"]["categoria_candidato"]
+          creado_en?: string
+          enlaces_por_canal?: Json
+          fecha_cierre?: string | null
+          id?: string
+          imagen_generada_url?: string | null
+          nombre: string
+          texto_generado?: string
+        }
+        Update: {
+          categoria?: Database["public"]["Enums"]["categoria_candidato"]
+          creado_en?: string
+          enlaces_por_canal?: Json
+          fecha_cierre?: string | null
+          id?: string
+          imagen_generada_url?: string | null
+          nombre?: string
+          texto_generado?: string
+        }
+        Relationships: []
+      }
       dossiers: {
         Row: {
           candidatos_incluidos: string[]
@@ -432,6 +465,45 @@ export type Database = {
           slug_publico?: string | null
         }
         Relationships: []
+      }
+      registros_captacion: {
+        Row: {
+          canal: string
+          candidato_id: string
+          convocatoria_id: string
+          fecha: string
+          id: string
+        }
+        Insert: {
+          canal: string
+          candidato_id: string
+          convocatoria_id: string
+          fecha?: string
+          id?: string
+        }
+        Update: {
+          canal?: string
+          candidato_id?: string
+          convocatoria_id?: string
+          fecha?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registros_captacion_candidato_id_fkey"
+            columns: ["candidato_id"]
+            isOneToOne: false
+            referencedRelation: "candidatos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registros_captacion_convocatoria_id_fkey"
+            columns: ["convocatoria_id"]
+            isOneToOne: false
+            referencedRelation: "convocatorias_rrss"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       solicitudes_proyecto: {
         Row: {

@@ -7,11 +7,25 @@ import {
 const VALIDAS: CategoriaCandidato[] = ["actor", "modelo", "figurante", "casting_plus"];
 
 export const Route = createFileRoute("/registro")({
-  validateSearch: (search: Record<string, unknown>): { categoria?: CategoriaCandidato } => {
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): {
+    categoria?: CategoriaCandidato;
+    convocatoria?: string;
+    canal?: "instagram" | "whatsapp" | "web";
+  } => {
     const c = search["categoria"];
-    return typeof c === "string" && (VALIDAS as string[]).includes(c)
-      ? { categoria: c as CategoriaCandidato }
-      : {};
+    const conv = search["convocatoria"];
+    const canal = search["canal"];
+    return {
+      ...(typeof c === "string" && (VALIDAS as string[]).includes(c)
+        ? { categoria: c as CategoriaCandidato }
+        : {}),
+      ...(typeof conv === "string" && conv ? { convocatoria: conv } : {}),
+      ...(canal === "instagram" || canal === "whatsapp" || canal === "web"
+        ? { canal }
+        : {}),
+    };
   },
   head: () => ({
     meta: [
@@ -35,7 +49,7 @@ export const Route = createFileRoute("/registro")({
 });
 
 function Registro() {
-  const { categoria } = Route.useSearch();
+  const { categoria, convocatoria, canal } = Route.useSearch();
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -69,7 +83,11 @@ function Registro() {
       </section>
 
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
-        <FormularioCaptacion categoriaInicial={categoria} />
+        <FormularioCaptacion
+          categoriaInicial={categoria}
+          convocatoriaId={convocatoria}
+          canal={canal}
+        />
       </div>
     </main>
   );

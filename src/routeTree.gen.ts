@@ -15,6 +15,7 @@ import { Route as PortalRouteRouteImport } from './routes/portal/route'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
+import { Route as CCodigoRouteImport } from './routes/c/$codigo'
 import { Route as CastingSlugRouteImport } from './routes/casting/$slug'
 import { Route as DossierSlugRouteImport } from './routes/dossier/$slug'
 import { Route as PanelIndexRouteImport } from './routes/panel/index'
@@ -62,6 +63,11 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CCodigoRoute = CCodigoRouteImport.update({
+  id: '/c/$codigo',
+  path: '/c/$codigo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CastingSlugRoute = CastingSlugRouteImport.update({
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/portal': typeof PortalRouteRouteWithChildren
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/c/$codigo': typeof CCodigoRoute
   '/casting/$slug': typeof CastingSlugRoute
   '/dossier/$slug': typeof DossierSlugRoute
   '/panel/accesos-invitados': typeof PanelAccesosInvitadosRoute
@@ -185,6 +192,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/c/$codigo': typeof CCodigoRoute
   '/casting/$slug': typeof CastingSlugRoute
   '/dossier/$slug': typeof DossierSlugRoute
   '/panel/accesos-invitados': typeof PanelAccesosInvitadosRoute
@@ -212,6 +220,7 @@ export interface FileRoutesById {
   '/portal': typeof PortalRouteRouteWithChildren
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/c/$codigo': typeof CCodigoRoute
   '/casting/$slug': typeof CastingSlugRoute
   '/dossier/$slug': typeof DossierSlugRoute
   '/panel/accesos-invitados': typeof PanelAccesosInvitadosRoute
@@ -240,6 +249,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/registro'
     | '/auth/callback'
+    | '/c/$codigo'
     | '/casting/$slug'
     | '/dossier/$slug'
     | '/panel/accesos-invitados'
@@ -264,6 +274,7 @@ export interface FileRouteTypes {
     | '/'
     | '/registro'
     | '/auth/callback'
+    | '/c/$codigo'
     | '/casting/$slug'
     | '/dossier/$slug'
     | '/panel/accesos-invitados'
@@ -290,6 +301,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/registro'
     | '/auth/callback'
+    | '/c/$codigo'
     | '/casting/$slug'
     | '/dossier/$slug'
     | '/panel/accesos-invitados'
@@ -317,6 +329,7 @@ export interface RootRouteChildren {
   PortalRouteRoute: typeof PortalRouteRouteWithChildren
   RegistroRoute: typeof RegistroRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  CCodigoRoute: typeof CCodigoRoute
   CastingSlugRoute: typeof CastingSlugRoute
   DossierSlugRoute: typeof DossierSlugRoute
   AuthIndexRoute: typeof AuthIndexRoute
@@ -364,6 +377,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/callback'
       fullPath: '/auth/callback'
       preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/c/$codigo': {
+      id: '/c/$codigo'
+      path: '/c/$codigo'
+      fullPath: '/c/$codigo'
+      preLoaderRoute: typeof CCodigoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/casting/$slug': {
@@ -553,6 +573,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortalRouteRoute: PortalRouteRouteWithChildren,
   RegistroRoute: RegistroRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  CCodigoRoute: CCodigoRoute,
   CastingSlugRoute: CastingSlugRoute,
   DossierSlugRoute: DossierSlugRoute,
   AuthIndexRoute: AuthIndexRoute,

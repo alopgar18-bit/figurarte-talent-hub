@@ -5,6 +5,7 @@ import { Drama, Camera, Users, Sparkles, Upload, Check } from "lucide-react";
 import { RecorteFoto, type AreaRecorte } from "@/components/RecorteFoto";
 import { supabase } from "@/integrations/supabase/client";
 import { crearCandidatura } from "@/lib/candidatos.functions";
+import { obtenerUrlSubidaFoto } from "@/lib/subida-fotos.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

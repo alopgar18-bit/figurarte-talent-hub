@@ -33,6 +33,7 @@ export type Database = {
           peso_kg: number | null
           provincia: string | null
           telefono: string | null
+          user_id: string | null
           video_privacy: string
           video_youtube_id: string | null
           video_youtube_url: string | null
@@ -55,6 +56,7 @@ export type Database = {
           peso_kg?: number | null
           provincia?: string | null
           telefono?: string | null
+          user_id?: string | null
           video_privacy?: string
           video_youtube_id?: string | null
           video_youtube_url?: string | null
@@ -77,6 +79,7 @@ export type Database = {
           peso_kg?: number | null
           provincia?: string | null
           telefono?: string | null
+          user_id?: string | null
           video_privacy?: string
           video_youtube_id?: string | null
           video_youtube_url?: string | null
@@ -166,6 +169,7 @@ export type Database = {
           id: string
           rol: Database["public"]["Enums"]["rol_usuario"]
           ultimo_acceso: string | null
+          user_id: string | null
         }
         Insert: {
           cliente_id?: string | null
@@ -174,6 +178,7 @@ export type Database = {
           id?: string
           rol?: Database["public"]["Enums"]["rol_usuario"]
           ultimo_acceso?: string | null
+          user_id?: string | null
         }
         Update: {
           cliente_id?: string | null
@@ -182,6 +187,7 @@ export type Database = {
           id?: string
           rol?: Database["public"]["Enums"]["rol_usuario"]
           ultimo_acceso?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -190,7 +196,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      es_admin: { Args: { _user_id: string }; Returns: boolean }
+      es_staff: { Args: { _user_id: string }; Returns: boolean }
+      obtener_rol: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["rol_usuario"]
+      }
+      tiene_rol: {
+        Args: {
+          _rol: Database["public"]["Enums"]["rol_usuario"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       categoria_candidato: "actor" | "modelo" | "figurante" | "casting_plus"

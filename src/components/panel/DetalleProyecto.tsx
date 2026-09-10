@@ -322,7 +322,8 @@ export function DetalleProyecto({ id }: { id: string }) {
   async function cambiarEstadoCandidato(candidatoId: string, estado: string) {
     const { error: errUpd } = await supabase
       .from("proyecto_candidatos")
-      .update({ estado })
+      .update({ estado: estado as "preseleccionado" | "enviado" | "contratado" })
+
       .eq("proyecto_id", id)
       .eq("candidato_id", candidatoId);
     if (errUpd) {

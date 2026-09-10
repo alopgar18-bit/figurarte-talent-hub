@@ -94,6 +94,7 @@ export function FormularioCaptacion({
   canal,
 }: Props) {
   const enviar = useServerFn(crearCandidatura);
+  const pedirSubida = useServerFn(obtenerUrlSubidaFoto);
 
   const [categoria, setCategoria] = useState<CategoriaCandidato | null>(
     categoriaInicial ?? null,

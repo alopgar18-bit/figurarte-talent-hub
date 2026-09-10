@@ -14,7 +14,177 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      candidatos: {
+        Row: {
+          actualizado_en: string
+          altura_cm: number | null
+          categoria: Database["public"]["Enums"]["categoria_candidato"]
+          ciudad: string | null
+          codigo: string
+          consentimiento_rgpd: boolean
+          creado_en: string
+          disponible: boolean
+          edad: number | null
+          email: string | null
+          fecha_consentimiento: string | null
+          fotos: string[]
+          id: string
+          nombre: string
+          peso_kg: number | null
+          provincia: string | null
+          telefono: string | null
+          video_privacy: string
+          video_youtube_id: string | null
+          video_youtube_url: string | null
+        }
+        Insert: {
+          actualizado_en?: string
+          altura_cm?: number | null
+          categoria: Database["public"]["Enums"]["categoria_candidato"]
+          ciudad?: string | null
+          codigo?: string
+          consentimiento_rgpd?: boolean
+          creado_en?: string
+          disponible?: boolean
+          edad?: number | null
+          email?: string | null
+          fecha_consentimiento?: string | null
+          fotos?: string[]
+          id?: string
+          nombre: string
+          peso_kg?: number | null
+          provincia?: string | null
+          telefono?: string | null
+          video_privacy?: string
+          video_youtube_id?: string | null
+          video_youtube_url?: string | null
+        }
+        Update: {
+          actualizado_en?: string
+          altura_cm?: number | null
+          categoria?: Database["public"]["Enums"]["categoria_candidato"]
+          ciudad?: string | null
+          codigo?: string
+          consentimiento_rgpd?: boolean
+          creado_en?: string
+          disponible?: boolean
+          edad?: number | null
+          email?: string | null
+          fecha_consentimiento?: string | null
+          fotos?: string[]
+          id?: string
+          nombre?: string
+          peso_kg?: number | null
+          provincia?: string | null
+          telefono?: string | null
+          video_privacy?: string
+          video_youtube_id?: string | null
+          video_youtube_url?: string | null
+        }
+        Relationships: []
+      }
+      proyecto_candidatos: {
+        Row: {
+          candidato_id: string
+          creado_en: string
+          estado: Database["public"]["Enums"]["estado_proyecto_candidato"]
+          origen: Database["public"]["Enums"]["origen_proyecto_candidato"]
+          proyecto_id: string
+        }
+        Insert: {
+          candidato_id: string
+          creado_en?: string
+          estado?: Database["public"]["Enums"]["estado_proyecto_candidato"]
+          origen?: Database["public"]["Enums"]["origen_proyecto_candidato"]
+          proyecto_id: string
+        }
+        Update: {
+          candidato_id?: string
+          creado_en?: string
+          estado?: Database["public"]["Enums"]["estado_proyecto_candidato"]
+          origen?: Database["public"]["Enums"]["origen_proyecto_candidato"]
+          proyecto_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proyecto_candidatos_candidato_id_fkey"
+            columns: ["candidato_id"]
+            isOneToOne: false
+            referencedRelation: "candidatos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proyecto_candidatos_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "proyectos_casting"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proyectos_casting: {
+        Row: {
+          brief_publico: Json | null
+          campos_personalizados_activados: string[]
+          cliente_id: string | null
+          creado_en: string
+          estado: Database["public"]["Enums"]["estado_proyecto"]
+          id: string
+          nombre: string
+          publicado: boolean
+          slug_publico: string | null
+        }
+        Insert: {
+          brief_publico?: Json | null
+          campos_personalizados_activados?: string[]
+          cliente_id?: string | null
+          creado_en?: string
+          estado?: Database["public"]["Enums"]["estado_proyecto"]
+          id?: string
+          nombre: string
+          publicado?: boolean
+          slug_publico?: string | null
+        }
+        Update: {
+          brief_publico?: Json | null
+          campos_personalizados_activados?: string[]
+          cliente_id?: string | null
+          creado_en?: string
+          estado?: Database["public"]["Enums"]["estado_proyecto"]
+          id?: string
+          nombre?: string
+          publicado?: boolean
+          slug_publico?: string | null
+        }
+        Relationships: []
+      }
+      usuarios: {
+        Row: {
+          cliente_id: string | null
+          creado_en: string
+          email: string
+          id: string
+          rol: Database["public"]["Enums"]["rol_usuario"]
+          ultimo_acceso: string | null
+        }
+        Insert: {
+          cliente_id?: string | null
+          creado_en?: string
+          email: string
+          id?: string
+          rol?: Database["public"]["Enums"]["rol_usuario"]
+          ultimo_acceso?: string | null
+        }
+        Update: {
+          cliente_id?: string | null
+          creado_en?: string
+          email?: string
+          id?: string
+          rol?: Database["public"]["Enums"]["rol_usuario"]
+          ultimo_acceso?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +193,16 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      categoria_candidato: "actor" | "modelo" | "figurante" | "casting_plus"
+      estado_proyecto: "borrador" | "en_curso" | "cerrado"
+      estado_proyecto_candidato: "preseleccionado" | "enviado" | "contratado"
+      origen_proyecto_candidato: "manual" | "web_directa"
+      rol_usuario:
+        | "superadmin"
+        | "admin_figurarte"
+        | "coordinador"
+        | "validador"
+        | "cliente"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +329,18 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      categoria_candidato: ["actor", "modelo", "figurante", "casting_plus"],
+      estado_proyecto: ["borrador", "en_curso", "cerrado"],
+      estado_proyecto_candidato: ["preseleccionado", "enviado", "contratado"],
+      origen_proyecto_candidato: ["manual", "web_directa"],
+      rol_usuario: [
+        "superadmin",
+        "admin_figurarte",
+        "coordinador",
+        "validador",
+        "cliente",
+      ],
+    },
   },
 } as const

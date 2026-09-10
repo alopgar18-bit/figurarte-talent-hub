@@ -18,7 +18,6 @@ import { Route as CastingSlugRouteImport } from './routes/casting/$slug'
 import { Route as PanelIndexRouteImport } from './routes/panel/index'
 import { Route as PanelAccesosInvitadosRouteImport } from './routes/panel/accesos-invitados'
 import { Route as PanelAdministracionRouteImport } from './routes/panel/administracion'
-import { Route as PanelCandidatosRouteImport } from './routes/panel/candidatos'
 import { Route as PanelCaptacionRouteImport } from './routes/panel/captacion'
 import { Route as PanelClientesRouteImport } from './routes/panel/clientes'
 import { Route as PanelDashboardRouteImport } from './routes/panel/dashboard'
@@ -70,11 +69,6 @@ const PanelAdministracionRoute = PanelAdministracionRouteImport.update({
   path: '/administracion',
   getParentRoute: () => PanelRouteRoute,
 } as any)
-const PanelCandidatosRoute = PanelCandidatosRouteImport.update({
-  id: '/candidatos',
-  path: '/candidatos',
-  getParentRoute: () => PanelRouteRoute,
-} as any)
 const PanelCaptacionRoute = PanelCaptacionRouteImport.update({
   id: '/captacion',
   path: '/captacion',
@@ -109,7 +103,6 @@ export interface FileRoutesByFullPath {
   '/casting/$slug': typeof CastingSlugRoute
   '/panel/accesos-invitados': typeof PanelAccesosInvitadosRoute
   '/panel/administracion': typeof PanelAdministracionRoute
-  '/panel/candidatos': typeof PanelCandidatosRoute
   '/panel/captacion': typeof PanelCaptacionRoute
   '/panel/clientes': typeof PanelClientesRoute
   '/panel/dashboard': typeof PanelDashboardRoute
@@ -125,7 +118,6 @@ export interface FileRoutesByTo {
   '/casting/$slug': typeof CastingSlugRoute
   '/panel/accesos-invitados': typeof PanelAccesosInvitadosRoute
   '/panel/administracion': typeof PanelAdministracionRoute
-  '/panel/candidatos': typeof PanelCandidatosRoute
   '/panel/captacion': typeof PanelCaptacionRoute
   '/panel/clientes': typeof PanelClientesRoute
   '/panel/dashboard': typeof PanelDashboardRoute
@@ -143,7 +135,6 @@ export interface FileRoutesById {
   '/casting/$slug': typeof CastingSlugRoute
   '/panel/accesos-invitados': typeof PanelAccesosInvitadosRoute
   '/panel/administracion': typeof PanelAdministracionRoute
-  '/panel/candidatos': typeof PanelCandidatosRoute
   '/panel/captacion': typeof PanelCaptacionRoute
   '/panel/clientes': typeof PanelClientesRoute
   '/panel/dashboard': typeof PanelDashboardRoute
@@ -162,7 +153,6 @@ export interface FileRouteTypes {
     | '/casting/$slug'
     | '/panel/accesos-invitados'
     | '/panel/administracion'
-    | '/panel/candidatos'
     | '/panel/captacion'
     | '/panel/clientes'
     | '/panel/dashboard'
@@ -178,7 +168,6 @@ export interface FileRouteTypes {
     | '/casting/$slug'
     | '/panel/accesos-invitados'
     | '/panel/administracion'
-    | '/panel/candidatos'
     | '/panel/captacion'
     | '/panel/clientes'
     | '/panel/dashboard'
@@ -195,7 +184,6 @@ export interface FileRouteTypes {
     | '/casting/$slug'
     | '/panel/accesos-invitados'
     | '/panel/administracion'
-    | '/panel/candidatos'
     | '/panel/captacion'
     | '/panel/clientes'
     | '/panel/dashboard'
@@ -279,13 +267,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PanelAdministracionRouteImport
       parentRoute: typeof PanelRouteRoute
     }
-    '/panel/candidatos': {
-      id: '/panel/candidatos'
-      path: '/candidatos'
-      fullPath: '/panel/candidatos'
-      preLoaderRoute: typeof PanelCandidatosRouteImport
-      parentRoute: typeof PanelRouteRoute
-    }
     '/panel/captacion': {
       id: '/panel/captacion'
       path: '/captacion'
@@ -327,7 +308,6 @@ declare module '@tanstack/react-router' {
 interface PanelRouteRouteChildren {
   PanelAccesosInvitadosRoute: typeof PanelAccesosInvitadosRoute
   PanelAdministracionRoute: typeof PanelAdministracionRoute
-  PanelCandidatosRoute: typeof PanelCandidatosRoute
   PanelCaptacionRoute: typeof PanelCaptacionRoute
   PanelClientesRoute: typeof PanelClientesRoute
   PanelDashboardRoute: typeof PanelDashboardRoute
@@ -339,7 +319,6 @@ interface PanelRouteRouteChildren {
 const PanelRouteRouteChildren: PanelRouteRouteChildren = {
   PanelAccesosInvitadosRoute: PanelAccesosInvitadosRoute,
   PanelAdministracionRoute: PanelAdministracionRoute,
-  PanelCandidatosRoute: PanelCandidatosRoute,
   PanelCaptacionRoute: PanelCaptacionRoute,
   PanelClientesRoute: PanelClientesRoute,
   PanelDashboardRoute: PanelDashboardRoute,

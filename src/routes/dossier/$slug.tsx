@@ -99,7 +99,7 @@ function PaginaDossier() {
   return (
     <main className="min-h-screen bg-background print:bg-white">
       {/* Portada */}
-      <section className="dossier-slide flex min-h-[60vh] flex-col justify-between border-b border-border bg-brand-charcoal px-6 py-14 text-brand-cream sm:px-12 sm:py-20">
+      <section className="dossier-slide flex min-h-[420px] flex-col justify-between border-b border-border bg-brand-charcoal px-6 py-14 text-brand-cream sm:px-12 sm:py-20">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-stretch sm:gap-10">
           <p className="shrink-0 text-2xl font-black tracking-[0.18em] text-brand-cream sm:self-center sm:text-3xl">
             [FIGURARTE]

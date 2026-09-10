@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Proximamente } from "@/components/panel/Proximamente";
+import { Administracion } from "@/components/panel/Administracion";
 
 export const Route = createFileRoute("/panel/administracion")({
-  component: () => (
-    <Proximamente
-      titulo="Administración"
-      descripcion="Usuarios del equipo y campos personalizados de los proyectos."
-    />
-  ),
+  component: PaginaAdministracion,
 });
+
+function PaginaAdministracion() {
+  const { staff } = Route.useRouteContext();
+  return <Administracion rol={staff.rol} email={staff.email} />;
+}

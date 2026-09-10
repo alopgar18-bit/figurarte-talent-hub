@@ -14,6 +14,120 @@ export type Database = {
   }
   public: {
     Tables: {
+      accesos_invitados: {
+        Row: {
+          caduca_en: string | null
+          cliente_id: string
+          creado_en: string
+          estado: Database["public"]["Enums"]["estado_acceso_invitado"]
+          id: string
+          proyecto_id: string | null
+          ultima_visita: string | null
+        }
+        Insert: {
+          caduca_en?: string | null
+          cliente_id: string
+          creado_en?: string
+          estado?: Database["public"]["Enums"]["estado_acceso_invitado"]
+          id?: string
+          proyecto_id?: string | null
+          ultima_visita?: string | null
+        }
+        Update: {
+          caduca_en?: string | null
+          cliente_id?: string
+          creado_en?: string
+          estado?: Database["public"]["Enums"]["estado_acceso_invitado"]
+          id?: string
+          proyecto_id?: string | null
+          ultima_visita?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accesos_invitados_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accesos_invitados_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "proyectos_casting"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campos_personalizados: {
+        Row: {
+          categoria_aplicable:
+            | Database["public"]["Enums"]["categoria_candidato"]
+            | null
+          creado_en: string
+          creado_por: string | null
+          id: string
+          nombre: string
+          tipo: Database["public"]["Enums"]["tipo_campo_personalizado"]
+        }
+        Insert: {
+          categoria_aplicable?:
+            | Database["public"]["Enums"]["categoria_candidato"]
+            | null
+          creado_en?: string
+          creado_por?: string | null
+          id?: string
+          nombre: string
+          tipo?: Database["public"]["Enums"]["tipo_campo_personalizado"]
+        }
+        Update: {
+          categoria_aplicable?:
+            | Database["public"]["Enums"]["categoria_candidato"]
+            | null
+          creado_en?: string
+          creado_por?: string | null
+          id?: string
+          nombre?: string
+          tipo?: Database["public"]["Enums"]["tipo_campo_personalizado"]
+        }
+        Relationships: []
+      }
+      candidato_campos_valor: {
+        Row: {
+          campo_id: string
+          candidato_id: string
+          creado_en: string
+          valor: string | null
+        }
+        Insert: {
+          campo_id: string
+          candidato_id: string
+          creado_en?: string
+          valor?: string | null
+        }
+        Update: {
+          campo_id?: string
+          candidato_id?: string
+          creado_en?: string
+          valor?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidato_campos_valor_campo_id_fkey"
+            columns: ["campo_id"]
+            isOneToOne: false
+            referencedRelation: "campos_personalizados"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidato_campos_valor_candidato_id_fkey"
+            columns: ["candidato_id"]
+            isOneToOne: false
+            referencedRelation: "candidatos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       candidatos: {
         Row: {
           actualizado_en: string
@@ -170,6 +284,36 @@ export type Database = {
         }
         Relationships: []
       }
+      clientes: {
+        Row: {
+          condiciones: string | null
+          contactos: Json
+          creado_en: string
+          id: string
+          plantilla_dossier: Json
+          razon_social: string
+          sector: string | null
+        }
+        Insert: {
+          condiciones?: string | null
+          contactos?: Json
+          creado_en?: string
+          id?: string
+          plantilla_dossier?: Json
+          razon_social: string
+          sector?: string | null
+        }
+        Update: {
+          condiciones?: string | null
+          contactos?: Json
+          creado_en?: string
+          id?: string
+          plantilla_dossier?: Json
+          razon_social?: string
+          sector?: string | null
+        }
+        Relationships: []
+      }
       proyecto_candidatos: {
         Row: {
           candidato_id: string
@@ -245,6 +389,50 @@ export type Database = {
         }
         Relationships: []
       }
+      solicitudes_proyecto: {
+        Row: {
+          categoria: Database["public"]["Enums"]["categoria_candidato"]
+          cliente_id: string
+          descripcion: string | null
+          estado: Database["public"]["Enums"]["estado_solicitud_proyecto"]
+          fecha_necesaria: string | null
+          id: string
+          nombre_proyecto: string
+          num_candidatos_aprox: number | null
+          recibida_en: string
+        }
+        Insert: {
+          categoria: Database["public"]["Enums"]["categoria_candidato"]
+          cliente_id: string
+          descripcion?: string | null
+          estado?: Database["public"]["Enums"]["estado_solicitud_proyecto"]
+          fecha_necesaria?: string | null
+          id?: string
+          nombre_proyecto: string
+          num_candidatos_aprox?: number | null
+          recibida_en?: string
+        }
+        Update: {
+          categoria?: Database["public"]["Enums"]["categoria_candidato"]
+          cliente_id?: string
+          descripcion?: string | null
+          estado?: Database["public"]["Enums"]["estado_solicitud_proyecto"]
+          fecha_necesaria?: string | null
+          id?: string
+          nombre_proyecto?: string
+          num_candidatos_aprox?: number | null
+          recibida_en?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solicitudes_proyecto_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       usuarios: {
         Row: {
           cliente_id: string | null
@@ -282,6 +470,7 @@ export type Database = {
     Functions: {
       es_admin: { Args: { _user_id: string }; Returns: boolean }
       es_staff: { Args: { _user_id: string }; Returns: boolean }
+      mi_cliente_id: { Args: never; Returns: string }
       obtener_rol: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["rol_usuario"]
@@ -296,8 +485,10 @@ export type Database = {
     }
     Enums: {
       categoria_candidato: "actor" | "modelo" | "figurante" | "casting_plus"
+      estado_acceso_invitado: "activo" | "caducado"
       estado_proyecto: "borrador" | "en_curso" | "cerrado"
       estado_proyecto_candidato: "preseleccionado" | "enviado" | "contratado"
+      estado_solicitud_proyecto: "pendiente" | "revisada" | "convertida"
       origen_proyecto_candidato: "manual" | "web_directa"
       rol_usuario:
         | "superadmin"
@@ -305,6 +496,7 @@ export type Database = {
         | "coordinador"
         | "validador"
         | "cliente"
+      tipo_campo_personalizado: "texto" | "numero"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -433,8 +625,10 @@ export const Constants = {
   public: {
     Enums: {
       categoria_candidato: ["actor", "modelo", "figurante", "casting_plus"],
+      estado_acceso_invitado: ["activo", "caducado"],
       estado_proyecto: ["borrador", "en_curso", "cerrado"],
       estado_proyecto_candidato: ["preseleccionado", "enviado", "contratado"],
+      estado_solicitud_proyecto: ["pendiente", "revisada", "convertida"],
       origen_proyecto_candidato: ["manual", "web_directa"],
       rol_usuario: [
         "superadmin",
@@ -443,6 +637,7 @@ export const Constants = {
         "validador",
         "cliente",
       ],
+      tipo_campo_personalizado: ["texto", "numero"],
     },
   },
 } as const

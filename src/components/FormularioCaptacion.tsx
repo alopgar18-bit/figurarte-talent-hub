@@ -60,7 +60,12 @@ export function FormularioCaptacion({
   const [email, setEmail] = useState("");
   const [ciudad, setCiudad] = useState("");
   const [rgpd, setRgpd] = useState(false);
-  const [archivos, setArchivos] = useState<Record<string, File | null>>({});
+  const [archivos, setArchivos] = useState<
+    Record<string, { file: File; area: AreaRecorte; preview: string } | undefined>
+  >({});
+  const [recortando, setRecortando] = useState<
+    { clave: string; etiqueta: string; file: File } | null
+  >(null);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [duplicado, setDuplicado] = useState(false);
@@ -80,15 +85,17 @@ export function FormularioCaptacion({
     setEnviando(true);
     try {
       const rutas: string[] = [];
+      const recortes: Record<string, AreaRecorte> = {};
       for (const ranura of RANURAS_FOTO) {
-        const file = archivos[ranura.clave];
-        if (!file) continue;
-        const path = rutaAleatoria(file);
+        const entrada = archivos[ranura.clave];
+        if (!entrada) continue;
+        const path = rutaAleatoria(entrada.file);
         const { error: upErr } = await supabase.storage
           .from("candidatos-fotos")
-          .upload(path, file, { upsert: false });
+          .upload(path, entrada.file, { upsert: false });
         if (upErr) throw new Error("No se pudieron subir las fotos. Inténtalo de nuevo.");
         rutas.push(path);
+        recortes[path] = entrada.area;
       }
 
       const res = await enviar({

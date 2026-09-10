@@ -31,10 +31,10 @@ const RANURAS_FOTO = [
 ] as const;
 
 type Props = {
-  categoriaInicial?: CategoriaCandidato;
+  categoriaInicial?: CategoriaCandidato | undefined;
   /** Variante casting: muestra el aviso y asocia al proyecto */
-  proyectoId?: string;
-  nombreCasting?: string;
+  proyectoId?: string | undefined;
+  nombreCasting?: string | undefined;
 };
 
 function rutaAleatoria(file: File) {

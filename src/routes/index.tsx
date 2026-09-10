@@ -85,6 +85,7 @@ export const Route = createFileRoute("/")({
 const categorias = [
   {
     icon: Users,
+    categoria: "figurante" as const,
     titulo: "Figurantes",
     texto:
       "Participa como extra en series, películas y producciones audiovisuales. Regístrate en nuestra base de datos.",

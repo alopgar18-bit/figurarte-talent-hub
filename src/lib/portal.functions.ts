@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { plantillaEmail } from "@/lib/email-layout";
 
 export type CandidatoPortal = {
   id: string;
@@ -170,18 +171,17 @@ Ya está disponible en la bandeja de solicitudes pendientes del dashboard del pa
 
 — FIGURARTE · Agencia de casting & producción`;
 
-    const html = `
-      <p>Nueva solicitud de proyecto recibida en el portal de cliente.</p>
-      <ul>
+    const html = plantillaEmail(`
+      <p style="margin:0 0 16px;">Nueva solicitud de proyecto recibida en el portal de cliente.</p>
+      <ul style="margin:0 0 16px;padding-left:20px;">
         <li><strong>Cliente:</strong> ${datos.razonSocial}</li>
         <li><strong>Proyecto solicitado:</strong> ${datos.nombreProyecto}</li>
         <li><strong>Categoría:</strong> ${categoria}</li>
         <li><strong>Nº aproximado de candidatos:</strong> ${numero}</li>
         <li><strong>Fecha necesaria:</strong> ${fecha}</li>
       </ul>
-      <p>Ya está disponible en la bandeja de solicitudes pendientes del dashboard del panel.</p>
-      <p>— FIGURARTE · Agencia de casting &amp; producción</p>
-    `.trim();
+      <p style="margin:0;">Ya está disponible en la bandeja de solicitudes pendientes del dashboard del panel.</p>
+    `.trim());
 
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",

@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { plantillaEmail, botonEmail } from "@/lib/email-layout";
 
 export const TEXTO_CESION =
   "Acepto la cesión de mis datos y fotografías para su presentación a clientes de FIGURARTE, según la política de privacidad.";
@@ -43,11 +44,11 @@ Entra en tu área de candidato para darla: ${enlace}
 
 — FIGURARTE · Agencia de casting & producción`;
 
-    const html = `
-      <p>Hola ${nombre}, tu perfil podría presentarte a nuevas oportunidades, pero para poder hacerlo antes necesitamos tu autorización de cesión de imagen.</p>
-      <p>Entra en tu área de candidato para darla: <a href="${enlace}">${enlace}</a></p>
-      <p>— FIGURARTE · Agencia de casting &amp; producción</p>
-    `.trim();
+    const html = plantillaEmail(`
+      <p style="margin:0 0 16px;">Hola ${nombre}, tu perfil podría presentarte a nuevas oportunidades, pero para poder hacerlo antes necesitamos tu autorización de cesión de imagen.</p>
+      <p style="margin:0;">Entra en tu área de candidato para darla:</p>
+      ${botonEmail("Dar mi autorización", enlace)}
+    `.trim());
 
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",

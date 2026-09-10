@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
+import { plantillaEmail, botonEmail } from "@/lib/email-layout";
 
 const candidaturaSchema = z.object({
   nombre: z.string().trim().min(2, "Nombre demasiado corto").max(120),

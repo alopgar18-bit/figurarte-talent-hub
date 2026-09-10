@@ -159,6 +159,8 @@ export function FichaCandidato({ id }: { id: string }) {
   const [dialogoBorrado, setDialogoBorrado] = useState(false);
   const [confirmacion, setConfirmacion] = useState("");
   const [borrando, setBorrando] = useState(false);
+  const [vestuario, setVestuario] = useState<Record<string, string>>({});
+  const [guardandoVestuario, setGuardandoVestuario] = useState(false);
 
   async function confirmarBorrado() {
     setBorrando(true);
@@ -198,7 +200,14 @@ export function FichaCandidato({ id }: { id: string }) {
       if (!resultado.candidato) {
         setNoEncontrado(true);
       } else {
-        setCandidato(resultado.candidato as CandidatoCompleto);
+        const ficha = resultado.candidato as CandidatoCompleto;
+        setCandidato(ficha);
+        const inicial: Record<string, string> = {};
+        for (const { clave } of CAMPOS_VESTUARIO) {
+          const v = ficha[clave];
+          inicial[clave] = typeof v === "string" ? v : "";
+        }
+        setVestuario(inicial);
         setCastings((resultado.castings as CastingAsociado[] | null) ?? []);
       }
       setCargando(false);

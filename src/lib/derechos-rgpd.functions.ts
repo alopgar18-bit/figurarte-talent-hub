@@ -47,7 +47,9 @@ export const obtenerMisDatos = createServerFn({ method: "POST" })
     };
   });
 
-export type { ResultadoBorrado } from "@/lib/derechos-rgpd.server";
+import type { ResultadoBorrado } from "@/lib/derechos-rgpd.server";
+export type { ResultadoBorrado };
+
 
 
 const entradaConfirmacion = z.object({
@@ -67,7 +69,9 @@ export const eliminarMisDatos = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!candidato) return { estado: "error", mensaje: "No hemos encontrado tu ficha." };
 
+    const { borrarCandidatoCompleto } = await import("@/lib/derechos-rgpd.server");
     const resultado = await borrarCandidatoCompleto(supabaseAdmin, candidato.id);
+
     if (resultado.estado === "ok") {
       const { anotarAcceso } = await import("@/lib/registro-accesos.server");
       await anotarAcceso(supabaseAdmin, {
@@ -95,7 +99,9 @@ export const eliminarCandidatoStaff = createServerFn({ method: "POST" })
     if (!esStaff) throw new Error("Forbidden");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { borrarCandidatoCompleto } = await import("@/lib/derechos-rgpd.server");
     const resultado = await borrarCandidatoCompleto(supabaseAdmin, data.candidatoId);
+
     if (resultado.estado === "ok") {
       const { anotarAcceso } = await import("@/lib/registro-accesos.server");
       await anotarAcceso(supabaseAdmin, {

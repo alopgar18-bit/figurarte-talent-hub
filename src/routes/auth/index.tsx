@@ -71,7 +71,9 @@ function AuthPage() {
             <p className="text-sm text-foreground">
               {motivo === "panel"
                 ? "El panel interno es solo para el equipo de FigurArte. Entra con tu email del equipo para continuar."
-                : "El portal de cliente es solo para clientes de FigurArte."}
+                : motivo === "candidato"
+                  ? "Esta área es solo para candidatos registrados."
+                  : "El portal de cliente es solo para clientes de FigurArte."}
             </p>
           </div>
         )}

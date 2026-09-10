@@ -622,6 +622,20 @@ export type Database = {
     Functions: {
       es_admin: { Args: { _user_id: string }; Returns: boolean }
       es_staff: { Args: { _user_id: string }; Returns: boolean }
+      fn_datos_publicos_candidato: {
+        Args: { ids: string[] }
+        Returns: {
+          altura_cm: number
+          categoria: Database["public"]["Enums"]["categoria_candidato"]
+          codigo: string
+          edad: number
+          fotos: string[]
+          id: string
+          nombre: string
+          peso_kg: number
+          provincia: string
+        }[]
+      }
       mi_cliente_id: { Args: never; Returns: string }
       obtener_rol: {
         Args: { _user_id: string }

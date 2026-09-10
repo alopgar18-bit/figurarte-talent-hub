@@ -80,10 +80,24 @@ export const obtenerDossierPublico = createServerFn({ method: "GET" })
     const ids = (dossier.candidatos_incluidos ?? []) as string[];
     if (ids.length === 0) return base;
 
-    const { data: candidatos } = await supabaseAdmin
-      .from("candidatos")
-      .select("id,codigo,nombre,categoria,edad,provincia,altura_cm,peso_kg,fotos")
-      .in("id", ids);
+    // Backstop de privacidad: esta función SQL solo puede devolver los campos
+    // no identificativos autorizados para un dossier público.
+    const { data: candidatos, error: errorCandidatos } = await supabaseAdmin.rpc(
+      "fn_datos_publicos_candidato",
+      { ids },
+    );
+    if (errorCandidatos) {
+      console.error("[dossier] No se pudieron cargar los candidatos públicos:", errorCandidatos);
+      throw new Error("No se pudo cargar el dossier.");
+    }
+
+    const { firmarFotosPrivadas } = await import("@/lib/fotos.server");
+    const candidatosConFotos = await Promise.all(
+      (candidatos ?? []).map(async (c) => ({
+        ...c,
+        fotos: await firmarFotosPrivadas(supabaseAdmin, c.fotos),
+      })),
+    );
 
     const camposActivados = (proyecto?.campos_personalizados_activados ?? []) as string[];
     const nombresCampo: Record<string, string> = {};
@@ -110,7 +124,7 @@ export const obtenerDossierPublico = createServerFn({ method: "GET" })
       }
     }
 
-    const porId = new Map((candidatos ?? []).map((c) => [c.id, c]));
+    const porId = new Map(candidatosConFotos.map((c) => [c.id, c]));
     base.candidatos = ids
       .map((id) => porId.get(id))
       .filter((c): c is NonNullable<typeof c> => !!c)

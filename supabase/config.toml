@@ -1,1 +1,6 @@
 project_id = "eexciyzalqwejzyvqbsu"
+
+[storage.buckets.candidatos-fotos]
+public = false
+file_size_limit = "10MB"
+allowed_mime_types = ["image/jpeg", "image/png", "image/webp", "image/heic"]

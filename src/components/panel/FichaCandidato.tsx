@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import {
   CalendarDays,
   ImageIcon,
@@ -12,6 +13,7 @@ import {
   User,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { obtenerFichaCandidatoStaff } from "@/lib/ficha-candidato.functions";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -50,7 +52,8 @@ export const ETIQUETA_CATEGORIA: Record<string, string> = {
 
 const COLOR_CATEGORIA: Record<string, string> = {
   actor: "bg-primary/15 text-primary border-primary/30",
-  modelo: "bg-[oklch(0.35_0.15_270_/_0.15)] text-[oklch(0.42_0.17_270)] border-[oklch(0.42_0.17_270_/_0.3)]",
+  modelo:
+    "bg-[oklch(0.35_0.15_270_/_0.15)] text-[oklch(0.42_0.17_270)] border-[oklch(0.42_0.17_270_/_0.3)]",
   figurante: "bg-muted text-foreground border-border",
   casting_plus: "bg-accent text-accent-foreground border-border",
 };
@@ -124,6 +127,7 @@ function Dato({
 }
 
 export function FichaCandidato({ id }: { id: string }) {
+  const obtenerFicha = useServerFn(obtenerFichaCandidatoStaff);
   const [candidato, setCandidato] = useState<CandidatoCompleto | null>(null);
   const [castings, setCastings] = useState<CastingAsociado[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -134,27 +138,29 @@ export function FichaCandidato({ id }: { id: string }) {
     let activo = true;
     (async () => {
       setCargando(true);
-      const [{ data: c, error }, { data: pcs }] = await Promise.all([
-        supabase.from("candidatos").select("*").eq("id", id).maybeSingle(),
-        supabase
-          .from("proyecto_candidatos")
-          .select("estado, origen, creado_en, proyectos_casting(nombre)")
-          .eq("candidato_id", id)
-          .order("creado_en", { ascending: false }),
-      ]);
+      let resultado;
+      try {
+        resultado = await obtenerFicha({ data: { id } });
+      } catch {
+        if (activo) {
+          setNoEncontrado(true);
+          setCargando(false);
+        }
+        return;
+      }
       if (!activo) return;
-      if (error || !c) {
+      if (!resultado.candidato) {
         setNoEncontrado(true);
       } else {
-        setCandidato(c as CandidatoCompleto);
-        setCastings((pcs as CastingAsociado[] | null) ?? []);
+        setCandidato(resultado.candidato as CandidatoCompleto);
+        setCastings((resultado.castings as CastingAsociado[] | null) ?? []);
       }
       setCargando(false);
     })();
     return () => {
       activo = false;
     };
-  }, [id]);
+  }, [id, obtenerFicha]);
 
   async function cambiarDisponible(valor: boolean) {
     if (!candidato) return;
@@ -223,7 +229,8 @@ export function FichaCandidato({ id }: { id: string }) {
           <h2 className="text-2xl font-bold tracking-tight">{nombreCompleto}</h2>
           <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <MapPin className="h-4 w-4" />
-            {[candidato.ciudad, candidato.provincia].filter(Boolean).join(", ") || "Ubicación sin indicar"}
+            {[candidato.ciudad, candidato.provincia].filter(Boolean).join(", ") ||
+              "Ubicación sin indicar"}
           </p>
         </div>
         <div className="flex items-center gap-3 rounded-md border bg-card px-4 py-3">
@@ -248,9 +255,21 @@ export function FichaCandidato({ id }: { id: string }) {
           <CardTitle className="text-base">Datos y medidas</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          <Dato icono={Ruler} etiqueta="Altura" valor={candidato.altura_cm ? `${candidato.altura_cm} cm` : null} />
-          <Dato icono={Weight} etiqueta="Peso" valor={candidato.peso_kg ? `${candidato.peso_kg} kg` : null} />
-          <Dato icono={User} etiqueta="Edad" valor={candidato.edad ? `${candidato.edad} años` : null} />
+          <Dato
+            icono={Ruler}
+            etiqueta="Altura"
+            valor={candidato.altura_cm ? `${candidato.altura_cm} cm` : null}
+          />
+          <Dato
+            icono={Weight}
+            etiqueta="Peso"
+            valor={candidato.peso_kg ? `${candidato.peso_kg} kg` : null}
+          />
+          <Dato
+            icono={User}
+            etiqueta="Edad"
+            valor={candidato.edad ? `${candidato.edad} años` : null}
+          />
           <Dato icono={Mail} etiqueta="Email" valor={candidato.email} />
           <Dato icono={Phone} etiqueta="Teléfono" valor={candidato.telefono} />
           <Dato icono={MapPin} etiqueta="Ciudad" valor={candidato.ciudad} />

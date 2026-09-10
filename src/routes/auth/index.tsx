@@ -6,12 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/auth/")({
-  validateSearch: (search: Record<string, unknown>): { motivo?: "panel" | "portal" } =>
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { motivo?: "panel" | "portal" | "candidato" } =>
     search["motivo"] === "panel"
       ? { motivo: "panel" }
       : search["motivo"] === "portal"
         ? { motivo: "portal" }
-        : {},
+        : search["motivo"] === "candidato"
+          ? { motivo: "candidato" }
+          : {},
 
   head: () => ({
     meta: [
@@ -67,7 +71,9 @@ function AuthPage() {
             <p className="text-sm text-foreground">
               {motivo === "panel"
                 ? "El panel interno es solo para el equipo de FigurArte. Entra con tu email del equipo para continuar."
-                : "El portal de cliente es solo para clientes de FigurArte."}
+                : motivo === "candidato"
+                  ? "Esta área es solo para candidatos registrados."
+                  : "El portal de cliente es solo para clientes de FigurArte."}
             </p>
           </div>
         )}

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,6 +38,7 @@ const ETIQUETAS_ROL: Record<string, string> = {
 };
 
 function CallbackPage() {
+  const navegar = useNavigate();
   const resolver = useServerFn(resolverAcceso);
   const inscribir = useServerFn(inscribirEnCasting);
   const { proyecto_id: proyectoId } = Route.useSearch();
@@ -71,6 +72,11 @@ function CallbackPage() {
           }
         }
         if (cancelado) return;
+        // Sin casting de por medio, el candidato va directo a su ficha.
+        if (resultado.tipo === "candidato" && !proyectoId) {
+          void navegar({ to: "/candidato", replace: true });
+          return;
+        }
         setEstado("listo");
       } catch {
         if (!cancelado) setEstado("error");
@@ -159,13 +165,12 @@ function CallbackPage() {
                   </>
                 ) : (
                   <>
-                    Has entrado como candidato: <strong>{acceso.nombre}</strong>. Tu ficha se
-                    construirá en el siguiente paso.
+                    Has entrado como candidato: <strong>{acceso.nombre}</strong>.
                   </>
                 )}
               </p>
-              <Button asChild variant="outline" className="mt-4 w-full">
-                <Link to="/">Ir al inicio</Link>
+              <Button asChild className="mt-4 w-full">
+                <Link to="/candidato">Ir a mi ficha</Link>
               </Button>
             </>
           )}

@@ -96,6 +96,43 @@ export const obtenerSesionStaff = createServerFn({ method: "POST" })
     return { esStaff: true, rol: usuario.rol, email: usuario.email };
   });
 
+export type SesionCandidato =
+  | { esCandidato: true; candidatoId: string; codigo: string; nombre: string }
+  | { esCandidato: false };
+
+/**
+ * Resuelve si la sesión actual pertenece a un candidato vinculado por user_id.
+ */
+export const obtenerSesionCandidato = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<SesionCandidato> => {
+    const { userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Un miembro del equipo o un cliente nunca entra al área de candidato.
+    const { data: usuario } = await supabaseAdmin
+      .from("usuarios")
+      .select("id")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (usuario) return { esCandidato: false };
+
+    const { data: candidato } = await supabaseAdmin
+      .from("candidatos")
+      .select("id, codigo, nombre")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (!candidato) return { esCandidato: false };
+
+    return {
+      esCandidato: true,
+      candidatoId: candidato.id,
+      codigo: candidato.codigo,
+      nombre: candidato.nombre,
+    };
+  });
+
 export type SesionCliente =
   | { esCliente: true; clienteId: string; razonSocial: string; email: string }
   | { esCliente: false };

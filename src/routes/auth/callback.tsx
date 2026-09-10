@@ -165,13 +165,12 @@ function CallbackPage() {
                   </>
                 ) : (
                   <>
-                    Has entrado como candidato: <strong>{acceso.nombre}</strong>. Tu ficha se
-                    construirá en el siguiente paso.
+                    Has entrado como candidato: <strong>{acceso.nombre}</strong>.
                   </>
                 )}
               </p>
-              <Button asChild variant="outline" className="mt-4 w-full">
-                <Link to="/">Ir al inicio</Link>
+              <Button asChild className="mt-4 w-full">
+                <Link to="/candidato">Ir a mi ficha</Link>
               </Button>
             </>
           )}

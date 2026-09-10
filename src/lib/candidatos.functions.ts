@@ -11,6 +11,18 @@ const candidaturaSchema = z.object({
   peso_kg: z.number().int().min(20).max(300).nullable().optional(),
   ciudad: z.string().trim().max(120).nullable().optional(),
   fotos: z.array(z.string().max(300)).max(3).optional(),
+  fotos_recorte: z
+    .record(
+      z.string().max(300),
+      z.object({
+        x: z.number(),
+        y: z.number(),
+        width: z.number(),
+        height: z.number(),
+      }),
+    )
+    .nullable()
+    .optional(),
   proyecto_id: z.string().uuid().nullable().optional(),
 });
 

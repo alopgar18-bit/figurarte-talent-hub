@@ -377,15 +377,6 @@ export function FormularioCaptacion({
         </Label>
       </div>
 
-      {duplicado && (
-        <div className="rounded-md border border-primary/40 bg-primary/10 p-4 text-sm">
-          Ya tienes una ficha con este email. Accede con tu enlace mágico en{" "}
-          <Link to="/auth" className="font-semibold text-primary underline">
-            /auth
-          </Link>{" "}
-          para verla o actualizarla.
-        </div>
-      )}
 
       {error && (
         <div className="rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">

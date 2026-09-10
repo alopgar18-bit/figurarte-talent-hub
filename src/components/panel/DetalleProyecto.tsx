@@ -490,9 +490,33 @@ export function DetalleProyecto({ id }: { id: string }) {
                 ))}
               </SelectContent>
             </Select>
-            <Button variant="outline" disabled title="Próximamente">
-              <FileText className="mr-2 h-4 w-4" /> Generar dossier
-            </Button>
+            {dossier?.slug_publico ? (
+              <div className="flex flex-col gap-1 sm:items-end">
+                <div className="flex gap-2">
+                  <Button variant="outline" asChild>
+                    <a
+                      href={`/dossier/${dossier.slug_publico}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <FileText className="mr-2 h-4 w-4" /> Ver dossier
+                    </a>
+                  </Button>
+                  <Button variant="ghost" onClick={abrirDialogoDossier}>
+                    Regenerar
+                  </Button>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {dossier.fecha_caducidad
+                    ? `Caduca el ${new Date(dossier.fecha_caducidad).toLocaleDateString("es-ES")}`
+                    : "Sin caducidad"}
+                </span>
+              </div>
+            ) : (
+              <Button variant="outline" onClick={abrirDialogoDossier}>
+                <FileText className="mr-2 h-4 w-4" /> Generar dossier
+              </Button>
+            )}
           </div>
         </div>
 

@@ -108,6 +108,7 @@ export function FormularioCaptacion({
           altura_cm: altura ? Number(altura) : null,
           peso_kg: peso ? Number(peso) : null,
           fotos: rutas,
+          fotos_recorte: Object.keys(recortes).length ? recortes : null,
           consentimiento_rgpd: true,
           proyecto_id: proyectoId ?? null,
         },
@@ -135,6 +136,11 @@ export function FormularioCaptacion({
         <p className="mt-2 text-muted-foreground">
           En breve revisamos tu perfil. Tu referencia es{" "}
           <span className="font-semibold text-foreground">{exito}</span>.
+        </p>
+        <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
+          Termina de completar tu perfil cuando quieras entrando en tu área de
+          candidato: apellidos, datos físicos, habilidades e idiomas ayudan a que
+          te encontremos para más castings.
         </p>
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
           <Button asChild>

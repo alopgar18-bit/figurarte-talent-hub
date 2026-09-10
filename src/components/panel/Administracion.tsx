@@ -22,6 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ETIQUETAS_ROL } from "@/components/panel/PanelShell";
+import { RegistroAccesos } from "@/components/panel/RegistroAccesos";
+
 import type { Database } from "@/integrations/supabase/types";
 
 type RolUsuario = Database["public"]["Enums"]["rol_usuario"];
@@ -372,6 +374,10 @@ export function Administracion({ rol, email }: { rol: string; email: string }) {
           </table>
         </div>
       </section>
+
+      <RegistroAccesos />
+
+
 
       {/* Diálogo invitar usuario */}
       <Dialog open={dialogoUsuario} onOpenChange={setDialogoUsuario}>

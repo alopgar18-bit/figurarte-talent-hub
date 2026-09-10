@@ -114,8 +114,7 @@ export function FormularioCaptacion({
   >(null);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [duplicado, setDuplicado] = useState(false);
-  const [exito, setExito] = useState<string | null>(null);
+  const [exito, setExito] = useState<{ avisoCasting: boolean } | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

@@ -272,23 +272,26 @@ export function DetalleProyecto({ id }: { id: string }) {
       setProyecto(p);
       setNombre(p.nombre);
       setBrief((p.brief_publico ?? {}) as Brief);
+      let fallo: string | null = null;
       if (p.cliente_id) {
-        const { data: cli } = await supabase
+        const { data: cli, error: errCli } = await supabase
           .from("clientes")
           .select("razon_social")
           .eq("id", p.cliente_id)
           .maybeSingle();
+        if (errCli) fallo = "No se pudo cargar el cliente del proyecto. Reintenta.";
         if (activo) setClienteNombre(cli?.razon_social ?? null);
       }
-      const { data: cp } = await supabase
+      const { data: cp, error: errCampos } = await supabase
         .from("campos_personalizados")
         .select("id,nombre,tipo,categoria_aplicable")
         .order("nombre");
+      if (errCampos) fallo = "No se pudieron cargar los campos personalizados. Reintenta.";
       if (activo) setCampos((cp ?? []) as CampoPersonalizado[]);
       await cargarAsociaciones();
       await cargarDossier();
       if (activo) {
-        setError(null);
+        setError(fallo);
         setCargando(false);
       }
     })();

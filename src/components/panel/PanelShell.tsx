@@ -27,10 +27,10 @@ export const ETIQUETAS_ROL: Record<string, string> = {
 type Enlace = { titulo: string; ruta: string; icono: typeof Users };
 
 const OPERATIVA: Enlace[] = [
+  { titulo: "Dashboard", ruta: "/panel/dashboard", icono: LayoutDashboard },
   { titulo: "Candidatos", ruta: "/panel/candidatos", icono: Users },
   { titulo: "Proyectos / Casting", ruta: "/panel/proyectos", icono: Clapperboard },
   { titulo: "Captación RRSS", ruta: "/panel/captacion", icono: Megaphone },
-  { titulo: "Dashboard", ruta: "/panel/dashboard", icono: LayoutDashboard },
 ];
 
 const ADMINISTRACION: Enlace[] = [

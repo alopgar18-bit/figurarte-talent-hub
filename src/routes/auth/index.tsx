@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/auth/")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    motivo: search["motivo"] === "panel" ? ("panel" as const) : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Acceder | FigurArte.es" },

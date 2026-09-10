@@ -56,14 +56,13 @@ async function enviarConfirmacionResend({
   const origin = `https://${host}`;
   const authUrl = `${origin}/auth`;
 
-  const html = `
-    <p>Hola ${nombre},</p>
-    <p>Gracias por registrarte en <strong>FigurArte</strong>. Hemos recibido tu candidatura y ya formas parte de nuestra base de talentos.</p>
-    <p>Tu código de referencia es: <strong>${codigo}</strong></p>
-    <p>Te animamos a completar tu perfil (apellidos, datos físicos, habilidades, idiomas y redes) desde tu área de candidato para que podamos tenerte en cuenta en futuros castings.</p>
-    <p>Puedes entrar aquí cuando quieras: <a href="${authUrl}">${authUrl}</a></p>
-    <p>— FIGURARTE · Agencia de casting & producción</p>
-  `.trim();
+  const html = plantillaEmail(`
+    <p style="margin:0 0 16px;">Hola ${nombre},</p>
+    <p style="margin:0 0 16px;">Gracias por registrarte en <strong>FigurArte</strong>. Hemos recibido tu candidatura y ya formas parte de nuestra base de talentos.</p>
+    <p style="margin:0 0 16px;">Tu código de referencia es: <strong>${codigo}</strong></p>
+    <p style="margin:0 0 16px;">Te animamos a completar tu perfil (apellidos, datos físicos, habilidades, idiomas y redes) desde tu área de candidato para que podamos tenerte en cuenta en futuros castings.</p>
+    ${botonEmail("Entrar en mi área de candidato", authUrl)}
+  `.trim());
 
   const text = `Hola ${nombre},
 

@@ -77,6 +77,18 @@ function CallbackPage() {
           void navegar({ to: "/candidato", replace: true });
           return;
         }
+        // Staff y clientes van directos a su área.
+        if (resultado.tipo === "usuario") {
+          const esStaff = (ROLES_STAFF as readonly string[]).includes(resultado.rol);
+          if (esStaff) {
+            void navegar({ to: "/panel", replace: true });
+            return;
+          }
+          if (resultado.rol === "cliente") {
+            void navegar({ to: "/portal", replace: true });
+            return;
+          }
+        }
         setEstado("listo");
       } catch {
         if (!cancelado) setEstado("error");

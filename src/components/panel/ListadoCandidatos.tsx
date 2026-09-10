@@ -47,7 +47,16 @@ type Candidato = Record<string, unknown> & {
 
 type Proyecto = { id: string; nombre: string; creado_en: string };
 
-type ColumnaId = "codigo" | "nombre" | "categoria" | "altura_cm" | "ciudad" | "disponible" | "provincia" | "edad";
+type ColumnaId =
+  | "codigo"
+  | "nombre"
+  | "categoria"
+  | "altura_cm"
+  | "ciudad"
+  | "disponible"
+  | "antiguedad"
+  | "provincia"
+  | "edad";
 
 const COLUMNAS: { id: ColumnaId; etiqueta: string; pordefecto: boolean }[] = [
   { id: "codigo", etiqueta: "Código", pordefecto: true },
@@ -56,6 +65,7 @@ const COLUMNAS: { id: ColumnaId; etiqueta: string; pordefecto: boolean }[] = [
   { id: "altura_cm", etiqueta: "Altura", pordefecto: true },
   { id: "ciudad", etiqueta: "Ciudad", pordefecto: true },
   { id: "disponible", etiqueta: "Disponible", pordefecto: true },
+  { id: "antiguedad", etiqueta: "En la base desde", pordefecto: true },
   { id: "provincia", etiqueta: "Provincia", pordefecto: false },
   { id: "edad", etiqueta: "Edad", pordefecto: false },
 ];
@@ -78,6 +88,19 @@ function hoy() {
   return new Date().toISOString().slice(0, 10);
 }
 
+/** Tiempo transcurrido desde el alta, para vigilar la retención de datos. */
+function antiguedad(valor: unknown): string {
+  if (typeof valor !== "string") return "—";
+  const alta = new Date(valor);
+  if (Number.isNaN(alta.getTime())) return "—";
+  const dias = Math.floor((Date.now() - alta.getTime()) / 86400000);
+  if (dias < 1) return "Hoy";
+  if (dias < 30) return `${dias} día${dias === 1 ? "" : "s"}`;
+  const meses = Math.floor(dias / 30);
+  if (meses < 24) return `${meses} mes${meses === 1 ? "" : "es"}`;
+  return `${Math.floor(dias / 365)} años`;
+}
+
 function valorCelda(c: Candidato, col: ColumnaId) {
   switch (col) {
     case "categoria":
@@ -86,10 +109,13 @@ function valorCelda(c: Candidato, col: ColumnaId) {
       return c.altura_cm ? `${c.altura_cm} cm` : "—";
     case "disponible":
       return c.disponible ? "Sí" : "No";
+    case "antiguedad":
+      return antiguedad(c["creado_en"]);
     default:
       return (c[col] as string | number | null) ?? "—";
   }
 }
+
 
 export function ListadoCandidatos() {
   const navigate = useNavigate();

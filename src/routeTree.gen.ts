@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CandidatoRouteRouteImport } from './routes/candidato/route'
 import { Route as PanelRouteRouteImport } from './routes/panel/route'
 import { Route as PortalRouteRouteImport } from './routes/portal/route'
 import { Route as RegistroRouteImport } from './routes/registro'
@@ -38,6 +39,11 @@ import { Route as PanelProyectosIdRouteImport } from './routes/panel/proyectos/$
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CandidatoRouteRoute = CandidatoRouteRouteImport.update({
+  id: '/candidato',
+  path: '/candidato',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PanelRouteRoute = PanelRouteRouteImport.update({
@@ -163,6 +169,7 @@ const PanelProyectosIdRoute = PanelProyectosIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/candidato': typeof CandidatoRouteRoute
   '/panel': typeof PanelRouteRouteWithChildren
   '/portal': typeof PortalRouteRouteWithChildren
   '/registro': typeof RegistroRoute
@@ -190,6 +197,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/candidato': typeof CandidatoRouteRoute
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/c/$codigo': typeof CCodigoRoute
@@ -216,6 +224,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/candidato': typeof CandidatoRouteRoute
   '/panel': typeof PanelRouteRouteWithChildren
   '/portal': typeof PortalRouteRouteWithChildren
   '/registro': typeof RegistroRoute
@@ -245,6 +254,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/candidato'
     | '/panel'
     | '/portal'
     | '/registro'
@@ -272,6 +282,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/candidato'
     | '/registro'
     | '/auth/callback'
     | '/c/$codigo'
@@ -297,6 +308,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/candidato'
     | '/panel'
     | '/portal'
     | '/registro'
@@ -325,6 +337,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CandidatoRouteRoute: typeof CandidatoRouteRoute
   PanelRouteRoute: typeof PanelRouteRouteWithChildren
   PortalRouteRoute: typeof PortalRouteRouteWithChildren
   RegistroRoute: typeof RegistroRoute
@@ -342,6 +355,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/candidato': {
+      id: '/candidato'
+      path: '/candidato'
+      fullPath: '/candidato'
+      preLoaderRoute: typeof CandidatoRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/panel': {
@@ -569,6 +589,7 @@ const PortalRouteRouteWithChildren = PortalRouteRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CandidatoRouteRoute: CandidatoRouteRoute,
   PanelRouteRoute: PanelRouteRouteWithChildren,
   PortalRouteRoute: PortalRouteRouteWithChildren,
   RegistroRoute: RegistroRoute,

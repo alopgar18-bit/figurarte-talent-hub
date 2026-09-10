@@ -29,6 +29,7 @@ export const Route = createFileRoute("/auth/")({
 });
 
 function AuthPage() {
+  const { motivo } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [estado, setEstado] = useState<"idle" | "enviando" | "enviado">("idle");
   const [error, setError] = useState<string | null>(null);

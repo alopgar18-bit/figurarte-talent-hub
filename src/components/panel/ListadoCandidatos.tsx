@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Columns3, Download, FolderPlus, Loader2, Search } from "lucide-react";
+import { Columns3, Download, FolderPlus, Loader2, Search, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -283,6 +283,9 @@ export function ListadoCandidatos() {
         </DropdownMenu>
         <Button variant="outline" onClick={() => setDialogoExport(true)}>
           <Download className="size-4" /> Exportar a Excel
+        </Button>
+        <Button variant="outline" onClick={() => navigate({ to: "/panel/candidatos/importar" })}>
+          <Upload className="size-4" /> Importar candidatos
         </Button>
       </div>
 

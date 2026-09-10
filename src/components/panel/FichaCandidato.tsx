@@ -146,6 +146,31 @@ export function FichaCandidato({ id }: { id: string }) {
   const [cargando, setCargando] = useState(true);
   const [noEncontrado, setNoEncontrado] = useState(false);
   const [guardandoDisponible, setGuardandoDisponible] = useState(false);
+  const navigate = useNavigate();
+  const borrarCandidato = useServerFn(eliminarCandidatoStaff);
+  const [dialogoBorrado, setDialogoBorrado] = useState(false);
+  const [confirmacion, setConfirmacion] = useState("");
+  const [borrando, setBorrando] = useState(false);
+
+  async function confirmarBorrado() {
+    setBorrando(true);
+    try {
+      const res = await borrarCandidato({
+        data: { candidatoId: id, confirmacion: "ELIMINAR" as const },
+      });
+      if (res.estado !== "ok") {
+        toast.error(res.mensaje, { duration: 10000 });
+        setBorrando(false);
+        return;
+      }
+      toast.success("Candidato y todos sus datos eliminados.");
+      void navigate({ to: "/panel/candidatos" });
+    } catch {
+      toast.error("No se pudieron eliminar los datos. Inténtalo de nuevo.");
+      setBorrando(false);
+    }
+  }
+
 
   useEffect(() => {
     let activo = true;

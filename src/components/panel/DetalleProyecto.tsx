@@ -203,7 +203,7 @@ export function DetalleProyecto({ id }: { id: string }) {
     }
     setGenerandoDossier(true);
     const base = [clienteNombre, proyecto?.nombre].filter(Boolean).join(" ");
-    const slug = await generarSlugDossier(base);
+    const slug = generarSlugDossier(base);
     const { data: sesion } = await supabase.auth.getUser();
     const { data, error: errIns } = await supabase
       .from("dossiers")

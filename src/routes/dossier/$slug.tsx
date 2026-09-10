@@ -12,9 +12,12 @@ const CATEGORIA_LABEL: Record<string, string> = {
 };
 
 export const Route = createFileRoute("/dossier/$slug")({
-  loader: async ({ params }): Promise<{ dossier: DossierPublico | null }> => {
-    const dossier = await obtenerDossierPublico({ data: { slug: params.slug } });
-    return { dossier };
+  loader: async ({
+    params,
+  }): Promise<{ dossier: DossierPublico | null; limitado: boolean }> => {
+    const res = await obtenerDossierPublico({ data: { slug: params.slug } });
+    if (res && "limitado" in res) return { dossier: null, limitado: true };
+    return { dossier: res, limitado: false };
   },
   head: ({ loaderData }) => {
     const d = loaderData?.dossier ?? null;

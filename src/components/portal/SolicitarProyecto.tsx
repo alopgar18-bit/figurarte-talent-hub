@@ -52,6 +52,7 @@ export function SolicitarProyecto({ clienteId }: { clienteId: string }) {
 
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [cargando, setCargando] = useState(true);
+  const enviarSolicitud = useServerFn(crearSolicitudProyecto);
 
   async function cargar() {
     const { data } = await supabase

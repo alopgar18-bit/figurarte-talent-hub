@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
+import { Route as CastingSlugRouteImport } from './routes/casting/$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,34 +29,43 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CastingSlugRoute = CastingSlugRouteImport.update({
+  id: '/casting/$slug',
+  path: '/casting/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/casting/$slug': typeof CastingSlugRoute
   '/auth/': typeof AuthIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/casting/$slug': typeof CastingSlugRoute
   '/auth': typeof AuthIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/casting/$slug': typeof CastingSlugRoute
   '/auth/': typeof AuthIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth/callback' | '/auth/'
+  fullPaths: '/' | '/auth/callback' | '/casting/$slug' | '/auth/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth/callback' | '/auth'
-  id: '__root__' | '/' | '/auth/callback' | '/auth/'
+  to: '/' | '/auth/callback' | '/casting/$slug' | '/auth'
+  id: '__root__' | '/' | '/auth/callback' | '/casting/$slug' | '/auth/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  CastingSlugRoute: typeof CastingSlugRoute
   AuthIndexRoute: typeof AuthIndexRoute
 }
 
@@ -82,12 +92,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/casting/$slug': {
+      id: '/casting/$slug'
+      path: '/casting/$slug'
+      fullPath: '/casting/$slug'
+      preLoaderRoute: typeof CastingSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  CastingSlugRoute: CastingSlugRoute,
   AuthIndexRoute: AuthIndexRoute,
 }
 export const routeTree = rootRouteImport

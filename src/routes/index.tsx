@@ -68,7 +68,7 @@ export const Route = createFileRoute("/")({
       },
       {
         property: "og:title",
-        content: "FigurArte.es — Agencia de Casting & Producción",
+        content: "FigurArte.es — Agencia de Casting & Producción en Andalucía",
       },
       {
         property: "og:description",

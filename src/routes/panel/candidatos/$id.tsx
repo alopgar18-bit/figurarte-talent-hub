@@ -1,23 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Proximamente } from "@/components/panel/Proximamente";
+import { createFileRoute } from "@tanstack/react-router";
+import { FichaCandidato } from "@/components/panel/FichaCandidato";
 
 export const Route = createFileRoute("/panel/candidatos/$id")({
-  component: FichaCandidato,
+  component: FichaCandidatoRoute,
 });
 
-function FichaCandidato() {
-  return (
-    <div className="space-y-4">
-      <Link
-        to="/panel/candidatos"
-        className="text-sm text-muted-foreground underline underline-offset-4"
-      >
-        ← Volver al listado
-      </Link>
-      <Proximamente
-        titulo="Ficha del candidato"
-        descripcion="Aquí irá la ficha completa con datos, fotos, vídeo y proyectos asociados."
-      />
-    </div>
-  );
+function FichaCandidatoRoute() {
+  const { id } = Route.useParams();
+  return <FichaCandidato id={id} />;
 }

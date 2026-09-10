@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import {
   CalendarDays,
   ImageIcon,
@@ -12,6 +13,7 @@ import {
   User,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { obtenerFichaCandidatoStaff } from "@/lib/ficha-candidato.functions";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -124,6 +126,7 @@ function Dato({
 }
 
 export function FichaCandidato({ id }: { id: string }) {
+  const obtenerFicha = useServerFn(obtenerFichaCandidatoStaff);
   const [candidato, setCandidato] = useState<CandidatoCompleto | null>(null);
   const [castings, setCastings] = useState<CastingAsociado[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -134,27 +137,29 @@ export function FichaCandidato({ id }: { id: string }) {
     let activo = true;
     (async () => {
       setCargando(true);
-      const [{ data: c, error }, { data: pcs }] = await Promise.all([
-        supabase.from("candidatos").select("*").eq("id", id).maybeSingle(),
-        supabase
-          .from("proyecto_candidatos")
-          .select("estado, origen, creado_en, proyectos_casting(nombre)")
-          .eq("candidato_id", id)
-          .order("creado_en", { ascending: false }),
-      ]);
+      let resultado;
+      try {
+        resultado = await obtenerFicha({ data: { id } });
+      } catch {
+        if (activo) {
+          setNoEncontrado(true);
+          setCargando(false);
+        }
+        return;
+      }
       if (!activo) return;
-      if (error || !c) {
+      if (!resultado.candidato) {
         setNoEncontrado(true);
       } else {
-        setCandidato(c as CandidatoCompleto);
-        setCastings((pcs as CastingAsociado[] | null) ?? []);
+        setCandidato(resultado.candidato as CandidatoCompleto);
+        setCastings((resultado.castings as CastingAsociado[] | null) ?? []);
       }
       setCargando(false);
     })();
     return () => {
       activo = false;
     };
-  }, [id]);
+  }, [id, obtenerFicha]);
 
   async function cambiarDisponible(valor: boolean) {
     if (!candidato) return;

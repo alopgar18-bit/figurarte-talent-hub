@@ -17,6 +17,7 @@ import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as CCodigoRouteImport } from './routes/c/$codigo'
+import { Route as CandidatoIndexRouteImport } from './routes/candidato/index'
 import { Route as CastingSlugRouteImport } from './routes/casting/$slug'
 import { Route as DossierSlugRouteImport } from './routes/dossier/$slug'
 import { Route as PanelIndexRouteImport } from './routes/panel/index'
@@ -75,6 +76,11 @@ const CCodigoRoute = CCodigoRouteImport.update({
   id: '/c/$codigo',
   path: '/c/$codigo',
   getParentRoute: () => rootRouteImport,
+} as any)
+const CandidatoIndexRoute = CandidatoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CandidatoRouteRoute,
 } as any)
 const CastingSlugRoute = CastingSlugRouteImport.update({
   id: '/casting/$slug',
@@ -169,7 +175,7 @@ const PanelProyectosIdRoute = PanelProyectosIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/candidato': typeof CandidatoRouteRoute
+  '/candidato': typeof CandidatoRouteRouteWithChildren
   '/panel': typeof PanelRouteRouteWithChildren
   '/portal': typeof PortalRouteRouteWithChildren
   '/registro': typeof RegistroRoute
@@ -187,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/portal/dossiers': typeof PortalDossiersRoute
   '/portal/solicitar': typeof PortalSolicitarRoute
   '/auth/': typeof AuthIndexRoute
+  '/candidato/': typeof CandidatoIndexRoute
   '/panel/': typeof PanelIndexRoute
   '/portal/': typeof PortalIndexRoute
   '/panel/candidatos/$id': typeof PanelCandidatosIdRoute
@@ -197,7 +204,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/candidato': typeof CandidatoRouteRoute
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/c/$codigo': typeof CCodigoRoute
@@ -213,6 +219,7 @@ export interface FileRoutesByTo {
   '/portal/dossiers': typeof PortalDossiersRoute
   '/portal/solicitar': typeof PortalSolicitarRoute
   '/auth': typeof AuthIndexRoute
+  '/candidato': typeof CandidatoIndexRoute
   '/panel': typeof PanelIndexRoute
   '/portal': typeof PortalIndexRoute
   '/panel/candidatos/$id': typeof PanelCandidatosIdRoute
@@ -224,7 +231,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/candidato': typeof CandidatoRouteRoute
+  '/candidato': typeof CandidatoRouteRouteWithChildren
   '/panel': typeof PanelRouteRouteWithChildren
   '/portal': typeof PortalRouteRouteWithChildren
   '/registro': typeof RegistroRoute
@@ -242,6 +249,7 @@ export interface FileRoutesById {
   '/portal/dossiers': typeof PortalDossiersRoute
   '/portal/solicitar': typeof PortalSolicitarRoute
   '/auth/': typeof AuthIndexRoute
+  '/candidato/': typeof CandidatoIndexRoute
   '/panel/': typeof PanelIndexRoute
   '/portal/': typeof PortalIndexRoute
   '/panel/candidatos/$id': typeof PanelCandidatosIdRoute
@@ -272,6 +280,7 @@ export interface FileRouteTypes {
     | '/portal/dossiers'
     | '/portal/solicitar'
     | '/auth/'
+    | '/candidato/'
     | '/panel/'
     | '/portal/'
     | '/panel/candidatos/$id'
@@ -282,7 +291,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/candidato'
     | '/registro'
     | '/auth/callback'
     | '/c/$codigo'
@@ -298,6 +306,7 @@ export interface FileRouteTypes {
     | '/portal/dossiers'
     | '/portal/solicitar'
     | '/auth'
+    | '/candidato'
     | '/panel'
     | '/portal'
     | '/panel/candidatos/$id'
@@ -326,6 +335,7 @@ export interface FileRouteTypes {
     | '/portal/dossiers'
     | '/portal/solicitar'
     | '/auth/'
+    | '/candidato/'
     | '/panel/'
     | '/portal/'
     | '/panel/candidatos/$id'
@@ -337,7 +347,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CandidatoRouteRoute: typeof CandidatoRouteRoute
+  CandidatoRouteRoute: typeof CandidatoRouteRouteWithChildren
   PanelRouteRoute: typeof PanelRouteRouteWithChildren
   PortalRouteRoute: typeof PortalRouteRouteWithChildren
   RegistroRoute: typeof RegistroRoute
@@ -405,6 +415,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/c/$codigo'
       preLoaderRoute: typeof CCodigoRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/candidato/': {
+      id: '/candidato/'
+      path: '/'
+      fullPath: '/candidato/'
+      preLoaderRoute: typeof CandidatoIndexRouteImport
+      parentRoute: typeof CandidatoRouteRoute
     }
     '/casting/$slug': {
       id: '/casting/$slug'
@@ -535,6 +552,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface CandidatoRouteRouteChildren {
+  CandidatoIndexRoute: typeof CandidatoIndexRoute
+}
+
+const CandidatoRouteRouteChildren: CandidatoRouteRouteChildren = {
+  CandidatoIndexRoute: CandidatoIndexRoute,
+}
+
+const CandidatoRouteRouteWithChildren = CandidatoRouteRoute._addFileChildren(
+  CandidatoRouteRouteChildren,
+)
+
 interface PanelRouteRouteChildren {
   PanelAccesosInvitadosRoute: typeof PanelAccesosInvitadosRoute
   PanelAdministracionRoute: typeof PanelAdministracionRoute
@@ -589,7 +618,7 @@ const PortalRouteRouteWithChildren = PortalRouteRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CandidatoRouteRoute: CandidatoRouteRoute,
+  CandidatoRouteRoute: CandidatoRouteRouteWithChildren,
   PanelRouteRoute: PanelRouteRouteWithChildren,
   PortalRouteRoute: PortalRouteRouteWithChildren,
   RegistroRoute: RegistroRoute,

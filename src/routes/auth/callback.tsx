@@ -71,6 +71,10 @@ function CallbackPage() {
           }
         }
         if (cancelado) return;
+        if (resultado.tipo === "candidato") {
+          void navegar({ to: "/candidato", replace: true });
+          return;
+        }
         setEstado("listo");
       } catch {
         if (!cancelado) setEstado("error");

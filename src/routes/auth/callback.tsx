@@ -3,9 +3,13 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { resolverAcceso, type AccesoResuelto } from "@/lib/auth.functions";
+import { inscribirEnCasting } from "@/lib/inscripciones.functions";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/auth/callback")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    proyecto_id: typeof search["proyecto_id"] === "string" ? search["proyecto_id"] : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Verificando acceso | FigurArte.es" },
@@ -35,10 +39,13 @@ const ETIQUETAS_ROL: Record<string, string> = {
 
 function CallbackPage() {
   const resolver = useServerFn(resolverAcceso);
+  const inscribir = useServerFn(inscribirEnCasting);
+  const { proyecto_id: proyectoId } = Route.useSearch();
   const [estado, setEstado] = useState<"cargando" | "listo" | "sin_sesion" | "error">(
     "cargando",
   );
   const [acceso, setAcceso] = useState<AccesoResuelto | null>(null);
+  const [castingInscrito, setCastingInscrito] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelado = false;
@@ -52,6 +59,18 @@ function CallbackPage() {
         const resultado = await resolver({});
         if (cancelado) return;
         setAcceso(resultado);
+        // Solo los candidatos se apuntan automáticamente al casting.
+        if (proyectoId && resultado.tipo === "candidato") {
+          try {
+            const insc = await inscribir({ data: { proyecto_id: proyectoId } });
+            if (!cancelado && (insc.estado === "inscrito" || insc.estado === "ya_inscrito")) {
+              setCastingInscrito(insc.nombreCasting);
+            }
+          } catch {
+            /* si falla la inscripción, la sesión sigue siendo válida */
+          }
+        }
+        if (cancelado) return;
         setEstado("listo");
       } catch {
         if (!cancelado) setEstado("error");
@@ -74,7 +93,7 @@ function CallbackPage() {
       cancelado = true;
       sub.subscription.unsubscribe();
     };
-  }, [resolver]);
+  }, [resolver, inscribir, proyectoId]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
@@ -130,11 +149,20 @@ function CallbackPage() {
           {estado === "listo" && acceso?.tipo === "candidato" && (
             <>
               <h2 className="text-lg font-semibold text-card-foreground">
-                Sesión iniciada
+                {castingInscrito ? `Te has apuntado a ${castingInscrito}` : "Sesión iniciada"}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Has entrado como candidato: <strong>{acceso.nombre}</strong>. Tu ficha se
-                construirá en el siguiente paso.
+                {castingInscrito ? (
+                  <>
+                    Listo, <strong>{acceso.nombre}</strong>: el equipo de FigurArte ya te ve
+                    asignado a este casting. No hace falta que hagas nada más.
+                  </>
+                ) : (
+                  <>
+                    Has entrado como candidato: <strong>{acceso.nombre}</strong>. Tu ficha se
+                    construirá en el siguiente paso.
+                  </>
+                )}
               </p>
               <Button asChild variant="outline" className="mt-4 w-full">
                 <Link to="/">Ir al inicio</Link>

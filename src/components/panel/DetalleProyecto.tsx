@@ -213,10 +213,12 @@ export function DetalleProyecto({ id }: { id: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  async function actualizar(cambios: Record<string, unknown>) {
+  async function actualizar(cambios: Partial<Proyecto>) {
     const { error: errUpd } = await supabase
       .from("proyectos_casting")
-      .update(cambios)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .update(cambios as any)
+
       .eq("id", id);
     if (errUpd) {
       toast.error("No se pudo guardar el cambio.");

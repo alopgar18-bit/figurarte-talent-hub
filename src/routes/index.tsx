@@ -366,15 +366,13 @@ function Home() {
             ¿Tienes un proyecto y necesitas candidatos? Cuéntanos qué buscas y
             nuestro equipo lo revisa para empezar la captación.
           </p>
-          <button
-            type="button"
-            disabled
-            title="Próximamente"
-            className="mt-8 inline-flex cursor-not-allowed items-center gap-2 rounded-md bg-primary px-6 py-3 font-semibold text-primary-foreground opacity-60"
+          <Link
+            to="/auth"
+            className="mt-8 inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3 font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Solicitar un proyecto
             <ArrowRight className="h-5 w-5" />
-          </button>
+          </Link>
         </div>
       </section>
 

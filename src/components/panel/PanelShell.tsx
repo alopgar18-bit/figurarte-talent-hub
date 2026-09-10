@@ -6,7 +6,6 @@ import {
   Megaphone,
   LayoutDashboard,
   Building2,
-  MonitorSmartphone,
   KeyRound,
   Settings,
   Menu,
@@ -35,7 +34,6 @@ const OPERATIVA: Enlace[] = [
 
 const ADMINISTRACION: Enlace[] = [
   { titulo: "Clientes", ruta: "/panel/clientes", icono: Building2 },
-  { titulo: "Portal cliente", ruta: "/panel/portal-cliente", icono: MonitorSmartphone },
   { titulo: "Accesos invitados", ruta: "/panel/accesos-invitados", icono: KeyRound },
   { titulo: "Administración", ruta: "/panel/administracion", icono: Settings },
 ];

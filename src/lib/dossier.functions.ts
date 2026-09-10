@@ -31,20 +31,35 @@ export type DossierPublico = {
  * (nunca email ni teléfono).
  */
 export const obtenerDossierPublico = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => z.object({ slug: z.string() }).parse(data))
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        slug: z
+          .string()
+          .trim()
+          .min(8)
+          .max(120)
+          .regex(/^[a-z0-9-]+$/),
+      })
+      .parse(data),
+  )
   .handler(async ({ data }): Promise<DossierPublico | null> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: dossier } = await supabaseAdmin
-      .from("dossiers")
-      .select("id,slug_publico,proyecto_id,candidatos_incluidos,fecha_caducidad,creado_en")
-      .eq("slug_publico", data.slug)
-      .maybeSingle();
+    // Backstop de acceso: la tabla `dossiers` no tiene lectura pública. Esta
+    // función SQL devuelve como mucho una fila, por slug exacto y no caducada.
+    const { data: filas, error: errorDossier } = await supabaseAdmin.rpc("fn_dossier_publico", {
+      _slug: data.slug,
+    });
+    if (errorDossier) {
+      console.error("[dossier] No se pudo resolver el enlace:", errorDossier);
+      throw new Error("No se pudo cargar el dossier.");
+    }
 
+    const dossier = (filas ?? [])[0];
     if (!dossier) return null;
 
-    const caducado =
-      !!dossier.fecha_caducidad && new Date(dossier.fecha_caducidad).getTime() <= Date.now();
+    const caducado = false;
 
     const { data: proyecto } = await supabaseAdmin
       .from("proyectos_casting")

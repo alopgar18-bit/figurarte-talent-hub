@@ -500,7 +500,15 @@ export type Database = {
           publicado?: boolean
           slug_publico?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "proyectos_casting_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       registros_captacion: {
         Row: {
@@ -613,7 +621,15 @@ export type Database = {
           ultimo_acceso?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "usuarios_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -634,6 +650,16 @@ export type Database = {
           nombre: string
           peso_kg: number
           provincia: string
+        }[]
+      }
+      fn_dossier_publico: {
+        Args: { _slug: string }
+        Returns: {
+          candidatos_incluidos: string[]
+          creado_en: string
+          fecha_caducidad: string
+          id: string
+          proyecto_id: string
         }[]
       }
       mi_cliente_id: { Args: never; Returns: string }

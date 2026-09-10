@@ -5,6 +5,7 @@ import { Drama, Camera, Users, Sparkles, Upload, Check } from "lucide-react";
 import { RecorteFoto, type AreaRecorte } from "@/components/RecorteFoto";
 import { supabase } from "@/integrations/supabase/client";
 import { crearCandidatura } from "@/lib/candidatos.functions";
+import { obtenerUrlSubidaFoto } from "@/lib/subida-fotos.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -75,9 +76,14 @@ async function generarPreview(file: File, area: AreaRecorte): Promise<string> {
   }
 }
 
-function rutaAleatoria(file: File) {
-  const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase().slice(0, 5);
-  return `${crypto.randomUUID()}/${crypto.randomUUID()}.${ext}`;
+const EXTENSIONES_VALIDAS = ["jpg", "jpeg", "png", "webp", "heic"] as const;
+type ExtensionFoto = (typeof EXTENSIONES_VALIDAS)[number];
+
+function extensionDe(file: File): ExtensionFoto {
+  const ext = (file.name.split(".").pop() ?? "").toLowerCase();
+  return (EXTENSIONES_VALIDAS as readonly string[]).includes(ext)
+    ? (ext as ExtensionFoto)
+    : "jpg";
 }
 
 export function FormularioCaptacion({
@@ -88,6 +94,7 @@ export function FormularioCaptacion({
   canal,
 }: Props) {
   const enviar = useServerFn(crearCandidatura);
+  const pedirSubida = useServerFn(obtenerUrlSubidaFoto);
 
   const [categoria, setCategoria] = useState<CategoriaCandidato | null>(
     categoriaInicial ?? null,
@@ -128,13 +135,20 @@ export function FormularioCaptacion({
       for (const ranura of RANURAS_FOTO) {
         const entrada = archivos[ranura.clave];
         if (!entrada) continue;
-        const path = rutaAleatoria(entrada.file);
+        const permiso = await pedirSubida({
+          data: { extension: extensionDe(entrada.file) },
+        });
+        if (permiso.estado === "limite")
+          throw new Error("Demasiados intentos de subida. Prueba de nuevo dentro de un rato.");
+        if (permiso.estado !== "ok")
+          throw new Error("No se pudieron subir las fotos. Inténtalo de nuevo.");
+
         const { error: upErr } = await supabase.storage
           .from("candidatos-fotos")
-          .upload(path, entrada.file, { upsert: false });
+          .uploadToSignedUrl(permiso.path, permiso.token, entrada.file);
         if (upErr) throw new Error("No se pudieron subir las fotos. Inténtalo de nuevo.");
-        rutas.push(path);
-        recortes[path] = entrada.area;
+        rutas.push(permiso.path);
+        recortes[permiso.path] = entrada.area;
       }
 
       const res = await enviar({

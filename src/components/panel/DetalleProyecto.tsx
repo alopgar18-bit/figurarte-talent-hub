@@ -181,14 +181,16 @@ export function DetalleProyecto({ id }: { id: string }) {
     setDialogoDossier(true);
   }
 
-  async function generarSlugDossier(base: string) {
-    const raiz = slugify(base) || "dossier";
-    const { data } = await supabase.from("dossiers").select("slug_publico");
-    const usados = new Set((data ?? []).map((f) => f.slug_publico as string));
-    if (!usados.has(raiz)) return raiz;
-    let n = 2;
-    while (usados.has(`${raiz}-${n}`)) n += 1;
-    return `${raiz}-${n}`;
+  /** Sufijo aleatorio: el enlace del dossier no debe ser adivinable. */
+  function sufijoAleatorio(longitud = 8) {
+    const alfabeto = "abcdefghijkmnpqrstuvwxyz23456789";
+    const bytes = crypto.getRandomValues(new Uint8Array(longitud));
+    return Array.from(bytes, (b) => alfabeto[b % alfabeto.length]).join("");
+  }
+
+  function generarSlugDossier(base: string) {
+    const raiz = slugify(base).slice(0, 40) || "dossier";
+    return `${raiz}-${sufijoAleatorio()}`;
   }
 
   async function generarDossier() {
@@ -201,7 +203,7 @@ export function DetalleProyecto({ id }: { id: string }) {
     }
     setGenerandoDossier(true);
     const base = [clienteNombre, proyecto?.nombre].filter(Boolean).join(" ");
-    const slug = await generarSlugDossier(base);
+    const slug = generarSlugDossier(base);
     const { data: sesion } = await supabase.auth.getUser();
     const { data, error: errIns } = await supabase
       .from("dossiers")

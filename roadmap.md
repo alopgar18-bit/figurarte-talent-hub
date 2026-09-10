@@ -21,3 +21,13 @@
 - Activar "Prevent use of leaked passwords" en Supabase.
 - Rellenar los placeholders legales.
 - Limpiar la foto de prueba huerfana en el bucket.
+
+## Revisión de experiencia de usuario (hecho)
+- Cabecera pública común (CabeceraPublica + PieLegal) en Home, /auth, /registro, /casting/$slug, /aviso-legal y /privacidad; nav visible también en móvil.
+- "Salir" de panel, portal y área de candidato navega a "/".
+- Fotos: el firmado ya funcionaba; faltaban fotos reales. Subidas fotos demo a candidatos del dossier. Logo de cliente ahora sobre fondo blanco (SVG negro).
+- Clientes: edición completa (razón social, sector, contactos múltiples, condiciones, logo del dossier). Proyectos del cliente enlazan a /panel/proyectos/$id.
+- Proyecto: tarjetas de preseleccionados enlazan a la ficha del candidato.
+- Candidatos: panel de filtros avanzados (provincia, género, idiomas, rangos de edad/altura/peso).
+- Dossier reconstruido al formato real (portada con lockup, banner rojo, fotos en fila, medidas de vestuario, pie con www.figurarte.es y número de página); fn_datos_publicos_candidato amplía las 5 medidas.
+- Tipografía de panel/portal alineada con la marca pública.

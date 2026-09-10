@@ -77,7 +77,7 @@ export function VideoPresentacion({
 
   return (
     <section className="border border-border bg-card p-4 sm:p-6">
-      <h2 className="text-lg font-semibold text-card-foreground">Vídeo de presentación</h2>
+      <h2 className="text-lg font-bold tracking-tight text-card-foreground">Vídeo de presentación</h2>
 
       {urlGuardada && !sustituir ? (
         <div className="mt-3 space-y-3">

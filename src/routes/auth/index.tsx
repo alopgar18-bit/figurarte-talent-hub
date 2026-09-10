@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { CabeceraPublica, PieLegal } from "@/components/publico/CabeceraPublica";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,11 +61,13 @@ function AuthPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-sm">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          FigurArte<span className="text-primary">.</span>es
-        </h1>
+    <main className="flex min-h-screen flex-col bg-background">
+      <CabeceraPublica />
+      <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center px-4 py-12">
+        <h1 className="text-3xl font-black tracking-tight text-foreground">Acceder</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Un único acceso para candidatos, clientes y equipo.
+        </p>
 
         {motivo && (
           <div className="mt-6 border border-primary/40 bg-primary/5 p-4">
@@ -118,6 +121,7 @@ function AuthPage() {
           </form>
         )}
       </div>
+      <PieLegal />
     </main>
   );
 }

@@ -491,7 +491,7 @@ export function DetalleProyecto({ id }: { id: string }) {
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               onBlur={guardarNombre}
-              className="h-auto border-0 bg-transparent px-0 text-xl font-semibold shadow-none focus-visible:ring-0 sm:text-2xl"
+              className="h-auto border-0 bg-transparent px-0 text-xl font-black tracking-tight shadow-none focus-visible:ring-0 sm:text-2xl"
             />
             <p className="text-sm text-muted-foreground">
               {clienteNombre ?? "Sin cliente"} · Creado el{" "}
@@ -749,7 +749,11 @@ export function DetalleProyecto({ id }: { id: string }) {
               if (!c) return null;
               return (
                 <div key={a.candidato_id} className="border border-border p-3">
-                  <div className="flex items-start gap-3">
+                  <Link
+                    to="/panel/candidatos/$id"
+                    params={{ id: a.candidato_id }}
+                    className="flex items-start gap-3 transition-opacity hover:opacity-80"
+                  >
                     {c.fotos?.[0] ? (
                       <img
                         src={c.fotos[0]}
@@ -757,7 +761,7 @@ export function DetalleProyecto({ id }: { id: string }) {
                         className="h-16 w-12 shrink-0 object-cover"
                       />
                     ) : (
-                      <div className="flex h-16 w-12 shrink-0 items-center justify-center bg-muted text-lg font-semibold text-muted-foreground">
+                      <div className="flex h-16 w-12 shrink-0 items-center justify-center bg-muted text-lg font-bold tracking-tight text-muted-foreground">
                         {c.nombre.charAt(0)}
                       </div>
                     )}
@@ -774,7 +778,7 @@ export function DetalleProyecto({ id }: { id: string }) {
                           .join(" · ") || "Sin medidas"}
                       </p>
                     </div>
-                  </div>
+                  </Link>
                   <Select
                     value={a.estado}
                     onValueChange={(v) => cambiarEstadoCandidato(a.candidato_id, v)}

@@ -193,7 +193,7 @@ export function CaptacionRRSS() {
     <div className="space-y-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">Captación RRSS</h2>
+          <h2 className="text-lg font-bold tracking-tight text-foreground">Captación RRSS</h2>
           <p className="text-sm text-muted-foreground">
             Convocatorias con enlaces trazables por canal.
           </p>

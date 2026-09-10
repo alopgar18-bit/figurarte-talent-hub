@@ -99,22 +99,42 @@ function PaginaDossier() {
   return (
     <main className="min-h-screen bg-background print:bg-white">
       {/* Portada */}
-      <section className="dossier-slide border-b border-border bg-brand-charcoal px-6 py-14 text-brand-cream sm:px-10 sm:py-20">
-        <p className="text-xs font-semibold uppercase tracking-[0.4em] text-primary">FIGURARTE</p>
-        <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-5xl">
-          {dossier.proyectoNombre}
-        </h1>
-        <p className="mt-3 text-sm uppercase tracking-widest text-brand-cream/70">
-          {dossier.categoria ? CATEGORIA_LABEL[dossier.categoria] ?? dossier.categoria : "Casting"}
-          {dossier.clienteNombre ? ` · ${dossier.clienteNombre}` : ""}
-        </p>
-        <p className="mt-8 text-sm text-brand-cream/60">
-          {new Date(dossier.creadoEn).toLocaleDateString("es-ES", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}{" "}
-          · {total} candidato{total === 1 ? "" : "s"}
+      <section className="dossier-slide flex min-h-[420px] flex-col justify-between border-b border-border bg-brand-charcoal px-6 py-14 text-brand-cream sm:px-12 sm:py-20">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-stretch sm:gap-10">
+          <p className="shrink-0 text-2xl font-black tracking-[0.18em] text-brand-cream sm:self-center sm:text-3xl">
+            [FIGURARTE]
+          </p>
+          <span
+            aria-hidden="true"
+            className="hidden w-px bg-brand-cream/40 sm:block"
+          />
+          <div className="min-w-0">
+            <h1 className="text-3xl font-black uppercase leading-tight tracking-tight sm:text-5xl">
+              {dossier.proyectoNombre}
+            </h1>
+            {dossier.clienteNombre && (
+              <p className="mt-3 text-base font-semibold uppercase tracking-[0.2em] text-brand-cream/80 sm:text-lg">
+                {dossier.clienteNombre}
+              </p>
+            )}
+            <p className="mt-2 text-sm uppercase tracking-widest text-brand-cream/60">
+              {new Date(dossier.creadoEn).toLocaleDateString("es-ES", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+              {" · "}
+              {dossier.categoria
+                ? CATEGORIA_LABEL[dossier.categoria] ?? dossier.categoria
+                : "Casting"}
+              {" · "}
+              {total} candidato{total === 1 ? "" : "s"}
+            </p>
+          </div>
+        </div>
+
+        <p className="mt-14 text-[11px] font-semibold uppercase tracking-[0.35em] text-brand-cream/70">
+          Agencia de casting &amp; producción
         </p>
       </section>
 
@@ -135,12 +155,14 @@ function PaginaDossier() {
       ) : (
         <>
           {/* Vista web: una diapositiva */}
-          <div className="no-print">{actual && <Diapositiva candidato={actual} />}</div>
+          <div className="no-print">
+            {actual && <Diapositiva candidato={actual} pagina={indice + 1} total={total} />}
+          </div>
 
           {/* Impresión: todas las diapositivas, una por página */}
           <div className="hidden print:block">
-            {dossier.candidatos.map((c) => (
-              <Diapositiva key={c.id} candidato={c} />
+            {dossier.candidatos.map((c, i) => (
+              <Diapositiva key={c.id} candidato={c} pagina={i + 1} total={total} />
             ))}
           </div>
 
@@ -177,7 +199,7 @@ function PaginaDossier() {
         </>
       )}
 
-      <footer className="border-t border-border px-6 py-8 text-center text-xs text-muted-foreground">
+      <footer className="no-print border-t border-border px-6 py-8 text-center text-xs text-muted-foreground">
         figurarte.es/dossier/{slug}
         {dias === null
           ? " · sin caducidad"
@@ -187,27 +209,47 @@ function PaginaDossier() {
   );
 }
 
+function Medida({ etiqueta, valor }: { etiqueta: string; valor: string | null }) {
+  return (
+    <div className="border border-border p-2">
+      <dt className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+        {etiqueta}
+      </dt>
+      <dd className="mt-0.5 text-sm font-semibold text-foreground">{valor || "—"}</dd>
+    </div>
+  );
+}
+
 function Diapositiva({
   candidato,
+  pagina,
+  total,
 }: {
   candidato: DossierPublico["candidatos"][number];
+  pagina: number;
+  total: number;
 }) {
-  const medidas = [
+  const fisicos = [
     candidato.edad != null ? `${candidato.edad} años` : null,
     candidato.provincia,
     candidato.altura_cm != null ? `${candidato.altura_cm} cm` : null,
     candidato.peso_kg != null ? `${candidato.peso_kg} kg` : null,
   ].filter(Boolean) as string[];
 
-  const fotos = candidato.fotos.slice(0, 2);
+  const fotos = candidato.fotos.slice(0, 3);
 
   return (
-    <article className="dossier-slide mx-auto max-w-4xl px-4 py-8 sm:px-8 sm:py-12">
-      <p className="inline-block bg-primary px-3 py-1 text-xs font-semibold uppercase tracking-widest text-primary-foreground">
-        {CATEGORIA_LABEL[candidato.categoria] ?? candidato.categoria}
-      </p>
+    <article className="dossier-slide mx-auto flex max-w-5xl flex-col px-4 py-8 sm:px-10 sm:py-12">
+      {/* Banner rojo */}
+      <div className="flex items-center justify-between gap-4 bg-primary px-4 py-2.5 text-primary-foreground">
+        <p className="text-xs font-bold uppercase tracking-[0.3em]">
+          {CATEGORIA_LABEL[candidato.categoria] ?? candidato.categoria}
+        </p>
+        <p className="text-xs font-bold uppercase tracking-[0.3em]">{candidato.codigo}</p>
+      </div>
 
-      <div className="mt-6 grid gap-6 sm:grid-cols-2">
+      {/* Fotos en fila */}
+      <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">
         {fotos.length > 0 ? (
           fotos.map((foto) => (
             <img
@@ -225,18 +267,36 @@ function Diapositiva({
         )}
       </div>
 
-      <header className="mt-6">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">
-          {candidato.codigo}
+      {/* Lockup + identificación */}
+      <header className="mt-6 flex items-stretch gap-4 sm:gap-6">
+        <p className="shrink-0 self-center text-sm font-black tracking-[0.18em] text-foreground sm:text-base">
+          [FIGURARTE]
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">{candidato.nombre}</h2>
-        {medidas.length > 0 && (
-          <p className="mt-2 text-sm text-muted-foreground">{medidas.join(" · ")}</p>
-        )}
+        <span aria-hidden="true" className="w-px bg-border" />
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            {candidato.codigo}
+          </p>
+          <h2 className="text-2xl font-black uppercase tracking-tight sm:text-3xl">
+            {candidato.nombre}
+          </h2>
+          {fisicos.length > 0 && (
+            <p className="mt-1 text-sm text-muted-foreground">{fisicos.join(" · ")}</p>
+          )}
+        </div>
       </header>
 
+      {/* Medidas de vestuario */}
+      <dl className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-5">
+        <Medida etiqueta="Camisa" valor={candidato.talla_camisa} />
+        <Medida etiqueta="Pecho" valor={candidato.anchura_pecho} />
+        <Medida etiqueta="Pantalón" valor={candidato.talla_pantalon} />
+        <Medida etiqueta="Cintura" valor={candidato.anchura_cintura} />
+        <Medida etiqueta="Calzado" valor={candidato.talla_calzado} />
+      </dl>
+
       {candidato.campos.length > 0 && (
-        <dl className="mt-6 grid gap-x-8 gap-y-2 border-t border-border pt-4 sm:grid-cols-2">
+        <dl className="mt-5 grid gap-x-8 gap-y-2 border-t border-border pt-4 sm:grid-cols-2">
           {candidato.campos.map((c) => (
             <div key={c.nombre} className="flex justify-between gap-4 text-sm">
               <dt className="text-muted-foreground">{c.nombre}</dt>
@@ -245,6 +305,14 @@ function Diapositiva({
           ))}
         </dl>
       )}
+
+      {/* Pie de página */}
+      <div className="mt-8 flex items-center justify-between border-t border-border pt-3 text-[11px] font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+        <span>www.figurarte.es</span>
+        <span>
+          {pagina} / {total}
+        </span>
+      </div>
     </article>
   );
 }

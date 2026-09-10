@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { CabeceraPublica, PieLegal } from "@/components/publico/CabeceraPublica";
 import {
   FormularioCaptacion,
   type CategoriaCandidato,
@@ -53,19 +54,7 @@ function Registro() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border bg-background">
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-          <Link to="/" className="text-lg font-black tracking-tight">
-            FigurArte<span className="text-primary">.</span>es
-          </Link>
-          <Link
-            to="/auth"
-            className="rounded-md border border-border px-4 py-2 text-sm font-semibold transition-colors hover:border-primary"
-          >
-            Ya tengo ficha
-          </Link>
-        </div>
-      </header>
+      <CabeceraPublica ancho="max-w-4xl" />
 
       <section className="border-b border-border bg-brand-charcoal text-brand-cream">
         <div className="mx-auto max-w-4xl px-4 py-14 sm:px-6 sm:py-20">
@@ -89,6 +78,8 @@ function Registro() {
           canal={canal}
         />
       </div>
+
+      <PieLegal />
     </main>
   );
 }

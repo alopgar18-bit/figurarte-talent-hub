@@ -1,9 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Columns3, Download, FolderPlus, Loader2, Search, Upload } from "lucide-react";
+import {
+  Columns3,
+  Download,
+  FolderPlus,
+  Loader2,
+  Search,
+  SlidersHorizontal,
+  Upload,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -129,6 +138,18 @@ export function ListadoCandidatos() {
   const [categoria, setCategoria] = useState("todas");
   const [disponibilidad, setDisponibilidad] = useState("todos");
   const [busqueda, setBusqueda] = useState("");
+  const [avanzados, setAvanzados] = useState(false);
+  const [provincia, setProvincia] = useState("todas");
+  const [genero, setGenero] = useState("todos");
+  const [idiomas, setIdiomas] = useState("");
+  const [rangos, setRangos] = useState({
+    edadMin: "",
+    edadMax: "",
+    alturaMin: "",
+    alturaMax: "",
+    pesoMin: "",
+    pesoMax: "",
+  });
 
   const [visibles, setVisibles] = useState<ColumnaId[]>(
     COLUMNAS.filter((c) => c.pordefecto).map((c) => c.id),
@@ -158,16 +179,63 @@ export function ListadoCandidatos() {
     })();
   }, []);
 
+  const provincias = useMemo(() => {
+    const set = new Set<string>();
+    for (const c of candidatos) if (c.provincia) set.add(c.provincia);
+    return [...set].sort((a, b) => a.localeCompare(b, "es"));
+  }, [candidatos]);
+
+  const generos = useMemo(() => {
+    const set = new Set<string>();
+    for (const c of candidatos) {
+      const g = c["genero"];
+      if (typeof g === "string" && g.trim()) set.add(g.trim());
+    }
+    return [...set].sort((a, b) => a.localeCompare(b, "es"));
+  }, [candidatos]);
+
   const filtrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
+    const qIdiomas = idiomas.trim().toLowerCase();
+    const num = (v: string) => (v.trim() === "" ? null : Number(v));
+    const enRango = (valor: unknown, min: string, max: string) => {
+      const lo = num(min);
+      const hi = num(max);
+      if (lo === null && hi === null) return true;
+      if (typeof valor !== "number") return false;
+      if (lo !== null && valor < lo) return false;
+      if (hi !== null && valor > hi) return false;
+      return true;
+    };
     return candidatos.filter((c) => {
       if (categoria !== "todas" && c.categoria !== categoria) return false;
       if (disponibilidad === "disponibles" && !c.disponible) return false;
       if (disponibilidad === "no_disponibles" && c.disponible) return false;
       if (q && !`${c.nombre} ${c.codigo}`.toLowerCase().includes(q)) return false;
+      if (provincia !== "todas" && c.provincia !== provincia) return false;
+      if (genero !== "todos" && c["genero"] !== genero) return false;
+      if (
+        qIdiomas &&
+        !String(c["idiomas"] ?? "")
+          .toLowerCase()
+          .includes(qIdiomas)
+      )
+        return false;
+      if (!enRango(c.edad, rangos.edadMin, rangos.edadMax)) return false;
+      if (!enRango(c.altura_cm, rangos.alturaMin, rangos.alturaMax)) return false;
+      if (!enRango(c["peso_kg"], rangos.pesoMin, rangos.pesoMax)) return false;
       return true;
     });
-  }, [candidatos, categoria, disponibilidad, busqueda]);
+  }, [
+    candidatos,
+    categoria,
+    disponibilidad,
+    busqueda,
+    provincia,
+    genero,
+    idiomas,
+    rangos,
+  ]);
 
   const idsFiltrados = filtrados.map((c) => c.id);
   const seleccionados = seleccion.filter((id) => idsFiltrados.includes(id));
@@ -243,7 +311,7 @@ export function ListadoCandidatos() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-xl font-semibold">Base de candidatos</h1>
+        <h1 className="text-xl font-black tracking-tight">Base de candidatos</h1>
         <p className="text-sm text-muted-foreground">
           {filtrados.length} de {candidatos.length} candidatos
         </p>
@@ -316,7 +384,114 @@ export function ListadoCandidatos() {
         <Button variant="outline" onClick={() => navigate({ to: "/panel/candidatos/importar" })}>
           <Upload className="size-4" /> Importar candidatos
         </Button>
+        <Button variant="outline" onClick={() => setAvanzados((v) => !v)}>
+          <SlidersHorizontal className="size-4" />
+          {avanzados ? "Ocultar filtros" : "Filtros avanzados"}
+        </Button>
       </div>
+
+      {avanzados && (
+        <div className="space-y-4 border border-border bg-muted/30 p-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="space-y-1.5">
+              <Label>Provincia</Label>
+              <Select value={provincia} onValueChange={setProvincia}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todas">Todas</SelectItem>
+                  {provincias.map((p) => (
+                    <SelectItem key={p} value={p}>
+                      {p}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Género</Label>
+              <Select value={genero} onValueChange={setGenero}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {generos.map((g) => (
+                    <SelectItem key={g} value={g}>
+                      {g}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor="f-idiomas">Idiomas</Label>
+              <Input
+                id="f-idiomas"
+                value={idiomas}
+                onChange={(e) => setIdiomas(e.target.value)}
+                placeholder="inglés, francés…"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            {(
+              [
+                { etiqueta: "Edad", min: "edadMin", max: "edadMax", unidad: "años" },
+                { etiqueta: "Altura", min: "alturaMin", max: "alturaMax", unidad: "cm" },
+                { etiqueta: "Peso", min: "pesoMin", max: "pesoMax", unidad: "kg" },
+              ] as const
+            ).map((r) => (
+              <div key={r.etiqueta} className="space-y-1.5">
+                <Label>
+                  {r.etiqueta} ({r.unidad})
+                </Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    placeholder="Mín."
+                    value={rangos[r.min]}
+                    onChange={(e) => setRangos((s) => ({ ...s, [r.min]: e.target.value }))}
+                    aria-label={`${r.etiqueta} mínima`}
+                  />
+                  <span className="text-muted-foreground">–</span>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    placeholder="Máx."
+                    value={rangos[r.max]}
+                    onChange={(e) => setRangos((s) => ({ ...s, [r.max]: e.target.value }))}
+                    aria-label={`${r.etiqueta} máxima`}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setProvincia("todas");
+              setGenero("todos");
+              setIdiomas("");
+              setRangos({
+                edadMin: "",
+                edadMax: "",
+                alturaMin: "",
+                alturaMax: "",
+                pesoMin: "",
+                pesoMax: "",
+              });
+            }}
+          >
+            Limpiar filtros avanzados
+          </Button>
+        </div>
+      )}
 
       {seleccionados.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 border border-border bg-muted/40 p-3">

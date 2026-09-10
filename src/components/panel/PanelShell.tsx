@@ -101,7 +101,7 @@ export function PanelShell({
   const contenidoSidebar = (
     <div className="flex h-full flex-col">
       <div className="border-b border-border px-5 py-5">
-        <p className="text-lg font-bold tracking-tight text-foreground">FIGURARTE</p>
+        <p className="text-lg font-extrabold tracking-[0.14em] text-foreground">FIGURARTE</p>
         <p className="text-xs uppercase tracking-widest text-primary">Casting</p>
       </div>
       <div className="flex-1 overflow-y-auto px-2 py-4">

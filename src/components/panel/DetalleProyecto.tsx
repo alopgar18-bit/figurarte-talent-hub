@@ -491,7 +491,7 @@ export function DetalleProyecto({ id }: { id: string }) {
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               onBlur={guardarNombre}
-              className="h-auto border-0 bg-transparent px-0 text-xl font-semibold shadow-none focus-visible:ring-0 sm:text-2xl"
+              className="h-auto border-0 bg-transparent px-0 text-xl font-black tracking-tight shadow-none focus-visible:ring-0 sm:text-2xl"
             />
             <p className="text-sm text-muted-foreground">
               {clienteNombre ?? "Sin cliente"} · Creado el{" "}
@@ -761,7 +761,7 @@ export function DetalleProyecto({ id }: { id: string }) {
                         className="h-16 w-12 shrink-0 object-cover"
                       />
                     ) : (
-                      <div className="flex h-16 w-12 shrink-0 items-center justify-center bg-muted text-lg font-semibold text-muted-foreground">
+                      <div className="flex h-16 w-12 shrink-0 items-center justify-center bg-muted text-lg font-bold tracking-tight text-muted-foreground">
                         {c.nombre.charAt(0)}
                       </div>
                     )}

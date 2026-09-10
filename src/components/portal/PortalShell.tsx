@@ -33,7 +33,7 @@ export function PortalShell({
             <Link to="/" className="text-sm font-bold tracking-tight">
               FigurArte<span className="text-primary">.</span>es
             </Link>
-            <p className="truncate text-lg font-semibold leading-tight">{razonSocial}</p>
+            <p className="truncate text-lg font-bold tracking-tight leading-tight">{razonSocial}</p>
             <p className="text-xs uppercase tracking-wider text-muted-foreground">
               Portal de cliente
             </p>

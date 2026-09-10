@@ -311,7 +311,7 @@ export function ListadoCandidatos() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-xl font-semibold">Base de candidatos</h1>
+        <h1 className="text-xl font-black tracking-tight">Base de candidatos</h1>
         <p className="text-sm text-muted-foreground">
           {filtrados.length} de {candidatos.length} candidatos
         </p>

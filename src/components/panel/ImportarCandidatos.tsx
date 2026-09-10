@@ -250,7 +250,7 @@ export function ImportarCandidatos() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold">Importar candidatos desde Excel</h1>
+          <h1 className="text-xl font-black tracking-tight">Importar candidatos desde Excel</h1>
           <p className="text-sm text-muted-foreground">Nada se guarda hasta el último paso.</p>
         </div>
         <Button variant="outline" asChild>
@@ -474,7 +474,7 @@ export function ImportarCandidatos() {
       {paso === 4 && resultado && (
         <div className="border border-border p-6 text-center">
           <CheckCircle2 className="mx-auto size-8 text-primary" />
-          <h2 className="mt-3 text-lg font-semibold">Importación completada</h2>
+          <h2 className="mt-3 text-lg font-bold tracking-tight">Importación completada</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             {resultado.creados} creados · {resultado.actualizados} actualizados · {resultado.omitidos} omitidos
           </p>

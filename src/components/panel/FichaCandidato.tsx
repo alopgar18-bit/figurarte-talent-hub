@@ -267,7 +267,7 @@ export function FichaCandidato({ id }: { id: string }) {
   if (noEncontrado || !candidato) {
     return (
       <div className="space-y-4 py-16 text-center">
-        <p className="text-lg font-semibold">Candidato no encontrado</p>
+        <p className="text-lg font-bold tracking-tight">Candidato no encontrado</p>
         <p className="text-sm text-muted-foreground">
           Es posible que la ficha se haya eliminado o que el enlace no sea correcto.
         </p>
@@ -302,7 +302,7 @@ export function FichaCandidato({ id }: { id: string }) {
             </Badge>
             <span className="font-mono text-sm text-muted-foreground">{candidato.codigo}</span>
           </div>
-          <h2 className="text-2xl font-bold tracking-tight">{nombreCompleto}</h2>
+          <h2 className="text-2xl font-black tracking-tight">{nombreCompleto}</h2>
           <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <MapPin className="h-4 w-4" />
             {[candidato.ciudad, candidato.provincia].filter(Boolean).join(", ") ||

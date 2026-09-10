@@ -59,7 +59,7 @@ function Seccion({
 }) {
   return (
     <section className="border border-border bg-card p-4 sm:p-6">
-      <h2 className="text-lg font-semibold text-card-foreground">{titulo}</h2>
+      <h2 className="text-lg font-bold tracking-tight text-card-foreground">{titulo}</h2>
       {descripcion && (
         <p className="mt-1 text-sm text-muted-foreground">{descripcion}</p>
       )}
@@ -269,7 +269,7 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
 
       {ficha["consentimiento_rgpd"] !== true && (
         <section className="border-2 border-primary bg-primary/5 p-4 sm:p-6">
-          <h2 className="text-lg font-semibold">Autorización de cesión de imagen</h2>
+          <h2 className="text-lg font-bold tracking-tight">Autorización de cesión de imagen</h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             {TEXTO_CESION}
           </p>
@@ -439,7 +439,7 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
       />
 
       <section className="border border-border bg-card p-4 sm:p-6">
-        <h2 className="text-lg font-semibold text-card-foreground">Tus datos y tus derechos</h2>
+        <h2 className="text-lg font-bold tracking-tight text-card-foreground">Tus datos y tus derechos</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Puedes descargar una copia de todo lo que guardamos sobre ti o pedir que lo
           eliminemos por completo.

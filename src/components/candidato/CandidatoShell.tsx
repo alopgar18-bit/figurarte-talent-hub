@@ -28,7 +28,7 @@ export function CandidatoShell({
             <Link to="/" className="text-sm font-bold tracking-tight">
               FigurArte<span className="text-primary">.</span>es
             </Link>
-            <p className="truncate text-lg font-semibold leading-tight">{nombre}</p>
+            <p className="truncate text-lg font-bold tracking-tight leading-tight">{nombre}</p>
             <p className="text-xs uppercase tracking-wider text-muted-foreground">
               Tu ficha · {codigo}
             </p>

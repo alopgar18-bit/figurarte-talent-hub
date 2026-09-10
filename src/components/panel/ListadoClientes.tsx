@@ -387,11 +387,11 @@ export function ListadoClientes() {
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <div className="border border-border p-3">
             <p className="text-xs uppercase tracking-wider text-muted-foreground">Proyectos</p>
-            <p className="text-lg font-semibold text-foreground">{proyectosCliente.length}</p>
+            <p className="text-lg font-bold tracking-tight text-foreground">{proyectosCliente.length}</p>
           </div>
           <div className="border border-border p-3">
             <p className="text-xs uppercase tracking-wider text-muted-foreground">Contactos</p>
-            <p className="text-lg font-semibold text-foreground">
+            <p className="text-lg font-bold tracking-tight text-foreground">
               {cliente.contactos?.length ?? 0}
             </p>
           </div>
@@ -399,7 +399,7 @@ export function ListadoClientes() {
             <p className="text-xs uppercase tracking-wider text-muted-foreground">
               Candidatos presentados
             </p>
-            <p className="text-lg font-semibold text-foreground">
+            <p className="text-lg font-bold tracking-tight text-foreground">
               {presentados[cliente.id] ?? 0}
             </p>
           </div>

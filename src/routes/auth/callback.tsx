@@ -150,18 +150,9 @@ function CallbackPage() {
           )}
 
           {estado === "listo" && acceso?.tipo === "usuario" && (
-            <>
-              <h2 className="text-lg font-semibold text-card-foreground">
-                Sesión iniciada
-              </h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Has entrado como <strong>{ETIQUETAS_ROL[acceso.rol] ?? acceso.rol}</strong> (
-                {acceso.nombreEmail}). Tu panel se construirá en el siguiente paso.
-              </p>
-              <Button asChild variant="outline" className="mt-4 w-full">
-                <Link to="/">Ir al inicio</Link>
-              </Button>
-            </>
+            <p className="text-sm text-muted-foreground">
+              Entrando como <strong>{ETIQUETAS_ROL[acceso.rol] ?? acceso.rol}</strong>...
+            </p>
           )}
 
           {estado === "listo" && acceso?.tipo === "candidato" && (

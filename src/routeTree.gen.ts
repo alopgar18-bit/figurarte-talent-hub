@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as CastingSlugRouteImport } from './routes/casting/$slug'
@@ -17,6 +18,11 @@ import { Route as CastingSlugRouteImport } from './routes/casting/$slug'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegistroRoute = RegistroRouteImport.update({
+  id: '/registro',
+  path: '/registro',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthIndexRoute = AuthIndexRouteImport.update({
@@ -37,12 +43,14 @@ const CastingSlugRoute = CastingSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/casting/$slug': typeof CastingSlugRoute
   '/auth/': typeof AuthIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/casting/$slug': typeof CastingSlugRoute
   '/auth': typeof AuthIndexRoute
@@ -50,20 +58,28 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/casting/$slug': typeof CastingSlugRoute
   '/auth/': typeof AuthIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth/callback' | '/casting/$slug' | '/auth/'
+  fullPaths: '/' | '/registro' | '/auth/callback' | '/casting/$slug' | '/auth/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth/callback' | '/casting/$slug' | '/auth'
-  id: '__root__' | '/' | '/auth/callback' | '/casting/$slug' | '/auth/'
+  to: '/' | '/registro' | '/auth/callback' | '/casting/$slug' | '/auth'
+  id:
+    | '__root__'
+    | '/'
+    | '/registro'
+    | '/auth/callback'
+    | '/casting/$slug'
+    | '/auth/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  RegistroRoute: typeof RegistroRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   CastingSlugRoute: typeof CastingSlugRoute
   AuthIndexRoute: typeof AuthIndexRoute
@@ -76,6 +92,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registro': {
+      id: '/registro'
+      path: '/registro'
+      fullPath: '/registro'
+      preLoaderRoute: typeof RegistroRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/': {
@@ -104,6 +127,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  RegistroRoute: RegistroRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   CastingSlugRoute: CastingSlugRoute,
   AuthIndexRoute: AuthIndexRoute,

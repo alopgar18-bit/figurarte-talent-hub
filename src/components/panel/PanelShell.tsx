@@ -95,7 +95,7 @@ export function PanelShell({
 
   async function salir() {
     await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
+    navigate({ to: "/", replace: true });
   }
 
   const contenidoSidebar = (

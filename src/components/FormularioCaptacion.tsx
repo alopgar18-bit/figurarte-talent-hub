@@ -186,12 +186,19 @@ export function FormularioCaptacion({
           <Check className="h-6 w-6 text-primary" />
         </div>
         <h2 className="mt-4 text-2xl font-black tracking-tight">
-          Candidatura recibida
+          Hemos recibido tu solicitud
         </h2>
         <p className="mt-2 text-muted-foreground">
-          En breve revisamos tu perfil. Tu referencia es{" "}
-          <span className="font-semibold text-foreground">{exito}</span>.
+          Revisa tu correo: te hemos enviado los datos de acceso a tu área de
+          candidato.
         </p>
+        {exito.avisoCasting && (
+          <p className="mx-auto mt-4 max-w-md rounded-md border border-primary/40 bg-primary/10 p-4 text-sm">
+            Tu candidatura se ha registrado, pero no hemos podido apuntarte
+            automáticamente a este casting. Escríbenos o vuelve a intentarlo
+            desde tu área de candidato.
+          </p>
+        )}
         <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
           Termina de completar tu perfil cuando quieras entrando en tu área de
           candidato: apellidos, datos físicos, habilidades e idiomas ayudan a que

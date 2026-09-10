@@ -695,6 +695,8 @@ export type Database = {
         Args: { ids: string[] }
         Returns: {
           altura_cm: number
+          anchura_cintura: string
+          anchura_pecho: string
           categoria: Database["public"]["Enums"]["categoria_candidato"]
           codigo: string
           edad: number
@@ -703,6 +705,9 @@ export type Database = {
           nombre: string
           peso_kg: number
           provincia: string
+          talla_calzado: string
+          talla_camisa: string
+          talla_pantalon: string
         }[]
       }
       fn_dossier_publico: {

@@ -168,9 +168,10 @@ export function FormularioCaptacion({
         },
       });
 
-      if (res.estado === "duplicado") setDuplicado(true);
+      if (res.estado === "limite")
+        setError("Demasiados intentos. Prueba de nuevo en unos minutos.");
       else if (res.estado === "error") setError(res.mensaje);
-      else setExito(res.codigo);
+      else setExito({ avisoCasting: res.avisoCasting === true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Algo ha fallado. Inténtalo de nuevo.");
     } finally {

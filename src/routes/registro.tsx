@@ -49,7 +49,7 @@ export const Route = createFileRoute("/registro")({
 });
 
 function Registro() {
-  const { categoria } = Route.useSearch();
+  const { categoria, convocatoria, canal } = Route.useSearch();
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -83,7 +83,11 @@ function Registro() {
       </section>
 
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
-        <FormularioCaptacion categoriaInicial={categoria} />
+        <FormularioCaptacion
+          categoriaInicial={categoria}
+          convocatoriaId={convocatoria}
+          canal={canal}
+        />
       </div>
     </main>
   );

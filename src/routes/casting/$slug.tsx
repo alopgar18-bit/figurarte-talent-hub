@@ -14,6 +14,7 @@ import {
   FormularioCaptacion,
   type CategoriaCandidato,
 } from "@/components/FormularioCaptacion";
+import { CabeceraPublica, PieLegal } from "@/components/publico/CabeceraPublica";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -97,7 +98,9 @@ export const Route = createFileRoute("/casting/$slug")({
 
 function NoDisponible() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-background px-6 text-center">
+    <main className="min-h-screen bg-background">
+      <CabeceraPublica ancho="max-w-3xl" />
+      <div className="flex min-h-[70vh] flex-col items-center justify-center px-6 text-center">
       <CalendarX2 className="h-10 w-10 text-muted-foreground" />
       <h1 className="mt-4 text-2xl font-black tracking-tight text-foreground">
         Casting no encontrado o ya cerrado
@@ -109,6 +112,7 @@ function NoDisponible() {
       <Button asChild className="mt-6">
         <Link to="/">Ver castings abiertos</Link>
       </Button>
+      </div>
     </main>
   );
 }
@@ -143,13 +147,12 @@ function CastingPage() {
 
   return (
     <main className="min-h-screen bg-background">
+      <CabeceraPublica ancho="max-w-3xl" />
+
       {/* Hero */}
       <header className="border-b border-border bg-secondary text-secondary-foreground">
         <div className="mx-auto max-w-3xl px-5 py-12 sm:py-16">
-          <Link to="/" className="text-sm font-semibold tracking-tight opacity-80">
-            FigurArte<span className="text-primary">.</span>es
-          </Link>
-          <p className="mt-8 inline-block bg-primary px-3 py-1 text-xs font-bold uppercase tracking-widest text-primary-foreground">
+          <p className=" inline-block bg-primary px-3 py-1 text-xs font-bold uppercase tracking-widest text-primary-foreground">
             {CATEGORIA_LABEL[brief.categoria ?? ""] ?? "Casting abierto"}
           </p>
           <h1 className="mt-4 text-3xl font-black leading-tight tracking-tight sm:text-5xl">

@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { CabeceraPublica, PieLegal } from "@/components/publico/CabeceraPublica";
+
 
 export const Route = createFileRoute("/aviso-legal")({
   head: () => ({
@@ -31,7 +33,9 @@ function Pendiente({ children }: { children: React.ReactNode }) {
 
 function AvisoLegal() {
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
+    <div className="min-h-screen bg-background">
+      <CabeceraPublica />
+      <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
       <Link to="/" className="text-sm text-muted-foreground underline underline-offset-4">
         ← Volver al inicio
       </Link>
@@ -124,5 +128,7 @@ function AvisoLegal() {
         </p>
       </section>
     </main>
+      <PieLegal />
+    </div>
   );
 }

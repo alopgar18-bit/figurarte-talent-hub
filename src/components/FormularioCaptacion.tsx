@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Drama, Camera, Users, Sparkles, Upload, Check, ImageIcon } from "lucide-react";
+import { Drama, Camera, Users, Sparkles, Upload, Check } from "lucide-react";
+import { RecorteFoto, type AreaRecorte } from "@/components/RecorteFoto";
 import { supabase } from "@/integrations/supabase/client";
 import { crearCandidatura } from "@/lib/candidatos.functions";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,40 @@ type Props = {
   nombreCasting?: string | undefined;
 };
 
+/** Genera una miniatura 3:4 en el navegador, solo para previsualizar. */
+async function generarPreview(file: File, area: AreaRecorte): Promise<string> {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => reject(new Error("imagen no válida"));
+      el.src = url;
+    });
+    const canvas = document.createElement("canvas");
+    canvas.width = 300;
+    canvas.height = 400;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return url;
+    ctx.drawImage(
+      img,
+      area.x,
+      area.y,
+      area.width,
+      area.height,
+      0,
+      0,
+      canvas.width,
+      canvas.height,
+    );
+    return canvas.toDataURL("image/jpeg", 0.8);
+  } catch {
+    return url;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
 function rutaAleatoria(file: File) {
   const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase().slice(0, 5);
   return `${crypto.randomUUID()}/${crypto.randomUUID()}.${ext}`;
@@ -59,7 +94,12 @@ export function FormularioCaptacion({
   const [email, setEmail] = useState("");
   const [ciudad, setCiudad] = useState("");
   const [rgpd, setRgpd] = useState(false);
-  const [archivos, setArchivos] = useState<Record<string, File | null>>({});
+  const [archivos, setArchivos] = useState<
+    Record<string, { file: File; area: AreaRecorte; preview: string } | undefined>
+  >({});
+  const [recortando, setRecortando] = useState<
+    { clave: string; etiqueta: string; file: File } | null
+  >(null);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [duplicado, setDuplicado] = useState(false);
@@ -79,15 +119,17 @@ export function FormularioCaptacion({
     setEnviando(true);
     try {
       const rutas: string[] = [];
+      const recortes: Record<string, AreaRecorte> = {};
       for (const ranura of RANURAS_FOTO) {
-        const file = archivos[ranura.clave];
-        if (!file) continue;
-        const path = rutaAleatoria(file);
+        const entrada = archivos[ranura.clave];
+        if (!entrada) continue;
+        const path = rutaAleatoria(entrada.file);
         const { error: upErr } = await supabase.storage
           .from("candidatos-fotos")
-          .upload(path, file, { upsert: false });
+          .upload(path, entrada.file, { upsert: false });
         if (upErr) throw new Error("No se pudieron subir las fotos. Inténtalo de nuevo.");
         rutas.push(path);
+        recortes[path] = entrada.area;
       }
 
       const res = await enviar({
@@ -100,6 +142,7 @@ export function FormularioCaptacion({
           altura_cm: altura ? Number(altura) : null,
           peso_kg: peso ? Number(peso) : null,
           fotos: rutas,
+          fotos_recorte: Object.keys(recortes).length ? recortes : null,
           consentimiento_rgpd: true,
           proyecto_id: proyectoId ?? null,
         },
@@ -128,6 +171,11 @@ export function FormularioCaptacion({
           En breve revisamos tu perfil. Tu referencia es{" "}
           <span className="font-semibold text-foreground">{exito}</span>.
         </p>
+        <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
+          Termina de completar tu perfil cuando quieras entrando en tu área de
+          candidato: apellidos, datos físicos, habilidades e idiomas ayudan a que
+          te encontremos para más castings.
+        </p>
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
           <Button asChild>
             <Link to="/auth">Acceder a mi ficha</Link>
@@ -142,6 +190,23 @@ export function FormularioCaptacion({
 
   return (
     <form onSubmit={onSubmit} className="space-y-10">
+      {recortando && (
+        <RecorteFoto
+          file={recortando.file}
+          titulo={recortando.etiqueta}
+          onCancelar={() => setRecortando(null)}
+          onConfirmar={async (area) => {
+            const actual = recortando;
+            setRecortando(null);
+            const preview = await generarPreview(actual.file, area);
+            setArchivos((prev) => ({
+              ...prev,
+              [actual.clave]: { file: actual.file, area, preview },
+            }));
+          }}
+        />
+      )}
+
       {nombreCasting && (
         <div className="rounded-md border border-primary/40 bg-primary/10 px-4 py-3 text-sm font-semibold text-foreground">
           Te apuntas a: {nombreCasting}
@@ -218,33 +283,49 @@ export function FormularioCaptacion({
         </h2>
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {RANURAS_FOTO.map((ranura) => {
-            const file = archivos[ranura.clave];
+            const entrada = archivos[ranura.clave];
             return (
-              <label
+              <div
                 key={ranura.clave}
-                className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed border-border bg-card px-4 py-8 text-center transition-colors hover:border-primary"
+                className="rounded-md border border-dashed border-border bg-card p-3 text-center"
               >
-                {file ? (
-                  <ImageIcon className="h-7 w-7 text-primary" />
-                ) : (
-                  <Upload className="h-7 w-7 text-muted-foreground" />
-                )}
-                <span className="text-sm font-semibold">{ranura.etiqueta}</span>
-                <span className="w-full truncate text-xs text-muted-foreground">
-                  {file ? file.name : "JPG o PNG, máx. 10 MB"}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="sr-only"
-                  onChange={(e) =>
-                    setArchivos((prev) => ({
-                      ...prev,
-                      [ranura.clave]: e.target.files?.[0] ?? null,
-                    }))
-                  }
-                />
-              </label>
+                <label className="block cursor-pointer">
+                  <span className="sr-only">{ranura.etiqueta}</span>
+                  {entrada ? (
+                    <img
+                      src={entrada.preview}
+                      alt={`Vista previa de ${ranura.etiqueta.toLowerCase()}`}
+                      className="mx-auto aspect-[3/4] w-full max-w-[200px] rounded-sm object-cover"
+                    />
+                  ) : (
+                    <span className="mx-auto flex aspect-[3/4] w-full max-w-[200px] flex-col items-center justify-center gap-2 rounded-sm bg-muted/50 text-muted-foreground transition-colors hover:text-primary">
+                      <Upload className="h-7 w-7" />
+                      <span className="text-xs">JPG o PNG, máx. 10 MB</span>
+                    </span>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      e.target.value = "";
+                      if (!f) return;
+                      setRecortando({
+                        clave: ranura.clave,
+                        etiqueta: ranura.etiqueta,
+                        file: f,
+                      });
+                    }}
+                  />
+                  <span className="mt-3 block text-sm font-semibold">
+                    {ranura.etiqueta}
+                  </span>
+                  <span className="mt-1 block text-xs text-primary underline">
+                    {entrada ? "Cambiar foto" : "Elegir foto"}
+                  </span>
+                </label>
+              </div>
             );
           })}
         </div>

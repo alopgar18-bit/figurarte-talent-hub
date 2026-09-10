@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { resolverAcceso, type AccesoResuelto } from "@/lib/auth.functions";
+import { resolverAcceso, ROLES_STAFF, type AccesoResuelto } from "@/lib/auth.functions";
 import { inscribirEnCasting } from "@/lib/inscripciones.functions";
 import { Button } from "@/components/ui/button";
 

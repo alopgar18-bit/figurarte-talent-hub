@@ -30,6 +30,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useServerFn } from "@tanstack/react-start";
+import { asignarCandidatosAProyecto } from "@/lib/rgpd.functions";
 
 type Candidato = Record<string, unknown> & {
   id: string;
@@ -106,6 +108,7 @@ export function ListadoCandidatos() {
   const [seleccion, setSeleccion] = useState<string[]>([]);
   const [proyectoDestino, setProyectoDestino] = useState("");
   const [asignando, setAsignando] = useState(false);
+  const asignar = useServerFn(asignarCandidatosAProyecto);
   const [aviso, setAviso] = useState<string | null>(null);
   const [dialogoExport, setDialogoExport] = useState(false);
 
@@ -174,32 +177,23 @@ export function ListadoCandidatos() {
     if (!proyectoDestino || seleccionados.length === 0) return;
     setAsignando(true);
     setAviso(null);
-    const { data: existentes } = await supabase
-      .from("proyecto_candidatos")
-      .select("candidato_id")
-      .eq("proyecto_id", proyectoDestino)
-      .in("candidato_id", seleccionados);
-    const yaAsignados = new Set((existentes ?? []).map((r) => r.candidato_id));
-    const nuevos = seleccionados.filter((id) => !yaAsignados.has(id));
-    if (nuevos.length) {
-      const { error: e } = await supabase.from("proyecto_candidatos").insert(
-        nuevos.map((candidato_id) => ({
-          proyecto_id: proyectoDestino,
-          candidato_id,
-          origen: "manual" as const,
-          estado: "preseleccionado" as const,
-        })),
-      );
-      if (e) {
-        setAviso("No se han podido asignar los candidatos.");
-        setAsignando(false);
-        return;
+    try {
+      const res = await asignar({
+        data: { proyectoId: proyectoDestino, candidatoIds: seleccionados },
+      });
+      const partes = [`${res.asignados} candidato(s) asignado(s)`];
+      if (res.yaEstaban) partes.push(`${res.yaEstaban} ya estaban en el proyecto`);
+      if (res.bloqueados.length) {
+        partes.push(
+          `${res.bloqueados.length} sin consentimiento RGPD firmado (${res.bloqueados
+            .map((b) => b.nombre)
+            .join(", ")}): se les ha avisado para que lo completen y se añadirán automáticamente al proyecto en cuanto lo hagan`,
+        );
       }
+      setAviso(`${partes.join(". ")}.`);
+    } catch {
+      setAviso("No se han podido asignar los candidatos.");
     }
-    setAviso(
-      `${nuevos.length} candidato(s) asignado(s)` +
-        (yaAsignados.size ? `, ${yaAsignados.size} ya estaban en el proyecto.` : "."),
-    );
     setAsignando(false);
   }
 

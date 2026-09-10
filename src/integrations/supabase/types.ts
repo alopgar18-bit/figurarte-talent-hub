@@ -59,6 +59,42 @@ export type Database = {
           },
         ]
       }
+      asignaciones_pendientes_rgpd: {
+        Row: {
+          candidato_id: string
+          creado_en: string
+          id: string
+          proyecto_id: string
+        }
+        Insert: {
+          candidato_id: string
+          creado_en?: string
+          id?: string
+          proyecto_id: string
+        }
+        Update: {
+          candidato_id?: string
+          creado_en?: string
+          id?: string
+          proyecto_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asignaciones_pendientes_rgpd_candidato_id_fkey"
+            columns: ["candidato_id"]
+            isOneToOne: false
+            referencedRelation: "candidatos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asignaciones_pendientes_rgpd_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "proyectos_casting"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campos_personalizados: {
         Row: {
           categoria_aplicable:

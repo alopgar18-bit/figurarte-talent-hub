@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { darConsentimientoRgpd, TEXTO_CESION } from "@/lib/rgpd.functions";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -104,6 +106,8 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState<string | null>(null);
   const [f, setF] = useState<Record<string, unknown>>({});
+  const [firmando, setFirmando] = useState(false);
+  const firmar = useServerFn(darConsentimientoRgpd);
 
   useEffect(() => {
     let cancelado = false;
@@ -126,6 +130,23 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
       cancelado = true;
     };
   }, [candidatoId]);
+
+  async function firmarConsentimiento() {
+    setFirmando(true);
+    try {
+      const res = await firmar({ data: undefined as never });
+      setFicha((prev) => (prev ? { ...prev, consentimiento_rgpd: true } : prev));
+      setF((prev) => ({ ...prev, consentimiento_rgpd: true }));
+      toast.success(
+        res.liberadas > 0
+          ? `Gracias, ya puedes participar en nuestros proyectos. Ya apareces en ${res.liberadas} proyecto${res.liberadas === 1 ? "" : "s"} que te habían apuntado.`
+          : "Gracias, ya puedes participar en nuestros proyectos.",
+      );
+    } catch {
+      toast.error("No hemos podido guardar tu autorización. Inténtalo de nuevo.");
+    }
+    setFirmando(false);
+  }
 
   function set(campo: string, valor: unknown) {
     setF((prev) => ({ ...prev, [campo]: valor }));
@@ -180,6 +201,27 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
           Completa tu perfil poco a poco: cada bloque se guarda por separado.
         </p>
       </div>
+
+      {ficha["consentimiento_rgpd"] !== true && (
+        <section className="border-2 border-primary bg-primary/5 p-4 sm:p-6">
+          <h2 className="text-lg font-semibold">Autorización de cesión de imagen</h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            {TEXTO_CESION}
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Sin esta autorización no podemos presentarte a los proyectos de nuestros
+            clientes.
+          </p>
+          <Button
+            className="mt-4 w-full sm:w-auto"
+            disabled={firmando}
+            onClick={firmarConsentimiento}
+          >
+            {firmando ? "Guardando..." : "Aceptar y firmar"}
+          </Button>
+        </section>
+      )}
+
 
       <Seccion
         titulo="Datos básicos"

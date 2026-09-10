@@ -207,12 +207,20 @@ export const crearCandidatura = createServerFn({ method: "POST" })
       return { estado: "error", mensaje: "No se pudo registrar la candidatura." };
     }
 
+    // La vinculación al casting sí afecta a datos: si falla, se avisa.
+    let avisoCasting = false;
     if (data.proyecto_id) {
-      await supabaseAdmin.from("proyecto_candidatos").insert({
-        proyecto_id: data.proyecto_id,
-        candidato_id: creado.id,
-        origen: "web_directa",
-      });
+      const { error: errCasting } = await supabaseAdmin
+        .from("proyecto_candidatos")
+        .insert({
+          proyecto_id: data.proyecto_id,
+          candidato_id: creado.id,
+          origen: "web_directa",
+        });
+      if (errCasting && errCasting.code !== "23505") {
+        console.error("[registro] No se pudo apuntar al casting:", errCasting);
+        avisoCasting = true;
+      }
     }
 
     // Trazabilidad de captación RRSS: nunca debe romper el registro.

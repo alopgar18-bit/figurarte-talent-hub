@@ -95,3 +95,48 @@ export const obtenerSesionStaff = createServerFn({ method: "POST" })
     }
     return { esStaff: true, rol: usuario.rol, email: usuario.email };
   });
+
+export type SesionCliente =
+  | { esCliente: true; clienteId: string; razonSocial: string; email: string }
+  | { esCliente: false };
+
+/**
+ * Resuelve si la sesión actual pertenece a un cliente con `cliente_id` vinculado.
+ * Mismo patrón que `obtenerSesionStaff`, pero para el portal de cliente.
+ */
+export const obtenerSesionCliente = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<SesionCliente> => {
+    const { userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: usuario } = await supabaseAdmin
+      .from("usuarios")
+      .select("rol, email, cliente_id")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (!usuario || usuario.rol !== "cliente" || !usuario.cliente_id) {
+      return { esCliente: false };
+    }
+
+    const { data: cliente } = await supabaseAdmin
+      .from("clientes")
+      .select("id, razon_social")
+      .eq("id", usuario.cliente_id)
+      .maybeSingle();
+
+    if (!cliente) return { esCliente: false };
+
+    await supabaseAdmin
+      .from("usuarios")
+      .update({ ultimo_acceso: new Date().toISOString() })
+      .eq("user_id", userId);
+
+    return {
+      esCliente: true,
+      clienteId: cliente.id,
+      razonSocial: cliente.razon_social,
+      email: usuario.email,
+    };
+  });

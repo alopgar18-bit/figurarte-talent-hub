@@ -34,6 +34,74 @@ export type CandidaturaResultado =
   | { estado: "duplicado" }
   | { estado: "error"; mensaje: string };
 
+async function enviarConfirmacionResend({
+  nombre,
+  email,
+  codigo,
+}: {
+  nombre: string;
+  email: string;
+  codigo: string;
+}) {
+  const apiKey = process.env["RESEND_API_KEY"];
+  if (!apiKey) {
+    console.error("[email] RESEND_API_KEY no está configurado");
+    return;
+  }
+
+  const request = getRequest();
+  const host = request?.headers.get("host") ?? "figurarte-casting.lovable.app";
+  const origin = `https://${host}`;
+  const authUrl = `${origin}/auth`;
+
+  const html = `
+    <p>Hola ${nombre},</p>
+    <p>Gracias por registrarte en <strong>FigurArte</strong>. Hemos recibido tu candidatura y ya formas parte de nuestra base de talentos.</p>
+    <p>Tu código de referencia es: <strong>${codigo}</strong></p>
+    <p>Te animamos a completar tu perfil (apellidos, datos físicos, habilidades, idiomas y redes) desde tu área de candidato para que podamos tenerte en cuenta en futuros castings.</p>
+    <p>Puedes entrar aquí cuando quieras: <a href="${authUrl}">${authUrl}</a></p>
+    <p>— FIGURARTE · Agencia de casting & producción</p>
+  `.trim();
+
+  const text = `Hola ${nombre},
+
+Gracias por registrarte en FigurArte. Hemos recibido tu candidatura y ya formas parte de nuestra base de talentos.
+
+Tu código de referencia es: ${codigo}
+
+Te animamos a completar tu perfil (apellidos, datos físicos, habilidades, idiomas y redes) desde tu área de candidato para que podamos tenerte en cuenta en futuros castings.
+
+Puedes entrar aquí cuando quieras: ${authUrl}
+
+— FIGURARTE · Agencia de casting & producción`;
+
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        from: "FIGURARTE Casting & Producción <casting@figurarte.app>",
+        to: [email],
+        subject: "Hemos recibido tu candidatura — FigurArte",
+        html,
+        text,
+      }),
+    });
+
+    if (!response.ok) {
+      const body = await response.text();
+      console.error(
+        `[email] Resend respondió ${response.status}: ${body}`,
+      );
+    }
+  } catch (err) {
+    console.error("[email] Error enviando confirmación:", err);
+  }
+}
+
 export const crearCandidatura = createServerFn({ method: "POST" })
   .inputValidator((data: CandidaturaInput) => candidaturaSchema.parse(data))
   .handler(async ({ data }): Promise<CandidaturaResultado> => {

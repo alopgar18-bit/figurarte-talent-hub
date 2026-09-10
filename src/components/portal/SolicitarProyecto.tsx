@@ -71,19 +71,22 @@ export function SolicitarProyecto({ clienteId }: { clienteId: string }) {
       return;
     }
     setEnviando(true);
-    const { error } = await supabase.from("solicitudes_proyecto").insert({
-      cliente_id: clienteId,
-      nombre_proyecto: nombre.trim(),
-      categoria,
-      num_candidatos_aprox: numero.trim() ? Number(numero) : null,
-      descripcion: descripcion.trim() || null,
-      fecha_necesaria: fecha || null,
-    });
-    setEnviando(false);
-    if (error) {
+    try {
+      await enviarSolicitud({
+        data: {
+          nombreProyecto: nombre.trim(),
+          categoria,
+          numAprox: numero.trim() ? Number(numero) : null,
+          descripcion: descripcion.trim() || null,
+          fechaNecesaria: fecha || null,
+        },
+      });
+    } catch {
+      setEnviando(false);
       toast.error("No se pudo enviar la solicitud. Inténtalo de nuevo.");
       return;
     }
+    setEnviando(false);
     setEnviada(true);
     setNombre("");
     setNumero("");

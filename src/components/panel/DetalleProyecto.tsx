@@ -385,14 +385,18 @@ export function DetalleProyecto({ id }: { id: string }) {
       toast.info("Ese candidato ya está en el proyecto.");
       return;
     }
-    const { error: errIns } = await supabase.from("proyecto_candidatos").insert({
-      proyecto_id: id,
-      candidato_id: candidato.id,
-      estado: "preseleccionado",
-      origen: "manual",
-    });
-    if (errIns && errIns.code !== "23505") {
+    let res;
+    try {
+      res = await asignar({ data: { proyectoId: id, candidatoIds: [candidato.id] } });
+    } catch {
       toast.error("No se pudo añadir el candidato.");
+      return;
+    }
+    if (res.bloqueados.length) {
+      toast.warning(
+        `${candidato.nombre} no tiene el consentimiento RGPD firmado. Se le ha avisado para que lo complete; se añadirá automáticamente al proyecto en cuanto lo haga.`,
+        { duration: 10000 },
+      );
       return;
     }
     toast.success(`${candidato.nombre} añadido.`);

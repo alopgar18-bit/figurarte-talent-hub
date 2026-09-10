@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { darConsentimientoRgpd, TEXTO_CESION } from "@/lib/rgpd.functions";
+import { obtenerMisDatos, eliminarMisDatos } from "@/lib/derechos-rgpd.functions";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { VideoPresentacion } from "@/components/candidato/VideoPresentacion";
+
 
 type Ficha = Record<string, unknown> & {
   id: string;
@@ -108,6 +118,54 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   const [f, setF] = useState<Record<string, unknown>>({});
   const [firmando, setFirmando] = useState(false);
   const firmar = useServerFn(darConsentimientoRgpd);
+  const descargarDatos = useServerFn(obtenerMisDatos);
+  const eliminarCuenta = useServerFn(eliminarMisDatos);
+  const [descargando, setDescargando] = useState(false);
+  const [dialogoBorrado, setDialogoBorrado] = useState(false);
+  const [confirmacion, setConfirmacion] = useState("");
+  const [borrando, setBorrando] = useState(false);
+
+  async function descargar() {
+    setDescargando(true);
+    try {
+      const datos = await descargarDatos({ data: undefined as never });
+      const contenido = {
+        generado_en: datos.generado_en,
+        candidato: JSON.parse(datos.candidato_json) as unknown,
+        historial_proyectos: datos.historial,
+      };
+      const blob = new Blob([JSON.stringify(contenido, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `mis-datos-figurarte-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("No hemos podido preparar tu descarga. Inténtalo de nuevo.");
+    }
+    setDescargando(false);
+  }
+
+  async function confirmarBorrado() {
+    setBorrando(true);
+    try {
+      const res = await eliminarCuenta({ data: { confirmacion: "ELIMINAR" as const } });
+      if (res.estado !== "ok") {
+        toast.error(res.mensaje, { duration: 10000 });
+        setBorrando(false);
+        return;
+      }
+      await supabase.auth.signOut();
+      window.location.href = "/";
+    } catch {
+      toast.error("No hemos podido eliminar tus datos. Inténtalo de nuevo.");
+      setBorrando(false);
+    }
+  }
+
 
   useEffect(() => {
     let cancelado = false;
@@ -379,6 +437,68 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         nombre={texto(f["nombre"])}
         codigo={ficha.codigo}
       />
+
+      <section className="border border-border bg-card p-4 sm:p-6">
+        <h2 className="text-lg font-semibold text-card-foreground">Tus datos y tus derechos</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Puedes descargar una copia de todo lo que guardamos sobre ti o pedir que lo
+          eliminemos por completo.
+        </p>
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+          <Button variant="outline" onClick={descargar} disabled={descargando}>
+            {descargando ? "Preparando…" : "Descargar mis datos"}
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              setConfirmacion("");
+              setDialogoBorrado(true);
+            }}
+          >
+            Eliminar mi cuenta y mis datos
+          </Button>
+        </div>
+      </section>
+
+      <Dialog open={dialogoBorrado} onOpenChange={setDialogoBorrado}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Eliminar tu cuenta y tus datos</DialogTitle>
+            <DialogDescription>
+              Se borrarán tu ficha, tus fotos, tu vídeo y tu historial de proyectos. Es
+              definitivo: no podremos recuperarlo.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="confirmar_borrado">
+              Escribe ELIMINAR para confirmar
+            </Label>
+            <Input
+              id="confirmar_borrado"
+              value={confirmacion}
+              onChange={(e) => setConfirmacion(e.target.value)}
+              placeholder="ELIMINAR"
+            />
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setDialogoBorrado(false)}
+              disabled={borrando}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={confirmacion.trim().toUpperCase() !== "ELIMINAR" || borrando}
+              onClick={confirmarBorrado}
+            >
+              {borrando ? "Eliminando…" : "Eliminar definitivamente"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
+
 }

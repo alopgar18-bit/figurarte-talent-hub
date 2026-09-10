@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import {
   CalendarDays,
@@ -14,10 +14,23 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { obtenerFichaCandidatoStaff } from "@/lib/ficha-candidato.functions";
+import { eliminarCandidatoStaff } from "@/lib/derechos-rgpd.functions";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+
 
 export type CandidatoCompleto = Record<string, unknown> & {
   id: string;
@@ -133,6 +146,31 @@ export function FichaCandidato({ id }: { id: string }) {
   const [cargando, setCargando] = useState(true);
   const [noEncontrado, setNoEncontrado] = useState(false);
   const [guardandoDisponible, setGuardandoDisponible] = useState(false);
+  const navigate = useNavigate();
+  const borrarCandidato = useServerFn(eliminarCandidatoStaff);
+  const [dialogoBorrado, setDialogoBorrado] = useState(false);
+  const [confirmacion, setConfirmacion] = useState("");
+  const [borrando, setBorrando] = useState(false);
+
+  async function confirmarBorrado() {
+    setBorrando(true);
+    try {
+      const res = await borrarCandidato({
+        data: { candidatoId: id, confirmacion: "ELIMINAR" as const },
+      });
+      if (res.estado !== "ok") {
+        toast.error(res.mensaje, { duration: 10000 });
+        setBorrando(false);
+        return;
+      }
+      toast.success("Candidato y todos sus datos eliminados.");
+      void navigate({ to: "/panel/candidatos" });
+    } catch {
+      toast.error("No se pudieron eliminar los datos. Inténtalo de nuevo.");
+      setBorrando(false);
+    }
+  }
+
 
   useEffect(() => {
     let activo = true;
@@ -388,6 +426,63 @@ export function FichaCandidato({ id }: { id: string }) {
           )}
         </CardContent>
       </Card>
+
+      {/* Derecho al olvido */}
+      <Card className="border-destructive/40">
+        <CardHeader>
+          <CardTitle className="text-base">Eliminar datos del candidato</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Para solicitudes de borrado recibidas por otro canal (teléfono, email o
+            WhatsApp). Se borran su ficha, sus fotos, su vídeo y todo su historial. Es
+            definitivo y queda anotado en el registro de accesos.
+          </p>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              setConfirmacion("");
+              setDialogoBorrado(true);
+            }}
+          >
+            Eliminar candidato y sus datos
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Dialog open={dialogoBorrado} onOpenChange={setDialogoBorrado}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Eliminar {nombreCompleto}</DialogTitle>
+            <DialogDescription>
+              Esta acción no se puede deshacer. Se borran la ficha, los archivos y todas las
+              filas asociadas.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="confirmar_borrado_staff">Escribe ELIMINAR para confirmar</Label>
+            <Input
+              id="confirmar_borrado_staff"
+              value={confirmacion}
+              onChange={(e) => setConfirmacion(e.target.value)}
+              placeholder="ELIMINAR"
+            />
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setDialogoBorrado(false)} disabled={borrando}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={confirmacion.trim().toUpperCase() !== "ELIMINAR" || borrando}
+              onClick={confirmarBorrado}
+            >
+              {borrando ? "Eliminando…" : "Eliminar definitivamente"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
+
 }

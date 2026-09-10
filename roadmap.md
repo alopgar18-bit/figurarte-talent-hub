@@ -10,3 +10,14 @@
 - [x] Claves foráneas `proyectos_casting.cliente_id` y `usuarios.cliente_id` con desvinculación al borrar cliente.
 - [ ] Confirmar visualmente la ficha del panel con una sesión staff (bloqueado: Supabase externo no permite inyectar sesión de prueba).
 - [ ] Limpiar una foto de prueba huérfana en `candidatos-fotos` (requiere API de Storage con clave de servicio).
+
+## Bloque RGPD (hecho)
+- Derecho al olvido (candidato y equipo), descarga de datos en JSON.
+- Tabla registro_accesos + apartado en Administracion; logs de ver ficha, generar dossier y exportar Excel.
+- Columna "En la base desde" en el listado (solo visibilidad, sin borrado automatico).
+- /aviso-legal y /privacidad con placeholders para Javi, enlazadas desde Home y formulario publico.
+
+## Pendientes de Alejandro/Javi
+- Activar "Prevent use of leaked passwords" en Supabase.
+- Rellenar los placeholders legales.
+- Limpiar la foto de prueba huerfana en el bucket.

@@ -373,9 +373,22 @@ export function FormularioCaptacion({
         />
         <Label htmlFor="rgpd" className="text-sm font-normal leading-relaxed">
           Acepto la cesión de mis datos y fotografías para su presentación a
-          clientes de FIGURARTE, según la política de privacidad. *
+          clientes de FIGURARTE, según la{" "}
+          <Link to="/privacidad" className="text-primary underline underline-offset-4">
+            política de privacidad
+          </Link>
+          . *
         </Label>
       </div>
+
+      <p className="text-xs text-muted-foreground">
+        Consulta también el{" "}
+        <Link to="/aviso-legal" className="underline underline-offset-4">
+          aviso legal
+        </Link>
+        . Puedes descargar o eliminar tus datos cuando quieras desde tu área de candidato.
+      </p>
+
 
 
       {error && (

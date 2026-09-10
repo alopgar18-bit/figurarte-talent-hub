@@ -25,6 +25,8 @@ import { Route as PanelClientesRouteImport } from './routes/panel/clientes'
 import { Route as PanelDashboardRouteImport } from './routes/panel/dashboard'
 import { Route as PanelPortalClienteRouteImport } from './routes/panel/portal-cliente'
 import { Route as PortalIndexRouteImport } from './routes/portal/index'
+import { Route as PortalCandidatosRouteImport } from './routes/portal/candidatos'
+import { Route as PortalDossiersRouteImport } from './routes/portal/dossiers'
 import { Route as PortalSolicitarRouteImport } from './routes/portal/solicitar'
 import { Route as PanelCandidatosIndexRouteImport } from './routes/panel/candidatos/index'
 import { Route as PanelCandidatosIdRouteImport } from './routes/panel/candidatos/$id'
@@ -112,6 +114,16 @@ const PortalIndexRoute = PortalIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PortalRouteRoute,
 } as any)
+const PortalCandidatosRoute = PortalCandidatosRouteImport.update({
+  id: '/candidatos',
+  path: '/candidatos',
+  getParentRoute: () => PortalRouteRoute,
+} as any)
+const PortalDossiersRoute = PortalDossiersRouteImport.update({
+  id: '/dossiers',
+  path: '/dossiers',
+  getParentRoute: () => PortalRouteRoute,
+} as any)
 const PortalSolicitarRoute = PortalSolicitarRouteImport.update({
   id: '/solicitar',
   path: '/solicitar',
@@ -157,6 +169,8 @@ export interface FileRoutesByFullPath {
   '/panel/clientes': typeof PanelClientesRoute
   '/panel/dashboard': typeof PanelDashboardRoute
   '/panel/portal-cliente': typeof PanelPortalClienteRoute
+  '/portal/candidatos': typeof PortalCandidatosRoute
+  '/portal/dossiers': typeof PortalDossiersRoute
   '/portal/solicitar': typeof PortalSolicitarRoute
   '/auth/': typeof AuthIndexRoute
   '/panel/': typeof PanelIndexRoute
@@ -179,6 +193,8 @@ export interface FileRoutesByTo {
   '/panel/clientes': typeof PanelClientesRoute
   '/panel/dashboard': typeof PanelDashboardRoute
   '/panel/portal-cliente': typeof PanelPortalClienteRoute
+  '/portal/candidatos': typeof PortalCandidatosRoute
+  '/portal/dossiers': typeof PortalDossiersRoute
   '/portal/solicitar': typeof PortalSolicitarRoute
   '/auth': typeof AuthIndexRoute
   '/panel': typeof PanelIndexRoute
@@ -204,6 +220,8 @@ export interface FileRoutesById {
   '/panel/clientes': typeof PanelClientesRoute
   '/panel/dashboard': typeof PanelDashboardRoute
   '/panel/portal-cliente': typeof PanelPortalClienteRoute
+  '/portal/candidatos': typeof PortalCandidatosRoute
+  '/portal/dossiers': typeof PortalDossiersRoute
   '/portal/solicitar': typeof PortalSolicitarRoute
   '/auth/': typeof AuthIndexRoute
   '/panel/': typeof PanelIndexRoute
@@ -230,6 +248,8 @@ export interface FileRouteTypes {
     | '/panel/clientes'
     | '/panel/dashboard'
     | '/panel/portal-cliente'
+    | '/portal/candidatos'
+    | '/portal/dossiers'
     | '/portal/solicitar'
     | '/auth/'
     | '/panel/'
@@ -252,6 +272,8 @@ export interface FileRouteTypes {
     | '/panel/clientes'
     | '/panel/dashboard'
     | '/panel/portal-cliente'
+    | '/portal/candidatos'
+    | '/portal/dossiers'
     | '/portal/solicitar'
     | '/auth'
     | '/panel'
@@ -276,6 +298,8 @@ export interface FileRouteTypes {
     | '/panel/clientes'
     | '/panel/dashboard'
     | '/panel/portal-cliente'
+    | '/portal/candidatos'
+    | '/portal/dossiers'
     | '/portal/solicitar'
     | '/auth/'
     | '/panel/'
@@ -412,6 +436,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortalIndexRouteImport
       parentRoute: typeof PortalRouteRoute
     }
+    '/portal/candidatos': {
+      id: '/portal/candidatos'
+      path: '/candidatos'
+      fullPath: '/portal/candidatos'
+      preLoaderRoute: typeof PortalCandidatosRouteImport
+      parentRoute: typeof PortalRouteRoute
+    }
+    '/portal/dossiers': {
+      id: '/portal/dossiers'
+      path: '/dossiers'
+      fullPath: '/portal/dossiers'
+      preLoaderRoute: typeof PortalDossiersRouteImport
+      parentRoute: typeof PortalRouteRoute
+    }
     '/portal/solicitar': {
       id: '/portal/solicitar'
       path: '/solicitar'
@@ -492,11 +530,15 @@ const PanelRouteRouteWithChildren = PanelRouteRoute._addFileChildren(
 )
 
 interface PortalRouteRouteChildren {
+  PortalCandidatosRoute: typeof PortalCandidatosRoute
+  PortalDossiersRoute: typeof PortalDossiersRoute
   PortalSolicitarRoute: typeof PortalSolicitarRoute
   PortalIndexRoute: typeof PortalIndexRoute
 }
 
 const PortalRouteRouteChildren: PortalRouteRouteChildren = {
+  PortalCandidatosRoute: PortalCandidatosRoute,
+  PortalDossiersRoute: PortalDossiersRoute,
   PortalSolicitarRoute: PortalSolicitarRoute,
   PortalIndexRoute: PortalIndexRoute,
 }

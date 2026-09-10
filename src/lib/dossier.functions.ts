@@ -14,6 +14,9 @@ export type CandidatoDossier = {
   campos: { nombre: string; valor: string }[];
 };
 
+/** Demasiadas lecturas desde la misma IP. */
+export type LimiteDossier = { limitado: true };
+
 export type DossierPublico = {
   slug: string;
   caducado: boolean;

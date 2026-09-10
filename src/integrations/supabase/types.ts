@@ -168,6 +168,8 @@ export type Database = {
         Row: {
           actualizado_en: string
           altura_cm: number | null
+          anchura_cintura: string | null
+          anchura_pecho: string | null
           apellidos: string | null
           baila: boolean | null
           canta: boolean | null
@@ -199,6 +201,9 @@ export type Database = {
           peso_kg: number | null
           profesion: string | null
           provincia: string | null
+          talla_calzado: string | null
+          talla_camisa: string | null
+          talla_pantalon: string | null
           telefono: string | null
           tiene_carnet_conducir: boolean | null
           tiene_cicatrices: boolean | null
@@ -219,6 +224,8 @@ export type Database = {
         Insert: {
           actualizado_en?: string
           altura_cm?: number | null
+          anchura_cintura?: string | null
+          anchura_pecho?: string | null
           apellidos?: string | null
           baila?: boolean | null
           canta?: boolean | null
@@ -250,6 +257,9 @@ export type Database = {
           peso_kg?: number | null
           profesion?: string | null
           provincia?: string | null
+          talla_calzado?: string | null
+          talla_camisa?: string | null
+          talla_pantalon?: string | null
           telefono?: string | null
           tiene_carnet_conducir?: boolean | null
           tiene_cicatrices?: boolean | null
@@ -270,6 +280,8 @@ export type Database = {
         Update: {
           actualizado_en?: string
           altura_cm?: number | null
+          anchura_cintura?: string | null
+          anchura_pecho?: string | null
           apellidos?: string | null
           baila?: boolean | null
           canta?: boolean | null
@@ -301,6 +313,9 @@ export type Database = {
           peso_kg?: number | null
           profesion?: string | null
           provincia?: string | null
+          talla_calzado?: string | null
+          talla_camisa?: string | null
+          talla_pantalon?: string | null
           telefono?: string | null
           tiene_carnet_conducir?: boolean | null
           tiene_cicatrices?: boolean | null

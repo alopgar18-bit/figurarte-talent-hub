@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PanelRouteRouteImport } from './routes/panel/route'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
@@ -18,6 +19,11 @@ import { Route as CastingSlugRouteImport } from './routes/casting/$slug'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PanelRouteRoute = PanelRouteRouteImport.update({
+  id: '/panel',
+  path: '/panel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegistroRoute = RegistroRouteImport.update({
@@ -43,6 +49,7 @@ const CastingSlugRoute = CastingSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/panel': typeof PanelRouteRoute
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/casting/$slug': typeof CastingSlugRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/panel': typeof PanelRouteRoute
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/casting/$slug': typeof CastingSlugRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/panel': typeof PanelRouteRoute
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/casting/$slug': typeof CastingSlugRoute
@@ -65,12 +74,20 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/registro' | '/auth/callback' | '/casting/$slug' | '/auth/'
+  fullPaths:
+    | '/'
+    | '/panel'
+    | '/registro'
+    | '/auth/callback'
+    | '/casting/$slug'
+    | '/auth/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/registro' | '/auth/callback' | '/casting/$slug' | '/auth'
+  to:
+    '/' | '/panel' | '/registro' | '/auth/callback' | '/casting/$slug' | '/auth'
   id:
     | '__root__'
     | '/'
+    | '/panel'
     | '/registro'
     | '/auth/callback'
     | '/casting/$slug'
@@ -79,6 +96,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PanelRouteRoute: typeof PanelRouteRoute
   RegistroRoute: typeof RegistroRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   CastingSlugRoute: typeof CastingSlugRoute
@@ -92,6 +110,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/panel': {
+      id: '/panel'
+      path: '/panel'
+      fullPath: '/panel'
+      preLoaderRoute: typeof PanelRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/registro': {
@@ -127,6 +152,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PanelRouteRoute: PanelRouteRoute,
   RegistroRoute: RegistroRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   CastingSlugRoute: CastingSlugRoute,

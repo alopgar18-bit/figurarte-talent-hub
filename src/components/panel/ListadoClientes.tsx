@@ -473,8 +473,7 @@ export function ListadoClientes() {
               Crear cliente
             </Button>
           </DialogFooter>
-        </DialogFooter>
-      </DialogContent>
+        </DialogContent>
       </Dialog>
     </div>
   );

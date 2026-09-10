@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Drama, Camera, Users, Sparkles, Upload, Check, ImageIcon } from "lucide-react";
+import { Drama, Camera, Users, Sparkles, Upload, Check } from "lucide-react";
+import { RecorteFoto, type AreaRecorte } from "@/components/RecorteFoto";
 import { supabase } from "@/integrations/supabase/client";
 import { crearCandidatura } from "@/lib/candidatos.functions";
 import { Button } from "@/components/ui/button";

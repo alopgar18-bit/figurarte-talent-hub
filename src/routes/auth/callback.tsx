@@ -93,7 +93,7 @@ function CallbackPage() {
       cancelado = true;
       sub.subscription.unsubscribe();
     };
-  }, [resolver]);
+  }, [resolver, inscribir, proyectoId]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
@@ -149,11 +149,20 @@ function CallbackPage() {
           {estado === "listo" && acceso?.tipo === "candidato" && (
             <>
               <h2 className="text-lg font-semibold text-card-foreground">
-                Sesión iniciada
+                {castingInscrito ? `Te has apuntado a ${castingInscrito}` : "Sesión iniciada"}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Has entrado como candidato: <strong>{acceso.nombre}</strong>. Tu ficha se
-                construirá en el siguiente paso.
+                {castingInscrito ? (
+                  <>
+                    Listo, <strong>{acceso.nombre}</strong>: el equipo de FigurArte ya te ve
+                    asignado a este casting. No hace falta que hagas nada más.
+                  </>
+                ) : (
+                  <>
+                    Has entrado como candidato: <strong>{acceso.nombre}</strong>. Tu ficha se
+                    construirá en el siguiente paso.
+                  </>
+                )}
               </p>
               <Button asChild variant="outline" className="mt-4 w-full">
                 <Link to="/">Ir al inicio</Link>

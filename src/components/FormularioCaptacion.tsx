@@ -232,33 +232,49 @@ export function FormularioCaptacion({
         </h2>
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {RANURAS_FOTO.map((ranura) => {
-            const file = archivos[ranura.clave];
+            const entrada = archivos[ranura.clave];
             return (
-              <label
+              <div
                 key={ranura.clave}
-                className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed border-border bg-card px-4 py-8 text-center transition-colors hover:border-primary"
+                className="rounded-md border border-dashed border-border bg-card p-3 text-center"
               >
-                {file ? (
-                  <ImageIcon className="h-7 w-7 text-primary" />
-                ) : (
-                  <Upload className="h-7 w-7 text-muted-foreground" />
-                )}
-                <span className="text-sm font-semibold">{ranura.etiqueta}</span>
-                <span className="w-full truncate text-xs text-muted-foreground">
-                  {file ? file.name : "JPG o PNG, máx. 10 MB"}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="sr-only"
-                  onChange={(e) =>
-                    setArchivos((prev) => ({
-                      ...prev,
-                      [ranura.clave]: e.target.files?.[0] ?? null,
-                    }))
-                  }
-                />
-              </label>
+                <label className="block cursor-pointer">
+                  <span className="sr-only">{ranura.etiqueta}</span>
+                  {entrada ? (
+                    <img
+                      src={entrada.preview}
+                      alt={`Vista previa de ${ranura.etiqueta.toLowerCase()}`}
+                      className="mx-auto aspect-[3/4] w-full max-w-[200px] rounded-sm object-cover"
+                    />
+                  ) : (
+                    <span className="mx-auto flex aspect-[3/4] w-full max-w-[200px] flex-col items-center justify-center gap-2 rounded-sm bg-muted/50 text-muted-foreground transition-colors hover:text-primary">
+                      <Upload className="h-7 w-7" />
+                      <span className="text-xs">JPG o PNG, máx. 10 MB</span>
+                    </span>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      e.target.value = "";
+                      if (!f) return;
+                      setRecortando({
+                        clave: ranura.clave,
+                        etiqueta: ranura.etiqueta,
+                        file: f,
+                      });
+                    }}
+                  />
+                  <span className="mt-3 block text-sm font-semibold">
+                    {ranura.etiqueta}
+                  </span>
+                  <span className="mt-1 block text-xs text-primary underline">
+                    {entrada ? "Cambiar foto" : "Elegir foto"}
+                  </span>
+                </label>
+              </div>
             );
           })}
         </div>

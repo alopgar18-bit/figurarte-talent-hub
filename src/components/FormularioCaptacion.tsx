@@ -38,6 +38,40 @@ type Props = {
   nombreCasting?: string | undefined;
 };
 
+/** Genera una miniatura 3:4 en el navegador, solo para previsualizar. */
+async function generarPreview(file: File, area: AreaRecorte): Promise<string> {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => reject(new Error("imagen no válida"));
+      el.src = url;
+    });
+    const canvas = document.createElement("canvas");
+    canvas.width = 300;
+    canvas.height = 400;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return url;
+    ctx.drawImage(
+      img,
+      area.x,
+      area.y,
+      area.width,
+      area.height,
+      0,
+      0,
+      canvas.width,
+      canvas.height,
+    );
+    return canvas.toDataURL("image/jpeg", 0.8);
+  } catch {
+    return url;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
 function rutaAleatoria(file: File) {
   const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase().slice(0, 5);
   return `${crypto.randomUUID()}/${crypto.randomUUID()}.${ext}`;

@@ -284,6 +284,9 @@ export function ListadoCandidatos() {
         <Button variant="outline" onClick={() => setDialogoExport(true)}>
           <Download className="size-4" /> Exportar a Excel
         </Button>
+        <Button variant="outline" onClick={() => navigate({ to: "/panel/candidatos/importar" })}>
+          <Upload className="size-4" /> Importar candidatos
+        </Button>
       </div>
 
       {seleccionados.length > 0 && (

@@ -10,9 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AvisoLegalRouteImport } from './routes/aviso-legal'
 import { Route as CandidatoRouteRouteImport } from './routes/candidato/route'
 import { Route as PanelRouteRouteImport } from './routes/panel/route'
 import { Route as PortalRouteRouteImport } from './routes/portal/route'
+import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
@@ -42,6 +44,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AvisoLegalRoute = AvisoLegalRouteImport.update({
+  id: '/aviso-legal',
+  path: '/aviso-legal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CandidatoRouteRoute = CandidatoRouteRouteImport.update({
   id: '/candidato',
   path: '/candidato',
@@ -55,6 +62,11 @@ const PanelRouteRoute = PanelRouteRouteImport.update({
 const PortalRouteRoute = PortalRouteRouteImport.update({
   id: '/portal',
   path: '/portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadRoute = PrivacidadRouteImport.update({
+  id: '/privacidad',
+  path: '/privacidad',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegistroRoute = RegistroRouteImport.update({
@@ -178,6 +190,8 @@ export interface FileRoutesByFullPath {
   '/candidato': typeof CandidatoRouteRouteWithChildren
   '/panel': typeof PanelRouteRouteWithChildren
   '/portal': typeof PortalRouteRouteWithChildren
+  '/aviso-legal': typeof AvisoLegalRoute
+  '/privacidad': typeof PrivacidadRoute
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/c/$codigo': typeof CCodigoRoute
@@ -204,6 +218,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aviso-legal': typeof AvisoLegalRoute
+  '/privacidad': typeof PrivacidadRoute
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/c/$codigo': typeof CCodigoRoute
@@ -234,6 +250,8 @@ export interface FileRoutesById {
   '/candidato': typeof CandidatoRouteRouteWithChildren
   '/panel': typeof PanelRouteRouteWithChildren
   '/portal': typeof PortalRouteRouteWithChildren
+  '/aviso-legal': typeof AvisoLegalRoute
+  '/privacidad': typeof PrivacidadRoute
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/c/$codigo': typeof CCodigoRoute
@@ -265,6 +283,8 @@ export interface FileRouteTypes {
     | '/candidato'
     | '/panel'
     | '/portal'
+    | '/aviso-legal'
+    | '/privacidad'
     | '/registro'
     | '/auth/callback'
     | '/c/$codigo'
@@ -291,6 +311,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/aviso-legal'
+    | '/privacidad'
     | '/registro'
     | '/auth/callback'
     | '/c/$codigo'
@@ -320,6 +342,8 @@ export interface FileRouteTypes {
     | '/candidato'
     | '/panel'
     | '/portal'
+    | '/aviso-legal'
+    | '/privacidad'
     | '/registro'
     | '/auth/callback'
     | '/c/$codigo'
@@ -350,6 +374,8 @@ export interface RootRouteChildren {
   CandidatoRouteRoute: typeof CandidatoRouteRouteWithChildren
   PanelRouteRoute: typeof PanelRouteRouteWithChildren
   PortalRouteRoute: typeof PortalRouteRouteWithChildren
+  AvisoLegalRoute: typeof AvisoLegalRoute
+  PrivacidadRoute: typeof PrivacidadRoute
   RegistroRoute: typeof RegistroRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   CCodigoRoute: typeof CCodigoRoute
@@ -365,6 +391,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aviso-legal': {
+      id: '/aviso-legal'
+      path: '/aviso-legal'
+      fullPath: '/aviso-legal'
+      preLoaderRoute: typeof AvisoLegalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/candidato': {
@@ -386,6 +419,13 @@ declare module '@tanstack/react-router' {
       path: '/portal'
       fullPath: '/portal'
       preLoaderRoute: typeof PortalRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidad': {
+      id: '/privacidad'
+      path: '/privacidad'
+      fullPath: '/privacidad'
+      preLoaderRoute: typeof PrivacidadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/registro': {
@@ -621,6 +661,8 @@ const rootRouteChildren: RootRouteChildren = {
   CandidatoRouteRoute: CandidatoRouteRouteWithChildren,
   PanelRouteRoute: PanelRouteRouteWithChildren,
   PortalRouteRoute: PortalRouteRouteWithChildren,
+  AvisoLegalRoute: AvisoLegalRoute,
+  PrivacidadRoute: PrivacidadRoute,
   RegistroRoute: RegistroRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   CCodigoRoute: CCodigoRoute,

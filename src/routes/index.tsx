@@ -421,7 +421,16 @@ function Home() {
             <p className="mt-2 text-sm text-brand-cream/75">
               FigurArte — Casting &amp; Producción
             </p>
+            <p className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+              <Link to="/aviso-legal" className="text-brand-cream/75 underline underline-offset-4 hover:text-brand-cream">
+                Aviso legal
+              </Link>
+              <Link to="/privacidad" className="text-brand-cream/75 underline underline-offset-4 hover:text-brand-cream">
+                Política de privacidad
+              </Link>
+            </p>
           </div>
+
           <a
             href="tel:+34655666899"
             className="inline-flex shrink-0 items-center gap-2 rounded-md bg-primary px-6 py-3 font-semibold text-primary-foreground transition-colors hover:bg-primary/90"

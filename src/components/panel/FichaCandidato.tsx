@@ -111,6 +111,14 @@ const CAMPOS_PERFIL: { clave: string; etiqueta: string; tipo?: "bool" | "fecha" 
   { clave: "instagram_url", etiqueta: "Instagram" },
 ];
 
+export const CAMPOS_VESTUARIO = [
+  { clave: "talla_camisa", etiqueta: "Talla camisa" },
+  { clave: "anchura_pecho", etiqueta: "Anchura pecho" },
+  { clave: "talla_pantalon", etiqueta: "Talla pantalón" },
+  { clave: "anchura_cintura", etiqueta: "Anchura cintura" },
+  { clave: "talla_calzado", etiqueta: "Talla calzado" },
+] as const;
+
 function formateaFecha(iso: string) {
   return new Date(iso).toLocaleDateString("es-ES", {
     day: "numeric",
@@ -218,6 +226,27 @@ export function FichaCandidato({ id }: { id: string }) {
     }
   }
 
+  async function guardarVestuario() {
+    if (!candidato) return;
+    setGuardandoVestuario(true);
+    const valores: Record<string, string | null> = {};
+    for (const { clave } of CAMPOS_VESTUARIO) {
+      valores[clave] = (vestuario[clave] ?? "").trim() || null;
+    }
+    const { error } = await supabase
+      .from("candidatos")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .update(valores as any)
+      .eq("id", candidato.id);
+    setGuardandoVestuario(false);
+    if (error) {
+      toast.error("No se pudieron guardar las medidas de vestuario.");
+      return;
+    }
+    setCandidato({ ...candidato, ...valores });
+    toast.success("Medidas guardadas");
+  }
+
   if (cargando) {
     return (
       <div className="flex items-center gap-2 py-16 text-muted-foreground">
@@ -312,6 +341,36 @@ export function FichaCandidato({ id }: { id: string }) {
           <Dato icono={Phone} etiqueta="Teléfono" valor={candidato.telefono} />
           <Dato icono={MapPin} etiqueta="Ciudad" valor={candidato.ciudad} />
           <Dato icono={MapPin} etiqueta="Provincia" valor={candidato.provincia} />
+        </CardContent>
+      </Card>
+
+      {/* Medidas de vestuario */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Medidas de vestuario</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            {CAMPOS_VESTUARIO.map(({ clave, etiqueta }) => (
+              <div key={clave} className="space-y-1.5">
+                <Label htmlFor={`v-${clave}`} className="text-xs text-muted-foreground">
+                  {etiqueta}
+                </Label>
+                <Input
+                  id={`v-${clave}`}
+                  value={vestuario[clave] ?? ""}
+                  onChange={(e) =>
+                    setVestuario((s) => ({ ...s, [clave]: e.target.value }))
+                  }
+                  placeholder="—"
+                />
+              </div>
+            ))}
+          </div>
+          <Button onClick={guardarVestuario} disabled={guardandoVestuario}>
+            {guardandoVestuario && <Loader2 className="h-4 w-4 animate-spin" />}
+            Guardar medidas
+          </Button>
         </CardContent>
       </Card>
 

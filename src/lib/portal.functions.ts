@@ -106,3 +106,163 @@ export const misDossiersPortal = createServerFn({ method: "POST" })
       num_candidatos: (d.candidatos_incluidos ?? []).length,
     }));
   });
+
+const ETIQUETA_CATEGORIA: Record<string, string> = {
+  actor: "Actores",
+  modelo: "Modelos",
+  figurante: "Figurantes",
+  casting_plus: "Casting Plus",
+};
+
+/**
+ * Avisa por email al equipo (usuarios con rol admin_figurarte) de una nueva
+ * solicitud. Nunca lanza: cualquier fallo se registra en el log del servidor.
+ */
+async function avisarEquipoNuevaSolicitud(datos: {
+  razonSocial: string;
+  nombreProyecto: string;
+  categoria: string;
+  numAprox: number | null;
+  fechaNecesaria: string | null;
+}) {
+  try {
+    const apiKey = process.env["RESEND_API_KEY"];
+    if (!apiKey) {
+      console.error("[email] RESEND_API_KEY no está configurado");
+      return;
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: admins, error } = await supabaseAdmin
+      .from("usuarios")
+      .select("email")
+      .eq("rol", "admin_figurarte");
+
+    if (error) {
+      console.error("[email] No se pudieron leer los destinatarios:", error.message);
+      return;
+    }
+
+    const destinatarios = (admins ?? [])
+      .map((a) => a.email)
+      .filter((e): e is string => !!e);
+
+    if (destinatarios.length === 0) {
+      console.error("[email] No hay usuarios con rol admin_figurarte a quien avisar");
+      return;
+    }
+
+    const categoria = ETIQUETA_CATEGORIA[datos.categoria] ?? datos.categoria;
+    const fecha = datos.fechaNecesaria
+      ? new Date(datos.fechaNecesaria).toLocaleDateString("es-ES")
+      : "Sin fecha indicada";
+    const numero = datos.numAprox != null ? String(datos.numAprox) : "Sin concretar";
+
+    const text = `Nueva solicitud de proyecto recibida en el portal de cliente.
+
+Cliente: ${datos.razonSocial}
+Proyecto solicitado: ${datos.nombreProyecto}
+Categoría: ${categoria}
+Nº aproximado de candidatos: ${numero}
+Fecha necesaria: ${fecha}
+
+Ya está disponible en la bandeja de solicitudes pendientes del dashboard del panel.
+
+— FIGURARTE · Agencia de casting & producción`;
+
+    const html = `
+      <p>Nueva solicitud de proyecto recibida en el portal de cliente.</p>
+      <ul>
+        <li><strong>Cliente:</strong> ${datos.razonSocial}</li>
+        <li><strong>Proyecto solicitado:</strong> ${datos.nombreProyecto}</li>
+        <li><strong>Categoría:</strong> ${categoria}</li>
+        <li><strong>Nº aproximado de candidatos:</strong> ${numero}</li>
+        <li><strong>Fecha necesaria:</strong> ${fecha}</li>
+      </ul>
+      <p>Ya está disponible en la bandeja de solicitudes pendientes del dashboard del panel.</p>
+      <p>— FIGURARTE · Agencia de casting &amp; producción</p>
+    `.trim();
+
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        from: "FIGURARTE Casting & Producción <casting@figurarte.app>",
+        to: destinatarios,
+        subject: `Nueva solicitud de proyecto — ${datos.razonSocial}`,
+        html,
+        text,
+      }),
+    });
+
+    if (!response.ok) {
+      const body = await response.text();
+      console.error(`[email] Resend respondió ${response.status}: ${body}`);
+    }
+  } catch (err) {
+    console.error("[email] Error avisando al equipo de nueva solicitud:", err);
+  }
+}
+
+/**
+ * Crea una solicitud de proyecto desde el portal de cliente y avisa al equipo.
+ * El `cliente_id` sale siempre de la sesión, nunca del cliente-navegador.
+ */
+export const crearSolicitudProyecto = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: {
+    nombreProyecto: string;
+    categoria: string;
+    numAprox: number | null;
+    descripcion: string | null;
+    fechaNecesaria: string | null;
+  }) => ({
+    nombreProyecto: String(input?.nombreProyecto ?? "").trim().slice(0, 200),
+    categoria: String(input?.categoria ?? "").trim(),
+    numAprox:
+      typeof input?.numAprox === "number" && Number.isFinite(input.numAprox)
+        ? Math.max(0, Math.round(input.numAprox))
+        : null,
+    descripcion: input?.descripcion ? String(input.descripcion).slice(0, 4000) : null,
+    fechaNecesaria: input?.fechaNecesaria ? String(input.fechaNecesaria) : null,
+  }))
+  .handler(async ({ data, context }): Promise<{ estado: "ok"; id: string }> => {
+    const sesion = await clienteDeLaSesion(context.userId);
+    if (!sesion) throw new Error("Acceso restringido al portal de cliente.");
+    if (!data.nombreProyecto) throw new Error("Indica el nombre del proyecto.");
+
+    const { data: fila, error } = await sesion.supabaseAdmin
+      .from("solicitudes_proyecto")
+      .insert({
+        cliente_id: sesion.clienteId,
+        nombre_proyecto: data.nombreProyecto,
+        categoria: data.categoria as never,
+        num_candidatos_aprox: data.numAprox,
+        descripcion: data.descripcion,
+        fecha_necesaria: data.fechaNecesaria,
+      })
+      .select("id")
+      .single();
+
+    if (error || !fila) throw new Error("No se pudo registrar la solicitud.");
+
+    const { data: cliente } = await sesion.supabaseAdmin
+      .from("clientes")
+      .select("razon_social")
+      .eq("id", sesion.clienteId)
+      .maybeSingle();
+
+    // El aviso nunca puede romper la creación de la solicitud.
+    await avisarEquipoNuevaSolicitud({
+      razonSocial: cliente?.razon_social ?? "Cliente",
+      nombreProyecto: data.nombreProyecto,
+      categoria: data.categoria,
+      numAprox: data.numAprox,
+      fechaNecesaria: data.fechaNecesaria,
+    });
+
+    return { estado: "ok", id: fila.id };
+  });

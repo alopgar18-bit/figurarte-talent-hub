@@ -25,6 +25,8 @@ const candidaturaSchema = z.object({
     .nullable()
     .optional(),
   proyecto_id: z.string().uuid().nullable().optional(),
+  convocatoria_id: z.string().uuid().nullable().optional(),
+  canal: z.enum(["instagram", "whatsapp", "web"]).nullable().optional(),
 });
 
 export type CandidaturaInput = z.input<typeof candidaturaSchema>;
@@ -146,6 +148,18 @@ export const crearCandidatura = createServerFn({ method: "POST" })
         candidato_id: creado.id,
         origen: "web_directa",
       });
+    }
+
+    // Trazabilidad de captación RRSS: nunca debe romper el registro.
+    if (data.convocatoria_id && data.canal) {
+      const { error: errCap } = await supabaseAdmin
+        .from("registros_captacion")
+        .insert({
+          candidato_id: creado.id,
+          convocatoria_id: data.convocatoria_id,
+          canal: data.canal,
+        });
+      if (errCap) console.error("[captacion] No se pudo registrar el origen:", errCap);
     }
 
     // Envío de confirmación: no debe interrumpir el registro si falla.

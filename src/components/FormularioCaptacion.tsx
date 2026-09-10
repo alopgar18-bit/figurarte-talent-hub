@@ -36,6 +36,9 @@ type Props = {
   /** Variante casting: muestra el aviso y asocia al proyecto */
   proyectoId?: string | undefined;
   nombreCasting?: string | undefined;
+  /** Trazabilidad de captación en redes */
+  convocatoriaId?: string | undefined;
+  canal?: "instagram" | "whatsapp" | "web" | undefined;
 };
 
 /** Genera una miniatura 3:4 en el navegador, solo para previsualizar. */
@@ -81,6 +84,8 @@ export function FormularioCaptacion({
   categoriaInicial,
   proyectoId,
   nombreCasting,
+  convocatoriaId,
+  canal,
 }: Props) {
   const enviar = useServerFn(crearCandidatura);
 
@@ -145,6 +150,8 @@ export function FormularioCaptacion({
           fotos_recorte: Object.keys(recortes).length ? recortes : null,
           consentimiento_rgpd: true,
           proyecto_id: proyectoId ?? null,
+          convocatoria_id: convocatoriaId ?? null,
+          canal: canal ?? null,
         },
       });
 

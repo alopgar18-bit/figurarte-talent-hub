@@ -23,6 +23,7 @@ import { Route as PanelClientesRouteImport } from './routes/panel/clientes'
 import { Route as PanelDashboardRouteImport } from './routes/panel/dashboard'
 import { Route as PanelPortalClienteRouteImport } from './routes/panel/portal-cliente'
 import { Route as PanelProyectosRouteImport } from './routes/panel/proyectos'
+import { Route as PanelCandidatosIdRouteImport } from './routes/panel/candidatos/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -94,6 +95,11 @@ const PanelProyectosRoute = PanelProyectosRouteImport.update({
   path: '/proyectos',
   getParentRoute: () => PanelRouteRoute,
 } as any)
+const PanelCandidatosIdRoute = PanelCandidatosIdRouteImport.update({
+  id: '/candidatos/$id',
+  path: '/candidatos/$id',
+  getParentRoute: () => PanelRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/panel/proyectos': typeof PanelProyectosRoute
   '/auth/': typeof AuthIndexRoute
   '/panel/': typeof PanelIndexRoute
+  '/panel/candidatos/$id': typeof PanelCandidatosIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -125,6 +132,7 @@ export interface FileRoutesByTo {
   '/panel/proyectos': typeof PanelProyectosRoute
   '/auth': typeof AuthIndexRoute
   '/panel': typeof PanelIndexRoute
+  '/panel/candidatos/$id': typeof PanelCandidatosIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/panel/proyectos': typeof PanelProyectosRoute
   '/auth/': typeof AuthIndexRoute
   '/panel/': typeof PanelIndexRoute
+  '/panel/candidatos/$id': typeof PanelCandidatosIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
     | '/panel/proyectos'
     | '/auth/'
     | '/panel/'
+    | '/panel/candidatos/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
     | '/panel/proyectos'
     | '/auth'
     | '/panel'
+    | '/panel/candidatos/$id'
   id:
     | '__root__'
     | '/'
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | '/panel/proyectos'
     | '/auth/'
     | '/panel/'
+    | '/panel/candidatos/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -302,6 +314,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PanelProyectosRouteImport
       parentRoute: typeof PanelRouteRoute
     }
+    '/panel/candidatos/$id': {
+      id: '/panel/candidatos/$id'
+      path: '/candidatos/$id'
+      fullPath: '/panel/candidatos/$id'
+      preLoaderRoute: typeof PanelCandidatosIdRouteImport
+      parentRoute: typeof PanelRouteRoute
+    }
   }
 }
 
@@ -314,6 +333,7 @@ interface PanelRouteRouteChildren {
   PanelPortalClienteRoute: typeof PanelPortalClienteRoute
   PanelProyectosRoute: typeof PanelProyectosRoute
   PanelIndexRoute: typeof PanelIndexRoute
+  PanelCandidatosIdRoute: typeof PanelCandidatosIdRoute
 }
 
 const PanelRouteRouteChildren: PanelRouteRouteChildren = {
@@ -325,6 +345,7 @@ const PanelRouteRouteChildren: PanelRouteRouteChildren = {
   PanelPortalClienteRoute: PanelPortalClienteRoute,
   PanelProyectosRoute: PanelProyectosRoute,
   PanelIndexRoute: PanelIndexRoute,
+  PanelCandidatosIdRoute: PanelCandidatosIdRoute,
 }
 
 const PanelRouteRouteWithChildren = PanelRouteRoute._addFileChildren(

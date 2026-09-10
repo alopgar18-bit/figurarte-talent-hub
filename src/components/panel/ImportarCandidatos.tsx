@@ -99,14 +99,16 @@ export function ImportarCandidatos() {
       const XLSX = await import("xlsx");
       const buf = await file.arrayBuffer();
       const libro = XLSX.read(buf, { type: "array" });
-      const hoja = libro.Sheets[libro.SheetNames[0]];
-      const datos = XLSX.utils.sheet_to_json<Fila>(hoja, { defval: "" });
-      if (!datos.length) {
+      const primeraHoja = libro.SheetNames[0];
+      const hoja = primeraHoja ? libro.Sheets[primeraHoja] : undefined;
+      const datos = hoja ? XLSX.utils.sheet_to_json<Fila>(hoja, { defval: "" }) : [];
+      const primera = datos[0];
+      if (!primera) {
         setError("El archivo no contiene filas de datos.");
         setCargando(false);
         return;
       }
-      const cols = Object.keys(datos[0]);
+      const cols = Object.keys(primera);
       setCabeceras(cols);
       setFilas(datos);
       setNombreArchivo(file.name);

@@ -52,7 +52,8 @@ export const ETIQUETA_CATEGORIA: Record<string, string> = {
 
 const COLOR_CATEGORIA: Record<string, string> = {
   actor: "bg-primary/15 text-primary border-primary/30",
-  modelo: "bg-[oklch(0.35_0.15_270_/_0.15)] text-[oklch(0.42_0.17_270)] border-[oklch(0.42_0.17_270_/_0.3)]",
+  modelo:
+    "bg-[oklch(0.35_0.15_270_/_0.15)] text-[oklch(0.42_0.17_270)] border-[oklch(0.42_0.17_270_/_0.3)]",
   figurante: "bg-muted text-foreground border-border",
   casting_plus: "bg-accent text-accent-foreground border-border",
 };
@@ -228,7 +229,8 @@ export function FichaCandidato({ id }: { id: string }) {
           <h2 className="text-2xl font-bold tracking-tight">{nombreCompleto}</h2>
           <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <MapPin className="h-4 w-4" />
-            {[candidato.ciudad, candidato.provincia].filter(Boolean).join(", ") || "Ubicación sin indicar"}
+            {[candidato.ciudad, candidato.provincia].filter(Boolean).join(", ") ||
+              "Ubicación sin indicar"}
           </p>
         </div>
         <div className="flex items-center gap-3 rounded-md border bg-card px-4 py-3">
@@ -253,9 +255,21 @@ export function FichaCandidato({ id }: { id: string }) {
           <CardTitle className="text-base">Datos y medidas</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          <Dato icono={Ruler} etiqueta="Altura" valor={candidato.altura_cm ? `${candidato.altura_cm} cm` : null} />
-          <Dato icono={Weight} etiqueta="Peso" valor={candidato.peso_kg ? `${candidato.peso_kg} kg` : null} />
-          <Dato icono={User} etiqueta="Edad" valor={candidato.edad ? `${candidato.edad} años` : null} />
+          <Dato
+            icono={Ruler}
+            etiqueta="Altura"
+            valor={candidato.altura_cm ? `${candidato.altura_cm} cm` : null}
+          />
+          <Dato
+            icono={Weight}
+            etiqueta="Peso"
+            valor={candidato.peso_kg ? `${candidato.peso_kg} kg` : null}
+          />
+          <Dato
+            icono={User}
+            etiqueta="Edad"
+            valor={candidato.edad ? `${candidato.edad} años` : null}
+          />
           <Dato icono={Mail} etiqueta="Email" valor={candidato.email} />
           <Dato icono={Phone} etiqueta="Teléfono" valor={candidato.telefono} />
           <Dato icono={MapPin} etiqueta="Ciudad" valor={candidato.ciudad} />

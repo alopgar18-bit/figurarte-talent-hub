@@ -92,18 +92,21 @@ const categorias = [
   },
   {
     icon: Drama,
+    categoria: "actor" as const,
     titulo: "Actores y Actrices",
     texto:
       "Trabaja con nuestra agencia en series, películas y teatro. Participa en nuestros castings.",
   },
   {
     icon: Camera,
+    categoria: "modelo" as const,
     titulo: "Modelos",
     texto:
       "Castings de series, películas y publicidad. Mándanos tus fotografías y regístrate.",
   },
   {
     icon: Sparkles,
+    categoria: "casting_plus" as const,
     titulo: "Casting +",
     texto:
       "Azafatas, bailarines, fotógrafos, músicos, presentadores — para cualquier evento o producción.",
@@ -247,14 +250,13 @@ function Home() {
               <p className="mt-2 flex-1 text-sm text-muted-foreground">
                 {cat.texto}
               </p>
-              <button
-                type="button"
-                disabled
-                title="Próximamente — el registro se abrirá con el formulario de captación"
-                className="mt-6 cursor-not-allowed rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground opacity-60"
+              <Link
+                to="/registro"
+                search={{ categoria: cat.categoria }}
+                className="mt-6 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 Regístrate
-              </button>
+              </Link>
             </article>
           ))}
         </div>

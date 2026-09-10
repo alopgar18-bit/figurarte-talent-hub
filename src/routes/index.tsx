@@ -16,6 +16,7 @@ import {
   CalendarX2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { CabeceraPublica } from "@/components/publico/CabeceraPublica";
 
 type BriefPublico = {
   categoria?: string;
@@ -162,46 +163,7 @@ function Home() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      {/* Nav pública */}
-      <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-          <Link to="/" className="min-w-0 truncate text-lg font-black tracking-tight">
-            FigurArte<span className="text-primary">.</span>es
-          </Link>
-          <nav className="flex shrink-0 items-center gap-1 text-sm font-medium sm:gap-2">
-            <a
-              href="#casting"
-              className="hidden px-3 py-2 text-muted-foreground transition-colors hover:text-foreground sm:inline-block"
-            >
-              Casting
-            </a>
-            <a
-              href="#nosotros"
-              className="hidden px-3 py-2 text-muted-foreground transition-colors hover:text-foreground sm:inline-block"
-            >
-              Nosotros
-            </a>
-            <a
-              href="#marcas"
-              className="hidden px-3 py-2 text-muted-foreground transition-colors hover:text-foreground md:inline-block"
-            >
-              Para marcas
-            </a>
-            <a
-              href="#contacto"
-              className="hidden px-3 py-2 text-muted-foreground transition-colors hover:text-foreground md:inline-block"
-            >
-              Contacto
-            </a>
-            <Link
-              to="/auth"
-              className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              Acceso
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <CabeceraPublica />
 
       {/* Hero */}
       <section className="border-b border-border bg-brand-charcoal text-brand-cream">

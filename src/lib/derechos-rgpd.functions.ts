@@ -34,7 +34,7 @@ export const obtenerMisDatos = createServerFn({ method: "POST" })
     if (errHist) throw new Error("No se pudo cargar tu historial de proyectos.");
 
     return {
-      candidato: candidato as unknown as Record<string, unknown>,
+      candidato_json: JSON.stringify(candidato),
       historial: (historial ?? []).map((h) => {
         const p = h.proyectos_casting as { nombre: string } | null;
         return {

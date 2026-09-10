@@ -32,6 +32,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import { asignarCandidatosAProyecto } from "@/lib/rgpd.functions";
+import { registrarAccesoStaff } from "@/lib/registro-accesos.functions";
+
 
 type Candidato = Record<string, unknown> & {
   id: string;
@@ -135,6 +137,8 @@ export function ListadoCandidatos() {
   const [proyectoDestino, setProyectoDestino] = useState("");
   const [asignando, setAsignando] = useState(false);
   const asignar = useServerFn(asignarCandidatosAProyecto);
+  const anotar = useServerFn(registrarAccesoStaff);
+
   const [aviso, setAviso] = useState<string | null>(null);
   const [dialogoExport, setDialogoExport] = useState(false);
 

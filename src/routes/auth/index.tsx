@@ -6,12 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/auth/")({
-  validateSearch: (search: Record<string, unknown>): { motivo?: "panel" | "portal" } =>
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { motivo?: "panel" | "portal" | "candidato" } =>
     search["motivo"] === "panel"
       ? { motivo: "panel" }
       : search["motivo"] === "portal"
         ? { motivo: "portal" }
-        : {},
+        : search["motivo"] === "candidato"
+          ? { motivo: "candidato" }
+          : {},
 
   head: () => ({
     meta: [

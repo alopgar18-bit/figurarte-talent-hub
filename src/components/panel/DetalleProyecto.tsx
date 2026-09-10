@@ -749,7 +749,11 @@ export function DetalleProyecto({ id }: { id: string }) {
               if (!c) return null;
               return (
                 <div key={a.candidato_id} className="border border-border p-3">
-                  <div className="flex items-start gap-3">
+                  <Link
+                    to="/panel/candidatos/$id"
+                    params={{ id: a.candidato_id }}
+                    className="flex items-start gap-3 transition-opacity hover:opacity-80"
+                  >
                     {c.fotos?.[0] ? (
                       <img
                         src={c.fotos[0]}
@@ -774,7 +778,7 @@ export function DetalleProyecto({ id }: { id: string }) {
                           .join(" · ") || "Sin medidas"}
                       </p>
                     </div>
-                  </div>
+                  </Link>
                   <Select
                     value={a.estado}
                     onValueChange={(v) => cambiarEstadoCandidato(a.candidato_id, v)}

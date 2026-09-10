@@ -22,6 +22,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ETIQUETAS_ROL } from "@/components/panel/PanelShell";
+import type { Database } from "@/integrations/supabase/types";
+
+type RolUsuario = Database["public"]["Enums"]["rol_usuario"];
+type TipoCampo = Database["public"]["Enums"]["tipo_campo_personalizado"];
+type CategoriaCandidato = Database["public"]["Enums"]["categoria_candidato"];
 
 type Usuario = {
   id: string;
@@ -143,7 +148,7 @@ export function Administracion({ rol, email }: { rol: string; email: string }) {
     setInvitando(true);
     const { error: e } = await supabase
       .from("usuarios")
-      .insert({ email: valor, rol: nuevoRol as Usuario["rol"] });
+      .insert({ email: valor, rol: nuevoRol as RolUsuario });
     setInvitando(false);
 
     if (e) {
@@ -166,7 +171,7 @@ export function Administracion({ rol, email }: { rol: string; email: string }) {
     );
     const { error: e } = await supabase
       .from("usuarios")
-      .update({ rol: valor as Usuario["rol"] })
+      .update({ rol: valor as RolUsuario })
       .eq("id", u.id);
     setGuardandoRol(null);
     if (e) {
@@ -187,11 +192,11 @@ export function Administracion({ rol, email }: { rol: string; email: string }) {
     setCreandoCampo(true);
     const { error: e } = await supabase.from("campos_personalizados").insert({
       nombre: campoNombre.trim(),
-      tipo: campoTipo as Campo["tipo"],
+      tipo: campoTipo as TipoCampo,
       categoria_aplicable:
         campoCategoria === "todas"
           ? null
-          : (campoCategoria as NonNullable<Campo["categoria_aplicable"]>),
+          : (campoCategoria as CategoriaCandidato),
     });
     setCreandoCampo(false);
     if (e) {

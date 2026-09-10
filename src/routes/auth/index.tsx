@@ -62,14 +62,16 @@ function AuthPage() {
           FigurArte<span className="text-primary">.</span>es
         </h1>
 
-        {motivo === "panel" && (
+        {motivo && (
           <div className="mt-6 border border-primary/40 bg-primary/5 p-4">
             <p className="text-sm text-foreground">
-              El panel interno es solo para el equipo de FigurArte. Entra con tu email del
-              equipo para continuar.
+              {motivo === "panel"
+                ? "El panel interno es solo para el equipo de FigurArte. Entra con tu email del equipo para continuar."
+                : "El portal de cliente es solo para clientes de FigurArte."}
             </p>
           </div>
         )}
+
 
         {estado === "enviado" ? (
           <div className="mt-8 border border-border bg-card p-6">

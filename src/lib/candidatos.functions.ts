@@ -33,8 +33,9 @@ const candidaturaSchema = z.object({
 export type CandidaturaInput = z.input<typeof candidaturaSchema>;
 
 export type CandidaturaResultado =
-  | { estado: "ok"; codigo: string }
-  | { estado: "duplicado" }
+  /** Respuesta idéntica exista o no ya el email: no revela si hay ficha previa. */
+  | { estado: "ok"; avisoCasting?: boolean }
+  | { estado: "limite" }
   | { estado: "error"; mensaje: string };
 
 async function enviarConfirmacionResend({

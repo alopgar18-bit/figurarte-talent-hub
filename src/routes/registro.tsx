@@ -7,11 +7,25 @@ import {
 const VALIDAS: CategoriaCandidato[] = ["actor", "modelo", "figurante", "casting_plus"];
 
 export const Route = createFileRoute("/registro")({
-  validateSearch: (search: Record<string, unknown>): { categoria?: CategoriaCandidato } => {
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): {
+    categoria?: CategoriaCandidato;
+    convocatoria?: string;
+    canal?: "instagram" | "whatsapp" | "web";
+  } => {
     const c = search["categoria"];
-    return typeof c === "string" && (VALIDAS as string[]).includes(c)
-      ? { categoria: c as CategoriaCandidato }
-      : {};
+    const conv = search["convocatoria"];
+    const canal = search["canal"];
+    return {
+      ...(typeof c === "string" && (VALIDAS as string[]).includes(c)
+        ? { categoria: c as CategoriaCandidato }
+        : {}),
+      ...(typeof conv === "string" && conv ? { convocatoria: conv } : {}),
+      ...(canal === "instagram" || canal === "whatsapp" || canal === "web"
+        ? { canal }
+        : {}),
+    };
   },
   head: () => ({
     meta: [

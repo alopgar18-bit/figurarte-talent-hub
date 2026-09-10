@@ -16,6 +16,7 @@ import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as CastingSlugRouteImport } from './routes/casting/$slug'
+import { Route as DossierSlugRouteImport } from './routes/dossier/$slug'
 import { Route as PanelIndexRouteImport } from './routes/panel/index'
 import { Route as PanelAccesosInvitadosRouteImport } from './routes/panel/accesos-invitados'
 import { Route as PanelAdministracionRouteImport } from './routes/panel/administracion'
@@ -64,6 +65,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
 const CastingSlugRoute = CastingSlugRouteImport.update({
   id: '/casting/$slug',
   path: '/casting/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DossierSlugRoute = DossierSlugRouteImport.update({
+  id: '/dossier/$slug',
+  path: '/dossier/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PanelIndexRoute = PanelIndexRouteImport.update({
@@ -144,6 +150,7 @@ export interface FileRoutesByFullPath {
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/casting/$slug': typeof CastingSlugRoute
+  '/dossier/$slug': typeof DossierSlugRoute
   '/panel/accesos-invitados': typeof PanelAccesosInvitadosRoute
   '/panel/administracion': typeof PanelAdministracionRoute
   '/panel/captacion': typeof PanelCaptacionRoute
@@ -165,6 +172,7 @@ export interface FileRoutesByTo {
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/casting/$slug': typeof CastingSlugRoute
+  '/dossier/$slug': typeof DossierSlugRoute
   '/panel/accesos-invitados': typeof PanelAccesosInvitadosRoute
   '/panel/administracion': typeof PanelAdministracionRoute
   '/panel/captacion': typeof PanelCaptacionRoute
@@ -189,6 +197,7 @@ export interface FileRoutesById {
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/casting/$slug': typeof CastingSlugRoute
+  '/dossier/$slug': typeof DossierSlugRoute
   '/panel/accesos-invitados': typeof PanelAccesosInvitadosRoute
   '/panel/administracion': typeof PanelAdministracionRoute
   '/panel/captacion': typeof PanelCaptacionRoute
@@ -214,6 +223,7 @@ export interface FileRouteTypes {
     | '/registro'
     | '/auth/callback'
     | '/casting/$slug'
+    | '/dossier/$slug'
     | '/panel/accesos-invitados'
     | '/panel/administracion'
     | '/panel/captacion'
@@ -235,6 +245,7 @@ export interface FileRouteTypes {
     | '/registro'
     | '/auth/callback'
     | '/casting/$slug'
+    | '/dossier/$slug'
     | '/panel/accesos-invitados'
     | '/panel/administracion'
     | '/panel/captacion'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/registro'
     | '/auth/callback'
     | '/casting/$slug'
+    | '/dossier/$slug'
     | '/panel/accesos-invitados'
     | '/panel/administracion'
     | '/panel/captacion'
@@ -282,6 +294,7 @@ export interface RootRouteChildren {
   RegistroRoute: typeof RegistroRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   CastingSlugRoute: typeof CastingSlugRoute
+  DossierSlugRoute: typeof DossierSlugRoute
   AuthIndexRoute: typeof AuthIndexRoute
 }
 
@@ -334,6 +347,13 @@ declare module '@tanstack/react-router' {
       path: '/casting/$slug'
       fullPath: '/casting/$slug'
       preLoaderRoute: typeof CastingSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dossier/$slug': {
+      id: '/dossier/$slug'
+      path: '/dossier/$slug'
+      fullPath: '/dossier/$slug'
+      preLoaderRoute: typeof DossierSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/panel/': {
@@ -492,6 +512,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegistroRoute: RegistroRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   CastingSlugRoute: CastingSlugRoute,
+  DossierSlugRoute: DossierSlugRoute,
   AuthIndexRoute: AuthIndexRoute,
 }
 export const routeTree = rootRouteImport

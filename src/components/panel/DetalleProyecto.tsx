@@ -68,6 +68,14 @@ type Asociacion = {
   creado_en: string;
 };
 
+type Dossier = {
+  id: string;
+  slug_publico: string | null;
+  fecha_caducidad: string | null;
+  candidatos_incluidos: string[];
+  creado_en: string;
+};
+
 type CampoPersonalizado = {
   id: string;
   nombre: string;
@@ -145,6 +153,77 @@ export function DetalleProyecto({ id }: { id: string }) {
   const [resultados, setResultados] = useState<Candidato[]>([]);
   const [buscando, setBuscando] = useState(false);
 
+  const [dossier, setDossier] = useState<Dossier | null>(null);
+  const [dialogoDossier, setDialogoDossier] = useState(false);
+  const [seleccionDossier, setSeleccionDossier] = useState<Record<string, boolean>>({});
+  const [caducidadDossier, setCaducidadDossier] = useState("");
+  const [generandoDossier, setGenerandoDossier] = useState(false);
+
+  async function cargarDossier() {
+    const { data } = await supabase
+      .from("dossiers")
+      .select("id,slug_publico,fecha_caducidad,candidatos_incluidos,creado_en")
+      .eq("proyecto_id", id)
+      .order("creado_en", { ascending: false })
+      .limit(1);
+    setDossier(((data ?? [])[0] as Dossier | undefined) ?? null);
+  }
+
+  function abrirDialogoDossier() {
+    const marcados: Record<string, boolean> = {};
+    for (const a of asociaciones) marcados[a.candidato_id] = true;
+    setSeleccionDossier(marcados);
+    const en14 = new Date(Date.now() + 14 * 86400000);
+    setCaducidadDossier(en14.toISOString().slice(0, 10));
+    setDialogoDossier(true);
+  }
+
+  async function generarSlugDossier(base: string) {
+    const raiz = slugify(base) || "dossier";
+    const { data } = await supabase.from("dossiers").select("slug_publico");
+    const usados = new Set((data ?? []).map((f) => f.slug_publico as string));
+    if (!usados.has(raiz)) return raiz;
+    let n = 2;
+    while (usados.has(`${raiz}-${n}`)) n += 1;
+    return `${raiz}-${n}`;
+  }
+
+  async function generarDossier() {
+    const incluidos = Object.entries(seleccionDossier)
+      .filter(([, v]) => v)
+      .map(([k]) => k);
+    if (incluidos.length === 0) {
+      toast.error("Selecciona al menos un candidato.");
+      return;
+    }
+    setGenerandoDossier(true);
+    const base = [clienteNombre, proyecto?.nombre].filter(Boolean).join(" ");
+    const slug = await generarSlugDossier(base);
+    const { data: sesion } = await supabase.auth.getUser();
+    const { data, error: errIns } = await supabase
+      .from("dossiers")
+      .insert({
+        proyecto_id: id,
+        candidatos_incluidos: incluidos,
+        slug_publico: slug,
+        fecha_caducidad: caducidadDossier
+          ? new Date(`${caducidadDossier}T23:59:59`).toISOString()
+          : null,
+        creado_por: sesion.user?.id ?? null,
+      })
+      .select("id,slug_publico,fecha_caducidad,candidatos_incluidos,creado_en")
+      .maybeSingle();
+    setGenerandoDossier(false);
+    if (errIns || !data) {
+      toast.error("No se pudo generar el dossier.");
+      return;
+    }
+    setDossier(data as Dossier);
+    setDialogoDossier(false);
+    toast.success("Dossier generado.");
+    window.open(`/dossier/${slug}`, "_blank", "noopener");
+  }
+
   async function cargarAsociaciones() {
     const { data } = await supabase
       .from("proyecto_candidatos")
@@ -202,6 +281,7 @@ export function DetalleProyecto({ id }: { id: string }) {
         .order("nombre");
       if (activo) setCampos((cp ?? []) as CampoPersonalizado[]);
       await cargarAsociaciones();
+      await cargarDossier();
       if (activo) {
         setError(null);
         setCargando(false);
@@ -410,9 +490,33 @@ export function DetalleProyecto({ id }: { id: string }) {
                 ))}
               </SelectContent>
             </Select>
-            <Button variant="outline" disabled title="Próximamente">
-              <FileText className="mr-2 h-4 w-4" /> Generar dossier
-            </Button>
+            {dossier?.slug_publico ? (
+              <div className="flex flex-col gap-1 sm:items-end">
+                <div className="flex gap-2">
+                  <Button variant="outline" asChild>
+                    <a
+                      href={`/dossier/${dossier.slug_publico}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <FileText className="mr-2 h-4 w-4" /> Ver dossier
+                    </a>
+                  </Button>
+                  <Button variant="ghost" onClick={abrirDialogoDossier}>
+                    Regenerar
+                  </Button>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {dossier.fecha_caducidad
+                    ? `Caduca el ${new Date(dossier.fecha_caducidad).toLocaleDateString("es-ES")}`
+                    : "Sin caducidad"}
+                </span>
+              </div>
+            ) : (
+              <Button variant="outline" onClick={abrirDialogoDossier}>
+                <FileText className="mr-2 h-4 w-4" /> Generar dossier
+              </Button>
+            )}
           </div>
         </div>
 
@@ -727,6 +831,69 @@ export function DetalleProyecto({ id }: { id: string }) {
           </div>
         )}
       </Tarjeta>
+
+      <Dialog open={dialogoDossier} onOpenChange={setDialogoDossier}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Generar dossier</DialogTitle>
+            <DialogDescription>
+              Elige qué candidatos incluir y hasta cuándo estará disponible el enlace.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="max-h-64 space-y-2 overflow-y-auto border border-border p-3">
+              {asociaciones.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Este proyecto todavía no tiene candidatos asociados.
+                </p>
+              )}
+              {asociaciones.map((a) => {
+                const c = candidatos[a.candidato_id];
+                if (!c) return null;
+                return (
+                  <label
+                    key={a.candidato_id}
+                    className="flex cursor-pointer items-center gap-3 text-sm"
+                  >
+                    <Checkbox
+                      checked={!!seleccionDossier[a.candidato_id]}
+                      onCheckedChange={(v) =>
+                        setSeleccionDossier((prev) => ({
+                          ...prev,
+                          [a.candidato_id]: v === true,
+                        }))
+                      }
+                    />
+                    <span className="min-w-0">
+                      <span className="block truncate font-medium">{c.nombre}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {c.codigo} · {a.estado}
+                      </span>
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="caducidad">Fecha de caducidad</Label>
+              <Input
+                id="caducidad"
+                type="date"
+                value={caducidadDossier}
+                onChange={(e) => setCaducidadDossier(e.target.value)}
+              />
+            </div>
+            <Button
+              className="w-full"
+              onClick={generarDossier}
+              disabled={generandoDossier || asociaciones.length === 0}
+            >
+              {generandoDossier && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Generar y abrir dossier
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={dialogoAnadir} onOpenChange={setDialogoAnadir}>
         <DialogContent className="sm:max-w-lg">

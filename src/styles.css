@@ -147,3 +147,25 @@
     color: var(--color-foreground);
   }
 }
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .dossier-slide {
+    break-after: page;
+    page-break-after: always;
+    max-width: none;
+    padding: 0;
+  }
+
+  .dossier-slide:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  body {
+    background: #ffffff;
+  }
+}

@@ -242,5 +242,5 @@ export const crearCandidatura = createServerFn({ method: "POST" })
       codigo: creado.codigo,
     });
 
-    return { estado: "ok", codigo: creado.codigo };
+    return { estado: "ok", avisoCasting };
   });

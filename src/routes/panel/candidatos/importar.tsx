@@ -5,13 +5,13 @@ export const Route = createFileRoute("/panel/candidatos/importar")({
   component: ImportarCandidatos,
   head: () => ({
     meta: [
-      { title: "Importar candidatos desde Excel | FigurArte" },
+      { title: "Importar candidatos | Panel FigurArte" },
       {
         name: "description",
         content:
           "Asistente de importación de candidatos desde Excel para el equipo de FigurArte: mapeo de columnas y revisión de duplicados.",
       },
-      { property: "og:title", content: "Importar candidatos desde Excel | FigurArte" },
+      { property: "og:title", content: "Importar candidatos | Panel FigurArte" },
       {
         property: "og:description",
         content: "Asistente interno de importación de candidatos de casting desde archivos Excel o CSV.",

@@ -190,6 +190,23 @@ export function FormularioCaptacion({
 
   return (
     <form onSubmit={onSubmit} className="space-y-10">
+      {recortando && (
+        <RecorteFoto
+          file={recortando.file}
+          titulo={recortando.etiqueta}
+          onCancelar={() => setRecortando(null)}
+          onConfirmar={async (area) => {
+            const actual = recortando;
+            setRecortando(null);
+            const preview = await generarPreview(actual.file, area);
+            setArchivos((prev) => ({
+              ...prev,
+              [actual.clave]: { file: actual.file, area, preview },
+            }));
+          }}
+        />
+      )}
+
       {nombreCasting && (
         <div className="rounded-md border border-primary/40 bg-primary/10 px-4 py-3 text-sm font-semibold text-foreground">
           Te apuntas a: {nombreCasting}

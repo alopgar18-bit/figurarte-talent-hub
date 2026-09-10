@@ -27,6 +27,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import { asignarCandidatosAProyecto } from "@/lib/rgpd.functions";
+import { registrarAccesoStaff } from "@/lib/registro-accesos.functions";
+
 
 type Brief = {
   categoria?: string;
@@ -158,6 +160,8 @@ export function DetalleProyecto({ id }: { id: string }) {
   const [dossier, setDossier] = useState<Dossier | null>(null);
   const [dialogoDossier, setDialogoDossier] = useState(false);
   const asignar = useServerFn(asignarCandidatosAProyecto);
+  const anotarAccesoStaff = useServerFn(registrarAccesoStaff);
+
   const [seleccionDossier, setSeleccionDossier] = useState<Record<string, boolean>>({});
   const [caducidadDossier, setCaducidadDossier] = useState("");
   const [generandoDossier, setGenerandoDossier] = useState(false);
@@ -226,7 +230,15 @@ export function DetalleProyecto({ id }: { id: string }) {
     setDossier(data as Dossier);
     setDialogoDossier(false);
     toast.success("Dossier generado.");
+    // Registro mínimo de accesos (RGPD): informativo, no bloquea nada.
+    void anotarAccesoStaff({
+      data: {
+        accion: "genero_dossier" as const,
+        detalle: `${incluidos.length} candidatos · ${proyecto?.nombre ?? id}`,
+      },
+    }).catch(() => {});
     window.open(`/dossier/${slug}`, "_blank", "noopener");
+
   }
 
   async function cargarAsociaciones() {

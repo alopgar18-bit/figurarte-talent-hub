@@ -1,11 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Proximamente } from "@/components/panel/Proximamente";
+import { ListadoClientes } from "@/components/panel/ListadoClientes";
 
 export const Route = createFileRoute("/panel/clientes")({
-  component: () => (
-    <Proximamente
-      titulo="Clientes"
-      descripcion="Ficha de cada cliente, sus proyectos y sus solicitudes."
-    />
-  ),
+  component: ListadoClientes,
 });

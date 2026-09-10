@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PanelRouteRouteImport } from './routes/panel/route'
+import { Route as PortalRouteRouteImport } from './routes/portal/route'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
@@ -22,6 +23,8 @@ import { Route as PanelCaptacionRouteImport } from './routes/panel/captacion'
 import { Route as PanelClientesRouteImport } from './routes/panel/clientes'
 import { Route as PanelDashboardRouteImport } from './routes/panel/dashboard'
 import { Route as PanelPortalClienteRouteImport } from './routes/panel/portal-cliente'
+import { Route as PortalIndexRouteImport } from './routes/portal/index'
+import { Route as PortalSolicitarRouteImport } from './routes/portal/solicitar'
 import { Route as PanelCandidatosIndexRouteImport } from './routes/panel/candidatos/index'
 import { Route as PanelCandidatosIdRouteImport } from './routes/panel/candidatos/$id'
 import { Route as PanelCandidatosImportarRouteImport } from './routes/panel/candidatos/importar'
@@ -36,6 +39,11 @@ const IndexRoute = IndexRouteImport.update({
 const PanelRouteRoute = PanelRouteRouteImport.update({
   id: '/panel',
   path: '/panel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalRouteRoute = PortalRouteRouteImport.update({
+  id: '/portal',
+  path: '/portal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegistroRoute = RegistroRouteImport.update({
@@ -93,6 +101,16 @@ const PanelPortalClienteRoute = PanelPortalClienteRouteImport.update({
   path: '/portal-cliente',
   getParentRoute: () => PanelRouteRoute,
 } as any)
+const PortalIndexRoute = PortalIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PortalRouteRoute,
+} as any)
+const PortalSolicitarRoute = PortalSolicitarRouteImport.update({
+  id: '/solicitar',
+  path: '/solicitar',
+  getParentRoute: () => PortalRouteRoute,
+} as any)
 const PanelCandidatosIndexRoute = PanelCandidatosIndexRouteImport.update({
   id: '/candidatos/',
   path: '/candidatos/',
@@ -122,6 +140,7 @@ const PanelProyectosIdRoute = PanelProyectosIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/panel': typeof PanelRouteRouteWithChildren
+  '/portal': typeof PortalRouteRouteWithChildren
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/casting/$slug': typeof CastingSlugRoute
@@ -131,8 +150,10 @@ export interface FileRoutesByFullPath {
   '/panel/clientes': typeof PanelClientesRoute
   '/panel/dashboard': typeof PanelDashboardRoute
   '/panel/portal-cliente': typeof PanelPortalClienteRoute
+  '/portal/solicitar': typeof PortalSolicitarRoute
   '/auth/': typeof AuthIndexRoute
   '/panel/': typeof PanelIndexRoute
+  '/portal/': typeof PortalIndexRoute
   '/panel/candidatos/$id': typeof PanelCandidatosIdRoute
   '/panel/candidatos/importar': typeof PanelCandidatosImportarRoute
   '/panel/proyectos/$id': typeof PanelProyectosIdRoute
@@ -150,8 +171,10 @@ export interface FileRoutesByTo {
   '/panel/clientes': typeof PanelClientesRoute
   '/panel/dashboard': typeof PanelDashboardRoute
   '/panel/portal-cliente': typeof PanelPortalClienteRoute
+  '/portal/solicitar': typeof PortalSolicitarRoute
   '/auth': typeof AuthIndexRoute
   '/panel': typeof PanelIndexRoute
+  '/portal': typeof PortalIndexRoute
   '/panel/candidatos/$id': typeof PanelCandidatosIdRoute
   '/panel/candidatos/importar': typeof PanelCandidatosImportarRoute
   '/panel/proyectos/$id': typeof PanelProyectosIdRoute
@@ -162,6 +185,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/panel': typeof PanelRouteRouteWithChildren
+  '/portal': typeof PortalRouteRouteWithChildren
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/casting/$slug': typeof CastingSlugRoute
@@ -171,8 +195,10 @@ export interface FileRoutesById {
   '/panel/clientes': typeof PanelClientesRoute
   '/panel/dashboard': typeof PanelDashboardRoute
   '/panel/portal-cliente': typeof PanelPortalClienteRoute
+  '/portal/solicitar': typeof PortalSolicitarRoute
   '/auth/': typeof AuthIndexRoute
   '/panel/': typeof PanelIndexRoute
+  '/portal/': typeof PortalIndexRoute
   '/panel/candidatos/$id': typeof PanelCandidatosIdRoute
   '/panel/candidatos/importar': typeof PanelCandidatosImportarRoute
   '/panel/proyectos/$id': typeof PanelProyectosIdRoute
@@ -184,6 +210,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/panel'
+    | '/portal'
     | '/registro'
     | '/auth/callback'
     | '/casting/$slug'
@@ -193,8 +220,10 @@ export interface FileRouteTypes {
     | '/panel/clientes'
     | '/panel/dashboard'
     | '/panel/portal-cliente'
+    | '/portal/solicitar'
     | '/auth/'
     | '/panel/'
+    | '/portal/'
     | '/panel/candidatos/$id'
     | '/panel/candidatos/importar'
     | '/panel/proyectos/$id'
@@ -212,8 +241,10 @@ export interface FileRouteTypes {
     | '/panel/clientes'
     | '/panel/dashboard'
     | '/panel/portal-cliente'
+    | '/portal/solicitar'
     | '/auth'
     | '/panel'
+    | '/portal'
     | '/panel/candidatos/$id'
     | '/panel/candidatos/importar'
     | '/panel/proyectos/$id'
@@ -223,6 +254,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/panel'
+    | '/portal'
     | '/registro'
     | '/auth/callback'
     | '/casting/$slug'
@@ -232,8 +264,10 @@ export interface FileRouteTypes {
     | '/panel/clientes'
     | '/panel/dashboard'
     | '/panel/portal-cliente'
+    | '/portal/solicitar'
     | '/auth/'
     | '/panel/'
+    | '/portal/'
     | '/panel/candidatos/$id'
     | '/panel/candidatos/importar'
     | '/panel/proyectos/$id'
@@ -244,6 +278,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PanelRouteRoute: typeof PanelRouteRouteWithChildren
+  PortalRouteRoute: typeof PortalRouteRouteWithChildren
   RegistroRoute: typeof RegistroRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   CastingSlugRoute: typeof CastingSlugRoute
@@ -264,6 +299,13 @@ declare module '@tanstack/react-router' {
       path: '/panel'
       fullPath: '/panel'
       preLoaderRoute: typeof PanelRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/registro': {
@@ -343,6 +385,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PanelPortalClienteRouteImport
       parentRoute: typeof PanelRouteRoute
     }
+    '/portal/': {
+      id: '/portal/'
+      path: '/'
+      fullPath: '/portal/'
+      preLoaderRoute: typeof PortalIndexRouteImport
+      parentRoute: typeof PortalRouteRoute
+    }
+    '/portal/solicitar': {
+      id: '/portal/solicitar'
+      path: '/solicitar'
+      fullPath: '/portal/solicitar'
+      preLoaderRoute: typeof PortalSolicitarRouteImport
+      parentRoute: typeof PortalRouteRoute
+    }
     '/panel/candidatos/': {
       id: '/panel/candidatos/'
       path: '/candidatos'
@@ -415,9 +471,24 @@ const PanelRouteRouteWithChildren = PanelRouteRoute._addFileChildren(
   PanelRouteRouteChildren,
 )
 
+interface PortalRouteRouteChildren {
+  PortalSolicitarRoute: typeof PortalSolicitarRoute
+  PortalIndexRoute: typeof PortalIndexRoute
+}
+
+const PortalRouteRouteChildren: PortalRouteRouteChildren = {
+  PortalSolicitarRoute: PortalSolicitarRoute,
+  PortalIndexRoute: PortalIndexRoute,
+}
+
+const PortalRouteRouteWithChildren = PortalRouteRoute._addFileChildren(
+  PortalRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PanelRouteRoute: PanelRouteRouteWithChildren,
+  PortalRouteRoute: PortalRouteRouteWithChildren,
   RegistroRoute: RegistroRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   CastingSlugRoute: CastingSlugRoute,

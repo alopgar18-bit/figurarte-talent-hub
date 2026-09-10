@@ -213,7 +213,7 @@ export const crearCandidatura = createServerFn({ method: "POST" })
       const { error: errCasting } = await supabaseAdmin
         .from("proyecto_candidatos")
         .insert({
-          proyecto_id: "00000000-0000-0000-0000-0000000000ff",
+          proyecto_id: data.proyecto_id,
           candidato_id: creado.id,
           origen: "web_directa",
         });

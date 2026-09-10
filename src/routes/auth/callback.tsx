@@ -38,6 +38,7 @@ const ETIQUETAS_ROL: Record<string, string> = {
 };
 
 function CallbackPage() {
+  const navegar = useNavigate();
   const resolver = useServerFn(resolverAcceso);
   const inscribir = useServerFn(inscribirEnCasting);
   const { proyecto_id: proyectoId } = Route.useSearch();

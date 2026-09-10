@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PanelRouteRouteImport } from './routes/panel/route'
+import { Route as PortalRouteRouteImport } from './routes/portal/route'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
@@ -36,6 +37,11 @@ const IndexRoute = IndexRouteImport.update({
 const PanelRouteRoute = PanelRouteRouteImport.update({
   id: '/panel',
   path: '/panel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalRouteRoute = PortalRouteRouteImport.update({
+  id: '/portal',
+  path: '/portal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegistroRoute = RegistroRouteImport.update({
@@ -122,6 +128,7 @@ const PanelProyectosIdRoute = PanelProyectosIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/panel': typeof PanelRouteRouteWithChildren
+  '/portal': typeof PortalRouteRoute
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/casting/$slug': typeof CastingSlugRoute
@@ -141,6 +148,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/portal': typeof PortalRouteRoute
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/casting/$slug': typeof CastingSlugRoute
@@ -162,6 +170,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/panel': typeof PanelRouteRouteWithChildren
+  '/portal': typeof PortalRouteRoute
   '/registro': typeof RegistroRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/casting/$slug': typeof CastingSlugRoute
@@ -184,6 +193,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/panel'
+    | '/portal'
     | '/registro'
     | '/auth/callback'
     | '/casting/$slug'
@@ -203,6 +213,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/portal'
     | '/registro'
     | '/auth/callback'
     | '/casting/$slug'
@@ -223,6 +234,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/panel'
+    | '/portal'
     | '/registro'
     | '/auth/callback'
     | '/casting/$slug'
@@ -244,6 +256,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PanelRouteRoute: typeof PanelRouteRouteWithChildren
+  PortalRouteRoute: typeof PortalRouteRoute
   RegistroRoute: typeof RegistroRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   CastingSlugRoute: typeof CastingSlugRoute
@@ -264,6 +277,13 @@ declare module '@tanstack/react-router' {
       path: '/panel'
       fullPath: '/panel'
       preLoaderRoute: typeof PanelRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/registro': {
@@ -418,6 +438,7 @@ const PanelRouteRouteWithChildren = PanelRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PanelRouteRoute: PanelRouteRouteWithChildren,
+  PortalRouteRoute: PortalRouteRoute,
   RegistroRoute: RegistroRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   CastingSlugRoute: CastingSlugRoute,

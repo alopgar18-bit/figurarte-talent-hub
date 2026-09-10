@@ -61,3 +61,37 @@ export const resolverAcceso = createServerFn({ method: "POST" })
     // 3. Sin cuenta
     return { tipo: "ninguno" };
   });
+
+export const ROLES_STAFF = [
+  "superadmin",
+  "admin_figurarte",
+  "coordinador",
+  "validador",
+] as const;
+
+export type SesionStaff =
+  | { esStaff: true; rol: string; email: string }
+  | { esStaff: false };
+
+/**
+ * Resuelve si la sesión actual pertenece al equipo (staff) y devuelve rol y email.
+ * Reutiliza el mismo orden de resolución que `resolverAcceso`.
+ */
+export const obtenerSesionStaff = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<SesionStaff> => {
+    const { userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: usuario } = await supabaseAdmin
+      .from("usuarios")
+      .select("rol, email")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (!usuario) return { esStaff: false };
+    if (!(ROLES_STAFF as readonly string[]).includes(usuario.rol)) {
+      return { esStaff: false };
+    }
+    return { esStaff: true, rol: usuario.rol, email: usuario.email };
+  });

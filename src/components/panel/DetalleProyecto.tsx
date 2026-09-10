@@ -68,6 +68,14 @@ type Asociacion = {
   creado_en: string;
 };
 
+type Dossier = {
+  id: string;
+  slug_publico: string | null;
+  fecha_caducidad: string | null;
+  candidatos_incluidos: string[];
+  creado_en: string;
+};
+
 type CampoPersonalizado = {
   id: string;
   nombre: string;
@@ -144,6 +152,77 @@ export function DetalleProyecto({ id }: { id: string }) {
   const [busqueda, setBusqueda] = useState("");
   const [resultados, setResultados] = useState<Candidato[]>([]);
   const [buscando, setBuscando] = useState(false);
+
+  const [dossier, setDossier] = useState<Dossier | null>(null);
+  const [dialogoDossier, setDialogoDossier] = useState(false);
+  const [seleccionDossier, setSeleccionDossier] = useState<Record<string, boolean>>({});
+  const [caducidadDossier, setCaducidadDossier] = useState("");
+  const [generandoDossier, setGenerandoDossier] = useState(false);
+
+  async function cargarDossier() {
+    const { data } = await supabase
+      .from("dossiers")
+      .select("id,slug_publico,fecha_caducidad,candidatos_incluidos,creado_en")
+      .eq("proyecto_id", id)
+      .order("creado_en", { ascending: false })
+      .limit(1);
+    setDossier(((data ?? [])[0] as Dossier | undefined) ?? null);
+  }
+
+  function abrirDialogoDossier() {
+    const marcados: Record<string, boolean> = {};
+    for (const a of asociaciones) marcados[a.candidato_id] = true;
+    setSeleccionDossier(marcados);
+    const en14 = new Date(Date.now() + 14 * 86400000);
+    setCaducidadDossier(en14.toISOString().slice(0, 10));
+    setDialogoDossier(true);
+  }
+
+  async function generarSlugDossier(base: string) {
+    const raiz = slugify(base) || "dossier";
+    const { data } = await supabase.from("dossiers").select("slug_publico");
+    const usados = new Set((data ?? []).map((f) => f.slug_publico as string));
+    if (!usados.has(raiz)) return raiz;
+    let n = 2;
+    while (usados.has(`${raiz}-${n}`)) n += 1;
+    return `${raiz}-${n}`;
+  }
+
+  async function generarDossier() {
+    const incluidos = Object.entries(seleccionDossier)
+      .filter(([, v]) => v)
+      .map(([k]) => k);
+    if (incluidos.length === 0) {
+      toast.error("Selecciona al menos un candidato.");
+      return;
+    }
+    setGenerandoDossier(true);
+    const base = [clienteNombre, proyecto?.nombre].filter(Boolean).join(" ");
+    const slug = await generarSlugDossier(base);
+    const { data: sesion } = await supabase.auth.getUser();
+    const { data, error: errIns } = await supabase
+      .from("dossiers")
+      .insert({
+        proyecto_id: id,
+        candidatos_incluidos: incluidos,
+        slug_publico: slug,
+        fecha_caducidad: caducidadDossier
+          ? new Date(`${caducidadDossier}T23:59:59`).toISOString()
+          : null,
+        creado_por: sesion.user?.id ?? null,
+      })
+      .select("id,slug_publico,fecha_caducidad,candidatos_incluidos,creado_en")
+      .maybeSingle();
+    setGenerandoDossier(false);
+    if (errIns || !data) {
+      toast.error("No se pudo generar el dossier.");
+      return;
+    }
+    setDossier(data as Dossier);
+    setDialogoDossier(false);
+    toast.success("Dossier generado.");
+    window.open(`/dossier/${slug}`, "_blank", "noopener");
+  }
 
   async function cargarAsociaciones() {
     const { data } = await supabase

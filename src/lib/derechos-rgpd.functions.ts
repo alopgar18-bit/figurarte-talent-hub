@@ -5,10 +5,12 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const CONFIRMACION = "ELIMINAR";
 
 export type MisDatos = {
-  candidato: Record<string, unknown>;
+  /** Ficha completa serializada (evita tipos no serializables en el RPC). */
+  candidato_json: string;
   historial: { proyecto: string; fecha: string; estado: string }[];
   generado_en: string;
 };
+
 
 /** Derecho de acceso y portabilidad: el candidato descarga sus propios datos. */
 export const obtenerMisDatos = createServerFn({ method: "POST" })

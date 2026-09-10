@@ -148,5 +148,12 @@ export const crearCandidatura = createServerFn({ method: "POST" })
       });
     }
 
+    // Envío de confirmación: no debe interrumpir el registro si falla.
+    await enviarConfirmacionResend({
+      nombre: data.nombre,
+      email,
+      codigo: creado.codigo,
+    });
+
     return { estado: "ok", codigo: creado.codigo };
   });

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Building2, Loader2, Plus } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ArrowLeft, Building2, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,22 @@ const ETIQUETA_ESTADO: Record<string, string> = {
   cerrado: "Cerrado",
 };
 
+type FormCliente = {
+  razon_social: string;
+  sector: string;
+  condiciones: string;
+  logo_url: string;
+  contactos: Contacto[];
+};
+
+const FORM_VACIO: FormCliente = {
+  razon_social: "",
+  sector: "",
+  condiciones: "",
+  logo_url: "",
+  contactos: [{ nombre: "", email: "", telefono: "" }],
+};
+
 function Tarjeta({
   titulo,
   children,
@@ -67,6 +84,45 @@ function Tarjeta({
   );
 }
 
+/** El logo del cliente suele ser un SVG en negro: se muestra siempre sobre blanco. */
+function LogoCliente({
+  url,
+  nombre,
+  className,
+}: {
+  url: string | null;
+  nombre: string;
+  className?: string;
+}) {
+  if (!url) {
+    return (
+      <div
+        className={cn(
+          "flex size-14 shrink-0 items-center justify-center border border-border bg-muted",
+          className,
+        )}
+      >
+        <Building2 className="size-6 text-muted-foreground" aria-hidden="true" />
+      </div>
+    );
+  }
+  return (
+    <div
+      className={cn(
+        "flex size-14 shrink-0 items-center justify-center border border-border bg-white p-1.5",
+        className,
+      )}
+    >
+      <img
+        src={url}
+        alt={`Logo de ${nombre}`}
+        className="max-h-full max-w-full object-contain"
+        loading="lazy"
+      />
+    </div>
+  );
+}
+
 export function ListadoClientes() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [proyectos, setProyectos] = useState<Proyecto[]>([]);
@@ -77,15 +133,9 @@ export function ListadoClientes() {
   const [detalleMovil, setDetalleMovil] = useState(false);
 
   const [dialogo, setDialogo] = useState(false);
+  const [editandoId, setEditandoId] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
-  const [form, setForm] = useState({
-    razon_social: "",
-    sector: "",
-    contacto_nombre: "",
-    contacto_email: "",
-    contacto_telefono: "",
-    condiciones: "",
-  });
+  const [form, setForm] = useState<FormCliente>(FORM_VACIO);
 
   async function cargar(seleccionarId?: string) {
     const [{ data: cls, error: e1 }, { data: prys }, { data: pcs }] = await Promise.all([
@@ -142,27 +192,88 @@ export function ListadoClientes() {
     return proyectos.filter((p) => p.cliente_id === id).length;
   }
 
-  async function crearCliente() {
+  function abrirNuevo() {
+    setEditandoId(null);
+    setForm(FORM_VACIO);
+    setDialogo(true);
+  }
+
+  function abrirEdicion(c: Cliente) {
+    setEditandoId(c.id);
+    setForm({
+      razon_social: c.razon_social,
+      sector: c.sector ?? "",
+      condiciones: c.condiciones ?? "",
+      logo_url: c.plantilla_dossier?.logo_url ?? "",
+      contactos: c.contactos?.length
+        ? c.contactos.map((x) => ({
+            nombre: x.nombre ?? "",
+            email: x.email ?? "",
+            telefono: x.telefono ?? "",
+          }))
+        : [{ nombre: "", email: "", telefono: "" }],
+    });
+    setDialogo(true);
+  }
+
+  function cambiarContacto(i: number, campo: keyof Contacto, valor: string) {
+    setForm((f) => ({
+      ...f,
+      contactos: f.contactos.map((c, idx) => (idx === i ? { ...c, [campo]: valor } : c)),
+    }));
+  }
+
+  async function guardarCliente() {
     if (form.razon_social.trim().length < 2) {
       toast.error("Indica la razón social.");
       return;
     }
     setGuardando(true);
-    const contacto: Contacto = {
-      nombre: form.contacto_nombre.trim(),
-      email: form.contacto_email.trim(),
-      telefono: form.contacto_telefono.trim(),
+
+    const contactos = form.contactos
+      .map((c) => ({
+        nombre: (c.nombre ?? "").trim(),
+        email: (c.email ?? "").trim(),
+        telefono: (c.telefono ?? "").trim(),
+      }))
+      .filter((c) => c.nombre || c.email || c.telefono);
+
+    const plantillaBase =
+      (editandoId && clientes.find((c) => c.id === editandoId)?.plantilla_dossier) || {};
+    const plantilla_dossier = {
+      ...plantillaBase,
+      logo_url: form.logo_url.trim() || null,
     };
-    const tieneContacto = Boolean(contacto.nombre || contacto.email || contacto.telefono);
+
+    const valores = {
+      razon_social: form.razon_social.trim(),
+      sector: form.sector.trim() || null,
+      contactos,
+      condiciones: form.condiciones.trim() || null,
+      plantilla_dossier,
+    };
+
+    if (editandoId) {
+      const { error: e } = await supabase
+        .from("clientes")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .update(valores as any)
+        .eq("id", editandoId);
+      setGuardando(false);
+      if (e) {
+        toast.error("No se pudieron guardar los cambios.");
+        return;
+      }
+      toast.success("Cliente actualizado");
+      setDialogo(false);
+      await cargar(editandoId);
+      return;
+    }
 
     const { data, error: e } = await supabase
       .from("clientes")
-      .insert({
-        razon_social: form.razon_social.trim(),
-        sector: form.sector.trim() || null,
-        contactos: tieneContacto ? [contacto] : [],
-        condiciones: form.condiciones.trim() || null,
-      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .insert(valores as any)
       .select("id")
       .single();
 
@@ -175,14 +286,7 @@ export function ListadoClientes() {
 
     toast.success("Cliente creado");
     setDialogo(false);
-    setForm({
-      razon_social: "",
-      sector: "",
-      contacto_nombre: "",
-      contacto_email: "",
-      contacto_telefono: "",
-      condiciones: "",
-    });
+    setForm(FORM_VACIO);
     await cargar(data.id);
   }
 
@@ -207,7 +311,7 @@ export function ListadoClientes() {
         <p className="text-sm font-semibold text-foreground">
           Clientes <span className="text-muted-foreground">({clientes.length})</span>
         </p>
-        <Button size="sm" onClick={() => setDialogo(true)}>
+        <Button size="sm" onClick={abrirNuevo}>
           <Plus className="size-4" />
           Nuevo cliente
         </Button>
@@ -267,24 +371,17 @@ export function ListadoClientes() {
 
       <header className="border border-border bg-card p-4 sm:p-5">
         <div className="flex items-start gap-4">
-          {logo ? (
-            <img
-              src={logo}
-              alt={`Logo de ${cliente.razon_social}`}
-              className="size-14 shrink-0 border border-border object-contain"
-              loading="lazy"
-            />
-          ) : (
-            <div className="flex size-14 shrink-0 items-center justify-center border border-border bg-muted">
-              <Building2 className="size-6 text-muted-foreground" aria-hidden="true" />
-            </div>
-          )}
-          <div className="min-w-0">
+          <LogoCliente url={logo} nombre={cliente.razon_social} />
+          <div className="min-w-0 flex-1">
             <h2 className="text-xl font-bold tracking-tight text-foreground">
               {cliente.razon_social}
             </h2>
             <p className="text-sm text-muted-foreground">{cliente.sector ?? "Sector sin definir"}</p>
           </div>
+          <Button variant="outline" size="sm" onClick={() => abrirEdicion(cliente)}>
+            <Pencil className="size-4" />
+            Editar
+          </Button>
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -350,12 +447,7 @@ export function ListadoClientes() {
       <Tarjeta titulo="Plantilla de dossier">
         {logo ? (
           <div className="flex items-center gap-3">
-            <img
-              src={logo}
-              alt={`Logo de ${cliente.razon_social}`}
-              className="h-12 max-w-[180px] border border-border object-contain"
-              loading="lazy"
-            />
+            <LogoCliente url={logo} nombre={cliente.razon_social} className="h-14 w-32 size-auto" />
             <span className="break-all text-xs text-muted-foreground">{logo}</span>
           </div>
         ) : (
@@ -367,14 +459,17 @@ export function ListadoClientes() {
         {proyectosCliente.length ? (
           <ul className="space-y-2">
             {proyectosCliente.map((p) => (
-              <li
-                key={p.id}
-                className="flex items-center justify-between gap-3 border border-border p-3"
-              >
-                <span className="min-w-0 truncate text-sm font-medium text-foreground">
-                  {p.nombre}
-                </span>
-                <Badge variant="outline">{ETIQUETA_ESTADO[p.estado] ?? p.estado}</Badge>
+              <li key={p.id}>
+                <Link
+                  to="/panel/proyectos/$id"
+                  params={{ id: p.id }}
+                  className="flex items-center justify-between gap-3 border border-border p-3 transition-colors hover:bg-accent"
+                >
+                  <span className="min-w-0 truncate text-sm font-medium text-foreground">
+                    {p.nombre}
+                  </span>
+                  <Badge variant="outline">{ETIQUETA_ESTADO[p.estado] ?? p.estado}</Badge>
+                </Link>
               </li>
             ))}
           </ul>
@@ -403,9 +498,9 @@ export function ListadoClientes() {
       <Dialog open={dialogo} onOpenChange={setDialogo}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Nuevo cliente</DialogTitle>
+            <DialogTitle>{editandoId ? "Editar cliente" : "Nuevo cliente"}</DialogTitle>
             <DialogDescription>
-              Datos básicos del cliente y un contacto inicial. Podrás ampliarlo después.
+              Datos del cliente, contactos, condiciones y logo para sus dossiers.
             </DialogDescription>
           </DialogHeader>
 
@@ -426,33 +521,64 @@ export function ListadoClientes() {
                 onChange={(e) => setForm({ ...form, sector: e.target.value })}
               />
             </div>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="contacto_nombre">Contacto</Label>
-                <Input
-                  id="contacto_nombre"
-                  value={form.contacto_nombre}
-                  onChange={(e) => setForm({ ...form, contacto_nombre: e.target.value })}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="contacto_email">Email</Label>
-                <Input
-                  id="contacto_email"
-                  type="email"
-                  value={form.contacto_email}
-                  onChange={(e) => setForm({ ...form, contacto_email: e.target.value })}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="contacto_telefono">Teléfono</Label>
-                <Input
-                  id="contacto_telefono"
-                  value={form.contacto_telefono}
-                  onChange={(e) => setForm({ ...form, contacto_telefono: e.target.value })}
-                />
-              </div>
+
+            <div className="space-y-2">
+              <Label>Contactos</Label>
+              {form.contactos.map((c, i) => (
+                <div key={i} className="space-y-2 border border-border p-3">
+                  <div className="grid gap-2 sm:grid-cols-3">
+                    <Input
+                      placeholder="Nombre"
+                      value={c.nombre ?? ""}
+                      onChange={(e) => cambiarContacto(i, "nombre", e.target.value)}
+                      aria-label={`Nombre del contacto ${i + 1}`}
+                    />
+                    <Input
+                      placeholder="Email"
+                      type="email"
+                      value={c.email ?? ""}
+                      onChange={(e) => cambiarContacto(i, "email", e.target.value)}
+                      aria-label={`Email del contacto ${i + 1}`}
+                    />
+                    <Input
+                      placeholder="Teléfono"
+                      value={c.telefono ?? ""}
+                      onChange={(e) => cambiarContacto(i, "telefono", e.target.value)}
+                      aria-label={`Teléfono del contacto ${i + 1}`}
+                    />
+                  </div>
+                  {form.contactos.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        setForm((f) => ({
+                          ...f,
+                          contactos: f.contactos.filter((_, idx) => idx !== i),
+                        }))
+                      }
+                    >
+                      <Trash2 className="size-4" /> Quitar contacto
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setForm((f) => ({
+                    ...f,
+                    contactos: [...f.contactos, { nombre: "", email: "", telefono: "" }],
+                  }))
+                }
+              >
+                <Plus className="size-4" /> Añadir contacto
+              </Button>
             </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="condiciones">Condiciones</Label>
               <Textarea
@@ -462,15 +588,25 @@ export function ListadoClientes() {
                 onChange={(e) => setForm({ ...form, condiciones: e.target.value })}
               />
             </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="logo_url">Logo para el dossier (URL)</Label>
+              <Input
+                id="logo_url"
+                placeholder="https://…"
+                value={form.logo_url}
+                onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
+              />
+            </div>
           </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogo(false)} disabled={guardando}>
               Cancelar
             </Button>
-            <Button onClick={crearCliente} disabled={guardando}>
+            <Button onClick={guardarCliente} disabled={guardando}>
               {guardando && <Loader2 className="size-4 animate-spin" />}
-              Crear cliente
+              {editandoId ? "Guardar cambios" : "Crear cliente"}
             </Button>
           </DialogFooter>
         </DialogContent>

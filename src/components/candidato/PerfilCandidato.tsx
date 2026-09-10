@@ -118,6 +118,54 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   const [f, setF] = useState<Record<string, unknown>>({});
   const [firmando, setFirmando] = useState(false);
   const firmar = useServerFn(darConsentimientoRgpd);
+  const descargarDatos = useServerFn(obtenerMisDatos);
+  const eliminarCuenta = useServerFn(eliminarMisDatos);
+  const [descargando, setDescargando] = useState(false);
+  const [dialogoBorrado, setDialogoBorrado] = useState(false);
+  const [confirmacion, setConfirmacion] = useState("");
+  const [borrando, setBorrando] = useState(false);
+
+  async function descargar() {
+    setDescargando(true);
+    try {
+      const datos = await descargarDatos({ data: undefined as never });
+      const contenido = {
+        generado_en: datos.generado_en,
+        candidato: JSON.parse(datos.candidato_json) as unknown,
+        historial_proyectos: datos.historial,
+      };
+      const blob = new Blob([JSON.stringify(contenido, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `mis-datos-figurarte-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("No hemos podido preparar tu descarga. Inténtalo de nuevo.");
+    }
+    setDescargando(false);
+  }
+
+  async function confirmarBorrado() {
+    setBorrando(true);
+    try {
+      const res = await eliminarCuenta({ data: { confirmacion: "ELIMINAR" as const } });
+      if (res.estado !== "ok") {
+        toast.error(res.mensaje, { duration: 10000 });
+        setBorrando(false);
+        return;
+      }
+      await supabase.auth.signOut();
+      window.location.href = "/";
+    } catch {
+      toast.error("No hemos podido eliminar tus datos. Inténtalo de nuevo.");
+      setBorrando(false);
+    }
+  }
+
 
   useEffect(() => {
     let cancelado = false;

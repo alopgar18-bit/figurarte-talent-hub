@@ -72,7 +72,8 @@ function CallbackPage() {
           }
         }
         if (cancelado) return;
-        if (resultado.tipo === "candidato") {
+        // Sin casting de por medio, el candidato va directo a su ficha.
+        if (resultado.tipo === "candidato" && !proyectoId) {
           void navegar({ to: "/candidato", replace: true });
           return;
         }

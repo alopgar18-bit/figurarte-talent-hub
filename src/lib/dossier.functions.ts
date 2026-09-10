@@ -43,7 +43,11 @@ export const obtenerDossierPublico = createServerFn({ method: "GET" })
       })
       .parse(data),
   )
-  .handler(async ({ data }): Promise<DossierPublico | null> => {
+  .handler(async ({ data }): Promise<DossierPublico | LimiteDossier | null> => {
+    // Evita probar enlaces al azar: 20 lecturas por IP cada 10 minutos.
+    const { dentroDeLimite, LIMITES } = await import("@/lib/rate-limit.server");
+    if (!dentroDeLimite("dossier", LIMITES.dossier)) return { limitado: true };
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Backstop de acceso: la tabla `dossiers` no tiene lectura pública. Esta

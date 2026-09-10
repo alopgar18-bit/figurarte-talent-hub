@@ -25,6 +25,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useServerFn } from "@tanstack/react-start";
+import { asignarCandidatosAProyecto } from "@/lib/rgpd.functions";
 
 type Brief = {
   categoria?: string;
@@ -155,6 +157,7 @@ export function DetalleProyecto({ id }: { id: string }) {
 
   const [dossier, setDossier] = useState<Dossier | null>(null);
   const [dialogoDossier, setDialogoDossier] = useState(false);
+  const asignar = useServerFn(asignarCandidatosAProyecto);
   const [seleccionDossier, setSeleccionDossier] = useState<Record<string, boolean>>({});
   const [caducidadDossier, setCaducidadDossier] = useState("");
   const [generandoDossier, setGenerandoDossier] = useState(false);

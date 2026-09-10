@@ -30,6 +30,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useServerFn } from "@tanstack/react-start";
+import { asignarCandidatosAProyecto } from "@/lib/rgpd.functions";
 
 type Candidato = Record<string, unknown> & {
   id: string;
@@ -106,6 +108,7 @@ export function ListadoCandidatos() {
   const [seleccion, setSeleccion] = useState<string[]>([]);
   const [proyectoDestino, setProyectoDestino] = useState("");
   const [asignando, setAsignando] = useState(false);
+  const asignar = useServerFn(asignarCandidatosAProyecto);
   const [aviso, setAviso] = useState<string | null>(null);
   const [dialogoExport, setDialogoExport] = useState(false);
 

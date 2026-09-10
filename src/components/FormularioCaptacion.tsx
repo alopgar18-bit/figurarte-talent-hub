@@ -119,7 +119,7 @@ export function FormularioCaptacion({
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setDuplicado(false);
+    
 
     if (!categoria) return setError("Elige una categoría para continuar.");
     if (nombre.trim().length < 2) return setError("Escribe tu nombre completo.");

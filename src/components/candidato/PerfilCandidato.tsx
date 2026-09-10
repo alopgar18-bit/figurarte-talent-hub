@@ -137,11 +137,18 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
       const res = await firmar({ data: undefined as never });
       setFicha((prev) => (prev ? { ...prev, consentimiento_rgpd: true } : prev));
       setF((prev) => ({ ...prev, consentimiento_rgpd: true }));
-      toast.success(
-        res.liberadas > 0
-          ? `Gracias, ya puedes participar en nuestros proyectos. Ya apareces en ${res.liberadas} proyecto${res.liberadas === 1 ? "" : "s"} que te habían apuntado.`
-          : "Gracias, ya puedes participar en nuestros proyectos.",
-      );
+      if (res.falloLiberacion) {
+        toast.error(
+          "Hemos guardado tu autorización, pero no hemos podido activar los proyectos en los que te habían apuntado. Escríbenos para que lo revisemos: todavía no apareces en ellos.",
+          { duration: 12000 },
+        );
+      } else {
+        toast.success(
+          res.liberadas > 0
+            ? `Gracias, ya puedes participar en nuestros proyectos. Ya apareces en ${res.liberadas} proyecto${res.liberadas === 1 ? "" : "s"} que te habían apuntado.`
+            : "Gracias, ya puedes participar en nuestros proyectos.",
+        );
+      }
     } catch {
       toast.error("No hemos podido guardar tu autorización. Inténtalo de nuevo.");
     }

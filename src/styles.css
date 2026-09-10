@@ -53,6 +53,11 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
+  /* Tipografía de figurarte.es */
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Roboto Slab", Georgia, serif;
+
   /* Brand-specific semantic tokens */
   --color-brand-red: var(--brand-red);
   --color-brand-charcoal: var(--brand-charcoal);

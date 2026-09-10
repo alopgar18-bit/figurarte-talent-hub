@@ -153,7 +153,7 @@ export function PanelShell({
           >
             {abierto ? <X className="size-5" /> : <Menu className="size-5" />}
           </Button>
-          <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-foreground sm:text-lg">
+          <h1 className="min-w-0 flex-1 truncate text-base font-extrabold uppercase tracking-tight text-foreground sm:text-lg">
             {seccion}
           </h1>
           <div className="hidden text-right sm:block">

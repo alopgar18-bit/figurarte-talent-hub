@@ -22,7 +22,6 @@ import { Route as PanelCaptacionRouteImport } from './routes/panel/captacion'
 import { Route as PanelClientesRouteImport } from './routes/panel/clientes'
 import { Route as PanelDashboardRouteImport } from './routes/panel/dashboard'
 import { Route as PanelPortalClienteRouteImport } from './routes/panel/portal-cliente'
-import { Route as PanelProyectosRouteImport } from './routes/panel/proyectos'
 import { Route as PanelCandidatosIndexRouteImport } from './routes/panel/candidatos/index'
 import { Route as PanelCandidatosIdRouteImport } from './routes/panel/candidatos/$id'
 import { Route as PanelCandidatosImportarRouteImport } from './routes/panel/candidatos/importar'
@@ -92,11 +91,6 @@ const PanelPortalClienteRoute = PanelPortalClienteRouteImport.update({
   path: '/portal-cliente',
   getParentRoute: () => PanelRouteRoute,
 } as any)
-const PanelProyectosRoute = PanelProyectosRouteImport.update({
-  id: '/proyectos',
-  path: '/proyectos',
-  getParentRoute: () => PanelRouteRoute,
-} as any)
 const PanelCandidatosIndexRoute = PanelCandidatosIndexRouteImport.update({
   id: '/candidatos/',
   path: '/candidatos/',
@@ -125,7 +119,6 @@ export interface FileRoutesByFullPath {
   '/panel/clientes': typeof PanelClientesRoute
   '/panel/dashboard': typeof PanelDashboardRoute
   '/panel/portal-cliente': typeof PanelPortalClienteRoute
-  '/panel/proyectos': typeof PanelProyectosRoute
   '/auth/': typeof AuthIndexRoute
   '/panel/': typeof PanelIndexRoute
   '/panel/candidatos/$id': typeof PanelCandidatosIdRoute
@@ -143,7 +136,6 @@ export interface FileRoutesByTo {
   '/panel/clientes': typeof PanelClientesRoute
   '/panel/dashboard': typeof PanelDashboardRoute
   '/panel/portal-cliente': typeof PanelPortalClienteRoute
-  '/panel/proyectos': typeof PanelProyectosRoute
   '/auth': typeof AuthIndexRoute
   '/panel': typeof PanelIndexRoute
   '/panel/candidatos/$id': typeof PanelCandidatosIdRoute
@@ -163,7 +155,6 @@ export interface FileRoutesById {
   '/panel/clientes': typeof PanelClientesRoute
   '/panel/dashboard': typeof PanelDashboardRoute
   '/panel/portal-cliente': typeof PanelPortalClienteRoute
-  '/panel/proyectos': typeof PanelProyectosRoute
   '/auth/': typeof AuthIndexRoute
   '/panel/': typeof PanelIndexRoute
   '/panel/candidatos/$id': typeof PanelCandidatosIdRoute
@@ -184,7 +175,6 @@ export interface FileRouteTypes {
     | '/panel/clientes'
     | '/panel/dashboard'
     | '/panel/portal-cliente'
-    | '/panel/proyectos'
     | '/auth/'
     | '/panel/'
     | '/panel/candidatos/$id'
@@ -202,7 +192,6 @@ export interface FileRouteTypes {
     | '/panel/clientes'
     | '/panel/dashboard'
     | '/panel/portal-cliente'
-    | '/panel/proyectos'
     | '/auth'
     | '/panel'
     | '/panel/candidatos/$id'
@@ -221,7 +210,6 @@ export interface FileRouteTypes {
     | '/panel/clientes'
     | '/panel/dashboard'
     | '/panel/portal-cliente'
-    | '/panel/proyectos'
     | '/auth/'
     | '/panel/'
     | '/panel/candidatos/$id'
@@ -331,13 +319,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PanelPortalClienteRouteImport
       parentRoute: typeof PanelRouteRoute
     }
-    '/panel/proyectos': {
-      id: '/panel/proyectos'
-      path: '/proyectos'
-      fullPath: '/panel/proyectos'
-      preLoaderRoute: typeof PanelProyectosRouteImport
-      parentRoute: typeof PanelRouteRoute
-    }
     '/panel/candidatos/': {
       id: '/panel/candidatos/'
       path: '/candidatos'
@@ -369,7 +350,6 @@ interface PanelRouteRouteChildren {
   PanelClientesRoute: typeof PanelClientesRoute
   PanelDashboardRoute: typeof PanelDashboardRoute
   PanelPortalClienteRoute: typeof PanelPortalClienteRoute
-  PanelProyectosRoute: typeof PanelProyectosRoute
   PanelIndexRoute: typeof PanelIndexRoute
   PanelCandidatosIdRoute: typeof PanelCandidatosIdRoute
   PanelCandidatosImportarRoute: typeof PanelCandidatosImportarRoute
@@ -383,7 +363,6 @@ const PanelRouteRouteChildren: PanelRouteRouteChildren = {
   PanelClientesRoute: PanelClientesRoute,
   PanelDashboardRoute: PanelDashboardRoute,
   PanelPortalClienteRoute: PanelPortalClienteRoute,
-  PanelProyectosRoute: PanelProyectosRoute,
   PanelIndexRoute: PanelIndexRoute,
   PanelCandidatosIdRoute: PanelCandidatosIdRoute,
   PanelCandidatosImportarRoute: PanelCandidatosImportarRoute,

@@ -314,6 +314,50 @@ export type Database = {
         }
         Relationships: []
       }
+      dossiers: {
+        Row: {
+          candidatos_incluidos: string[]
+          creado_en: string
+          creado_por: string | null
+          fecha_caducidad: string | null
+          id: string
+          incluye_pdf: boolean
+          incluye_word: boolean
+          proyecto_id: string
+          slug_publico: string | null
+        }
+        Insert: {
+          candidatos_incluidos?: string[]
+          creado_en?: string
+          creado_por?: string | null
+          fecha_caducidad?: string | null
+          id?: string
+          incluye_pdf?: boolean
+          incluye_word?: boolean
+          proyecto_id: string
+          slug_publico?: string | null
+        }
+        Update: {
+          candidatos_incluidos?: string[]
+          creado_en?: string
+          creado_por?: string | null
+          fecha_caducidad?: string | null
+          id?: string
+          incluye_pdf?: boolean
+          incluye_word?: boolean
+          proyecto_id?: string
+          slug_publico?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dossiers_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "proyectos_casting"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       proyecto_candidatos: {
         Row: {
           candidato_id: string

@@ -60,6 +60,7 @@ export const crearCandidatura = createServerFn({ method: "POST" })
         altura_cm: data.altura_cm ?? null,
         peso_kg: data.peso_kg ?? null,
         fotos: data.fotos ?? [],
+        fotos_recorte: data.fotos_recorte ?? null,
         consentimiento_rgpd: true,
         fecha_consentimiento: new Date().toISOString(),
       })

@@ -18,22 +18,50 @@ export type Database = {
         Row: {
           actualizado_en: string
           altura_cm: number | null
+          apellidos: string | null
+          baila: boolean | null
+          canta: boolean | null
           categoria: Database["public"]["Enums"]["categoria_candidato"]
           ciudad: string | null
           codigo: string
+          color_cabello: string | null
+          color_ojos: string | null
+          color_piel: string | null
           consentimiento_rgpd: boolean
           creado_en: string
           disponible: boolean
+          dni: string | null
           edad: number | null
           email: string | null
           fecha_consentimiento: string | null
+          fecha_nacimiento: string | null
           fotos: string[]
+          fotos_recorte: Json | null
+          genero: string | null
+          habilidad_especial: string | null
+          hace_deporte: boolean | null
           id: string
+          idiomas: string | null
+          instagram_url: string | null
+          monta_a_caballo: boolean | null
           nombre: string
+          pais_origen: string | null
           peso_kg: number | null
+          profesion: string | null
           provincia: string | null
           telefono: string | null
+          tiene_carnet_conducir: boolean | null
+          tiene_cicatrices: boolean | null
+          tiene_ortodoncia: boolean | null
+          tiene_tatuajes: boolean | null
+          tiene_titulo_patron_barco: boolean | null
+          tiktok_url: string | null
+          toca_instrumentos: boolean | null
+          tutor_apellidos: string | null
+          tutor_dni: string | null
+          tutor_nombre: string | null
           user_id: string | null
+          video_book_url: string | null
           video_privacy: string
           video_youtube_id: string | null
           video_youtube_url: string | null
@@ -41,22 +69,50 @@ export type Database = {
         Insert: {
           actualizado_en?: string
           altura_cm?: number | null
+          apellidos?: string | null
+          baila?: boolean | null
+          canta?: boolean | null
           categoria: Database["public"]["Enums"]["categoria_candidato"]
           ciudad?: string | null
           codigo?: string
+          color_cabello?: string | null
+          color_ojos?: string | null
+          color_piel?: string | null
           consentimiento_rgpd?: boolean
           creado_en?: string
           disponible?: boolean
+          dni?: string | null
           edad?: number | null
           email?: string | null
           fecha_consentimiento?: string | null
+          fecha_nacimiento?: string | null
           fotos?: string[]
+          fotos_recorte?: Json | null
+          genero?: string | null
+          habilidad_especial?: string | null
+          hace_deporte?: boolean | null
           id?: string
+          idiomas?: string | null
+          instagram_url?: string | null
+          monta_a_caballo?: boolean | null
           nombre: string
+          pais_origen?: string | null
           peso_kg?: number | null
+          profesion?: string | null
           provincia?: string | null
           telefono?: string | null
+          tiene_carnet_conducir?: boolean | null
+          tiene_cicatrices?: boolean | null
+          tiene_ortodoncia?: boolean | null
+          tiene_tatuajes?: boolean | null
+          tiene_titulo_patron_barco?: boolean | null
+          tiktok_url?: string | null
+          toca_instrumentos?: boolean | null
+          tutor_apellidos?: string | null
+          tutor_dni?: string | null
+          tutor_nombre?: string | null
           user_id?: string | null
+          video_book_url?: string | null
           video_privacy?: string
           video_youtube_id?: string | null
           video_youtube_url?: string | null
@@ -64,22 +120,50 @@ export type Database = {
         Update: {
           actualizado_en?: string
           altura_cm?: number | null
+          apellidos?: string | null
+          baila?: boolean | null
+          canta?: boolean | null
           categoria?: Database["public"]["Enums"]["categoria_candidato"]
           ciudad?: string | null
           codigo?: string
+          color_cabello?: string | null
+          color_ojos?: string | null
+          color_piel?: string | null
           consentimiento_rgpd?: boolean
           creado_en?: string
           disponible?: boolean
+          dni?: string | null
           edad?: number | null
           email?: string | null
           fecha_consentimiento?: string | null
+          fecha_nacimiento?: string | null
           fotos?: string[]
+          fotos_recorte?: Json | null
+          genero?: string | null
+          habilidad_especial?: string | null
+          hace_deporte?: boolean | null
           id?: string
+          idiomas?: string | null
+          instagram_url?: string | null
+          monta_a_caballo?: boolean | null
           nombre?: string
+          pais_origen?: string | null
           peso_kg?: number | null
+          profesion?: string | null
           provincia?: string | null
           telefono?: string | null
+          tiene_carnet_conducir?: boolean | null
+          tiene_cicatrices?: boolean | null
+          tiene_ortodoncia?: boolean | null
+          tiene_tatuajes?: boolean | null
+          tiene_titulo_patron_barco?: boolean | null
+          tiktok_url?: string | null
+          toca_instrumentos?: boolean | null
+          tutor_apellidos?: string | null
+          tutor_dni?: string | null
+          tutor_nombre?: string | null
           user_id?: string | null
+          video_book_url?: string | null
           video_privacy?: string
           video_youtube_id?: string | null
           video_youtube_url?: string | null

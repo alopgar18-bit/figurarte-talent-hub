@@ -26,6 +26,10 @@ export const subirVideoYoutube = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<ResultadoVideo> => {
     const { userId } = context;
 
+    // Límite de frecuencia: 5 intentos por IP y hora.
+    const { dentroDeLimite, LIMITES } = await import("@/lib/rate-limit.server");
+    if (!dentroDeLimite("video", LIMITES.video)) return { estado: "limite" };
+
     const clientId = process.env["YOUTUBE_CLIENT_ID"];
     const clientSecret = process.env["YOUTUBE_CLIENT_SECRET"];
     const refreshToken = process.env["YOUTUBE_REFRESH_TOKEN"];

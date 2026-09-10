@@ -196,7 +196,12 @@ export function ListadoCandidatos() {
     const libro = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(libro, hoja, "Candidatos");
     XLSX.writeFile(libro, `candidatos-figurarte-${hoy()}.xlsx`);
+    // Registro mínimo de accesos (RGPD): informativo, no bloquea la descarga.
+    void anotar({
+      data: { accion: "exporto_excel" as const, detalle: `${base.length} candidatos` },
+    }).catch(() => {});
     setDialogoExport(false);
+
   }
 
   async function asignarAProyecto() {

@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { resolverAcceso, type AccesoResuelto } from "@/lib/auth.functions";
+import { resolverAcceso, ROLES_STAFF, type AccesoResuelto } from "@/lib/auth.functions";
 import { inscribirEnCasting } from "@/lib/inscripciones.functions";
 import { Button } from "@/components/ui/button";
 
@@ -77,6 +77,18 @@ function CallbackPage() {
           void navegar({ to: "/candidato", replace: true });
           return;
         }
+        // Staff y clientes van directos a su área.
+        if (resultado.tipo === "usuario") {
+          const esStaff = (ROLES_STAFF as readonly string[]).includes(resultado.rol);
+          if (esStaff) {
+            void navegar({ to: "/panel", replace: true });
+            return;
+          }
+          if (resultado.rol === "cliente") {
+            void navegar({ to: "/portal", replace: true });
+            return;
+          }
+        }
         setEstado("listo");
       } catch {
         if (!cancelado) setEstado("error");
@@ -138,18 +150,9 @@ function CallbackPage() {
           )}
 
           {estado === "listo" && acceso?.tipo === "usuario" && (
-            <>
-              <h2 className="text-lg font-semibold text-card-foreground">
-                Sesión iniciada
-              </h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Has entrado como <strong>{ETIQUETAS_ROL[acceso.rol] ?? acceso.rol}</strong> (
-                {acceso.nombreEmail}). Tu panel se construirá en el siguiente paso.
-              </p>
-              <Button asChild variant="outline" className="mt-4 w-full">
-                <Link to="/">Ir al inicio</Link>
-              </Button>
-            </>
+            <p className="text-sm text-muted-foreground">
+              Entrando como <strong>{ETIQUETAS_ROL[acceso.rol] ?? acceso.rol}</strong>...
+            </p>
           )}
 
           {estado === "listo" && acceso?.tipo === "candidato" && (

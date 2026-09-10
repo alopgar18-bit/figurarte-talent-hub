@@ -146,7 +146,7 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
 
     const { error } = await supabase
       .from("candidatos")
-      .update(payload)
+      .update(payload as never)
       .eq("id", candidatoId);
     setGuardando(null);
     if (error) {

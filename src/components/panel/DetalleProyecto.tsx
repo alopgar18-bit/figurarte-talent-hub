@@ -281,6 +281,7 @@ export function DetalleProyecto({ id }: { id: string }) {
         .order("nombre");
       if (activo) setCampos((cp ?? []) as CampoPersonalizado[]);
       await cargarAsociaciones();
+      await cargarDossier();
       if (activo) {
         setError(null);
         setCargando(false);

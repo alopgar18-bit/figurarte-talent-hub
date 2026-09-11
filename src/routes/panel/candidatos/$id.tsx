@@ -26,5 +26,6 @@ export const Route = createFileRoute("/panel/candidatos/$id")({
 function FichaCandidatoRoute() {
   const { id } = Route.useParams();
   const { desde } = Route.useSearch();
-  return <FichaCandidato id={id} volverAProyectoId={desde} />;
+  const { staff } = Route.useRouteContext();
+  return <FichaCandidato id={id} volverAProyectoId={desde} rol={staff.rol} />;
 }

@@ -786,6 +786,168 @@ export function DetalleProyecto({ id }: { id: string }) {
         </div>
       </Tarjeta>
 
+      <Tarjeta
+        titulo="Criterios de búsqueda (uso interno)"
+        accion={
+          <Button size="sm" onClick={guardarCriterios} disabled={guardandoCriterios}>
+            {guardandoCriterios && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Guardar criterios
+          </Button>
+        }
+      >
+        <p className="text-sm text-muted-foreground">
+          Estos criterios solo los ve el equipo: no aparecen en la ficha pública del
+          casting. Sirven para proponer candidatos que encajan.
+        </p>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <MultiSelect
+            etiqueta="Provincia deseada"
+            opciones={PROVINCIAS_ES.map((p) => ({ valor: p, etiqueta: p }))}
+            seleccionados={criterios.provincias ?? []}
+            alCambiar={(v) => ponerLista("provincias", v)}
+          />
+          <MultiSelect
+            etiqueta="Talla de camisa"
+            opciones={TALLAS_CAMISA.map((t) => ({ valor: t, etiqueta: t }))}
+            seleccionados={criterios.tallasCamisa ?? []}
+            alCambiar={(v) => ponerLista("tallasCamisa", v)}
+          />
+          <MultiSelect
+            etiqueta="Talla de pantalón"
+            opciones={TALLAS_PANTALON.map((t) => ({ valor: t, etiqueta: t }))}
+            seleccionados={criterios.tallasPantalon ?? []}
+            alCambiar={(v) => ponerLista("tallasPantalon", v)}
+          />
+          <MultiSelect
+            etiqueta="Talla de calzado"
+            opciones={TALLAS_CALZADO.map((t) => ({ valor: t, etiqueta: t }))}
+            seleccionados={criterios.tallasCalzado ?? []}
+            alCambiar={(v) => ponerLista("tallasCalzado", v)}
+          />
+          <MultiSelect
+            etiqueta="Idiomas requeridos"
+            opciones={IDIOMAS.map((i) => ({ valor: i, etiqueta: i }))}
+            seleccionados={criterios.idiomas ?? []}
+            alCambiar={(v) => ponerLista("idiomas", v)}
+          />
+          <MultiSelect
+            etiqueta="Tipo de perfil"
+            opciones={TIPOS_PERFIL.map((t) => ({ valor: t, etiqueta: t }))}
+            seleccionados={criterios.tiposPerfil ?? []}
+            alCambiar={(v) => ponerLista("tiposPerfil", v)}
+          />
+          <MultiSelect
+            etiqueta="Habilidades"
+            opciones={HABILIDADES.map((h) => ({ valor: h, etiqueta: h }))}
+            seleccionados={criterios.habilidades ?? []}
+            alCambiar={(v) => ponerLista("habilidades", v)}
+          />
+        </div>
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          {(
+            [
+              { etiqueta: "Edad", min: "edadMin", max: "edadMax" },
+              { etiqueta: "Altura (cm)", min: "alturaMin", max: "alturaMax" },
+              { etiqueta: "Peso (kg)", min: "pesoMin", max: "pesoMax" },
+            ] as const
+          ).map((r) => (
+            <div key={r.etiqueta} className="space-y-2">
+              <Label>{r.etiqueta}</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="Mín."
+                  aria-label={`${r.etiqueta} mínima`}
+                  value={criterios[r.min] ?? ""}
+                  onChange={(e) => ponerNumero(r.min, e.target.value)}
+                />
+                <span className="text-muted-foreground">–</span>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="Máx."
+                  aria-label={`${r.etiqueta} máxima`}
+                  value={criterios[r.max] ?? ""}
+                  onChange={(e) => ponerNumero(r.max, e.target.value)}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 flex items-center gap-3">
+          <Switch
+            id="solo-disponibles"
+            checked={criterios.soloDisponibles === true}
+            onCheckedChange={(v) =>
+              setCriterios((c) => ({ ...c, soloDisponibles: v === true }))
+            }
+          />
+          <Label htmlFor="solo-disponibles" className="cursor-pointer">
+            Solo candidatos disponibles
+          </Label>
+        </div>
+      </Tarjeta>
+
+      <Tarjeta titulo="Candidatos recomendados">
+        {errorRecomendados ? (
+          <p className="text-sm text-destructive">{errorRecomendados}</p>
+        ) : !criteriosDefinidos ? (
+          <p className="text-sm text-muted-foreground">
+            Todavía no has definido criterios de búsqueda. Rellena la sección “Criterios de
+            búsqueda” de arriba para ver aquí los candidatos que encajan.
+          </p>
+        ) : recomendados.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Ningún candidato de la base cumple ahora mismo estos criterios.
+          </p>
+        ) : (
+          <>
+            <p className="text-sm text-muted-foreground">
+              {recomendados.length} candidato(s) cumplen los criterios y no están todavía
+              en el proyecto.
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {recomendados.map((c) => (
+                <div
+                  key={String(c["id"])}
+                  className="flex items-start justify-between gap-3 border border-border p-3"
+                >
+                  <Link
+                    to="/panel/candidatos/$id"
+                    params={{ id: String(c["id"]) }}
+                    search={{ desde: id }}
+                    className="min-w-0 flex-1 transition-opacity hover:opacity-80"
+                  >
+                    <p className="truncate text-sm font-medium">{String(c["nombre"])}</p>
+                    <p className="text-xs text-muted-foreground">{String(c["codigo"])}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {[
+                        c["provincia"] ? String(c["provincia"]) : null,
+                        c["edad"] ? `${c["edad"]} años` : null,
+                        c["altura_cm"] ? `${c["altura_cm"]} cm` : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ") || "Sin datos"}
+                    </p>
+                  </Link>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => anadirCandidato(c as unknown as Candidato)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </Tarjeta>
+
       <Tarjeta titulo="Campos personalizados activados">
         {camposAplicables.length === 0 ? (
           <p className="text-sm text-muted-foreground">

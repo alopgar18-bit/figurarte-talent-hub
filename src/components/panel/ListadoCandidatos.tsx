@@ -67,7 +67,10 @@ type ColumnaId =
   | "disponible"
   | "antiguedad"
   | "provincia"
-  | "edad";
+  | "edad"
+  | "nacionalidad"
+  | "tipo_perfil"
+  | "habilidades";
 
 const COLUMNAS: { id: ColumnaId; etiqueta: string; pordefecto: boolean }[] = [
   { id: "codigo", etiqueta: "Código", pordefecto: true },
@@ -79,7 +82,18 @@ const COLUMNAS: { id: ColumnaId; etiqueta: string; pordefecto: boolean }[] = [
   { id: "antiguedad", etiqueta: "En la base desde", pordefecto: true },
   { id: "provincia", etiqueta: "Provincia", pordefecto: false },
   { id: "edad", etiqueta: "Edad", pordefecto: false },
+  { id: "nacionalidad", etiqueta: "Nacionalidad", pordefecto: false },
+  { id: "tipo_perfil", etiqueta: "Tipo de perfil", pordefecto: false },
+  { id: "habilidades", etiqueta: "Habilidades", pordefecto: false },
 ];
+
+/** Devuelve los valores de texto de una columna jsonb tipo array. */
+function listaTextos(valor: unknown): string[] {
+  if (!Array.isArray(valor)) return [];
+  return valor
+    .map((v) => (typeof v === "string" ? v.trim() : ""))
+    .filter((v) => v.length > 0);
+}
 
 const ETIQUETA_CATEGORIA: Record<string, string> = {
   actor: "Actor",
@@ -107,6 +121,9 @@ const filtrosGuardados = {
   busqueda: "",
   provinciasSel: [] as string[],
   generosSel: [] as string[],
+  habilidadesSel: [] as string[],
+  tiposPerfilSel: [] as string[],
+  carnesSel: [] as string[],
   idiomas: "",
   rangos: { ...RANGOS_VACIOS },
 };
@@ -206,6 +223,11 @@ function valorCelda(c: Candidato, col: ColumnaId) {
       return c.disponible ? "Sí" : "No";
     case "antiguedad":
       return antiguedad(c["creado_en"]);
+    case "tipo_perfil":
+    case "habilidades": {
+      const lista = listaTextos(c[col]);
+      return lista.length ? lista.join(", ") : "—";
+    }
     default:
       return (c[col] as string | number | null) ?? "—";
   }
@@ -226,6 +248,9 @@ export function ListadoCandidatos() {
   const [avanzados, setAvanzados] = useState(false);
   const [provinciasSel, setProvinciasSel] = useState<string[]>(filtrosGuardados.provinciasSel);
   const [generosSel, setGenerosSel] = useState<string[]>(filtrosGuardados.generosSel);
+  const [habilidadesSel, setHabilidadesSel] = useState<string[]>(filtrosGuardados.habilidadesSel);
+  const [tiposPerfilSel, setTiposPerfilSel] = useState<string[]>(filtrosGuardados.tiposPerfilSel);
+  const [carnesSel, setCarnesSel] = useState<string[]>(filtrosGuardados.carnesSel);
   const [idiomas, setIdiomas] = useState(filtrosGuardados.idiomas);
   const [rangos, setRangos] = useState(filtrosGuardados.rangos);
 
@@ -237,9 +262,24 @@ export function ListadoCandidatos() {
     filtrosGuardados.busqueda = busqueda;
     filtrosGuardados.provinciasSel = provinciasSel;
     filtrosGuardados.generosSel = generosSel;
+    filtrosGuardados.habilidadesSel = habilidadesSel;
+    filtrosGuardados.tiposPerfilSel = tiposPerfilSel;
+    filtrosGuardados.carnesSel = carnesSel;
     filtrosGuardados.idiomas = idiomas;
     filtrosGuardados.rangos = rangos;
-  }, [categorias, disponibleSi, disponibleNo, busqueda, provinciasSel, generosSel, idiomas, rangos]);
+  }, [
+    categorias,
+    disponibleSi,
+    disponibleNo,
+    busqueda,
+    provinciasSel,
+    generosSel,
+    habilidadesSel,
+    tiposPerfilSel,
+    carnesSel,
+    idiomas,
+    rangos,
+  ]);
 
   const [visibles, setVisibles] = useState<ColumnaId[]>(
     COLUMNAS.filter((c) => c.pordefecto).map((c) => c.id),
@@ -284,6 +324,19 @@ export function ListadoCandidatos() {
     return [...set].sort((a, b) => a.localeCompare(b, "es"));
   }, [candidatos]);
 
+  const opcionesArray = useMemo(() => {
+    const recoger = (campo: string) => {
+      const set = new Set<string>();
+      for (const c of candidatos) for (const v of listaTextos(c[campo])) set.add(v);
+      return [...set].sort((a, b) => a.localeCompare(b, "es"));
+    };
+    return {
+      habilidades: recoger("habilidades"),
+      tipo_perfil: recoger("tipo_perfil"),
+      carnes_conducir: recoger("carnes_conducir"),
+    };
+  }, [candidatos]);
+
   const filtrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
     const qIdiomas = idiomas.trim().toLowerCase();
@@ -297,6 +350,8 @@ export function ListadoCandidatos() {
       if (hi !== null && valor > hi) return false;
       return true;
     };
+    const alguno = (valor: unknown, sel: string[]) =>
+      sel.length === 0 || listaTextos(valor).some((v) => sel.includes(v));
     return candidatos.filter((c) => {
       if (categorias.length > 0 && !categorias.includes(c.categoria)) return false;
       if (disponibleSi && !disponibleNo && !c.disponible) return false;
@@ -306,13 +361,20 @@ export function ListadoCandidatos() {
         return false;
       if (generosSel.length > 0 && !generosSel.includes(String(c["genero"] ?? "")))
         return false;
-      if (
-        qIdiomas &&
-        !String(c["idiomas"] ?? "")
+      if (!alguno(c["habilidades"], habilidadesSel)) return false;
+      if (!alguno(c["tipo_perfil"], tiposPerfilSel)) return false;
+      if (!alguno(c["carnes_conducir"], carnesSel)) return false;
+      if (qIdiomas) {
+        const enTextoLibre = String(c["idiomas"] ?? "")
           .toLowerCase()
-          .includes(qIdiomas)
-      )
-        return false;
+          .includes(qIdiomas);
+        const detalle = Array.isArray(c["idiomas_detalle"]) ? c["idiomas_detalle"] : [];
+        const enDetalle = detalle.some((d) => {
+          const idioma = (d as { idioma?: unknown } | null)?.idioma;
+          return typeof idioma === "string" && idioma.toLowerCase().includes(qIdiomas);
+        });
+        if (!enTextoLibre && !enDetalle) return false;
+      }
       if (!enRango(c.edad, rangos.edadMin, rangos.edadMax)) return false;
       if (!enRango(c.altura_cm, rangos.alturaMin, rangos.alturaMax)) return false;
       if (!enRango(c["peso_kg"], rangos.pesoMin, rangos.pesoMax)) return false;
@@ -326,6 +388,9 @@ export function ListadoCandidatos() {
     busqueda,
     provinciasSel,
     generosSel,
+    habilidadesSel,
+    tiposPerfilSel,
+    carnesSel,
     idiomas,
     rangos,
   ]);
@@ -505,6 +570,33 @@ export function ListadoCandidatos() {
                 alCambiar={setGenerosSel}
               />
             </div>
+            <div className="space-y-1.5">
+              <Label>Habilidades</Label>
+              <MultiSelect
+                etiqueta="Habilidades"
+                opciones={opcionesArray.habilidades.map((h) => ({ valor: h, etiqueta: h }))}
+                seleccionados={habilidadesSel}
+                alCambiar={setHabilidadesSel}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Tipo de perfil</Label>
+              <MultiSelect
+                etiqueta="Tipo de perfil"
+                opciones={opcionesArray.tipo_perfil.map((t) => ({ valor: t, etiqueta: t }))}
+                seleccionados={tiposPerfilSel}
+                alCambiar={setTiposPerfilSel}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Carnés de conducir</Label>
+              <MultiSelect
+                etiqueta="Carnés de conducir"
+                opciones={opcionesArray.carnes_conducir.map((k) => ({ valor: k, etiqueta: k }))}
+                seleccionados={carnesSel}
+                alCambiar={setCarnesSel}
+              />
+            </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="f-idiomas">Idiomas</Label>
               <Input
@@ -557,6 +649,9 @@ export function ListadoCandidatos() {
             onClick={() => {
               setProvinciasSel([]);
               setGenerosSel([]);
+              setHabilidadesSel([]);
+              setTiposPerfilSel([]);
+              setCarnesSel([]);
               setIdiomas("");
               setRangos({
                 edadMin: "",

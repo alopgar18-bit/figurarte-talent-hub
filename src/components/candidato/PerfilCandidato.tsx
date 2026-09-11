@@ -224,7 +224,11 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
     setF((prev) => ({ ...prev, [campo]: valor }));
   }
 
-  async function guardar(seccion: string, campos: string[]) {
+  async function guardar(
+    seccion: string,
+    campos: string[],
+    extra?: Record<string, unknown>,
+  ) {
     setGuardando(seccion);
     const payload: Record<string, unknown> = {};
     for (const c of campos) {
@@ -232,6 +236,7 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
       if (typeof v === "string") payload[c] = v.trim() === "" ? null : v.trim();
       else payload[c] = v ?? null;
     }
+    if (extra) Object.assign(payload, extra);
     if (typeof payload["altura_cm"] === "string")
       payload["altura_cm"] = Number(payload["altura_cm"]) || null;
     if (typeof payload["peso_kg"] === "string")

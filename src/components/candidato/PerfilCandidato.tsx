@@ -812,7 +812,12 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         <Campo id="apellidos" etiqueta="Apellidos" valor={texto(f["apellidos"])} onChange={(v) => set("apellidos", v)} />
         <Campo id="telefono" etiqueta="Teléfono" valor={texto(f["telefono"])} onChange={(v) => set("telefono", v)} />
         <Campo id="ciudad" etiqueta="Ciudad" valor={texto(f["ciudad"])} onChange={(v) => set("ciudad", v)} />
-        <Campo id="provincia" etiqueta="Provincia" valor={texto(f["provincia"])} onChange={(v) => set("provincia", v)} />
+        <SelectCampo
+          etiqueta="Provincia"
+          valor={texto(f["provincia"])}
+          opciones={conValorActual(PROVINCIAS_ES, f["provincia"])}
+          onChange={(v) => set("provincia", v)}
+        />
       </Seccion>
 
       <Seccion

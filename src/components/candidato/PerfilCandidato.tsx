@@ -24,6 +24,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { VideoPresentacion } from "@/components/candidato/VideoPresentacion";
 
 
@@ -163,6 +169,155 @@ const COMPLEXIONES = [
   },
 ];
 
+const GRUPOS_HABILIDADES: { titulo: string; opciones: string[] }[] = [
+  {
+    titulo: "Artes escénicas y circenses",
+    opciones: ["Baile / Danza", "Canto", "Circo", "Malabares", "Mago", "Doblador/a", "Locutor/a"],
+  },
+  {
+    titulo: "Música",
+    opciones: [
+      "Instrumento de cuerda",
+      "Instrumento de viento",
+      "Instrumento de percusión",
+      "Electrófonos",
+    ],
+  },
+  {
+    titulo: "Deporte y acción",
+    opciones: [
+      "Artes marciales",
+      "Deportes",
+      "Especialista / stunt",
+      "Esgrima",
+      "Equitación",
+      "Culturismo",
+    ],
+  },
+  {
+    titulo: "Rasgos y singularidades",
+    opciones: ["Tengo un gemelo/a", "Drag queen", "Drag king"],
+  },
+];
+
+const GRUPOS_TIPO_PERFIL: { titulo: string; opciones: string[] }[] = [
+  {
+    titulo: "Interpretación",
+    opciones: [
+      "Actor / actriz",
+      "Ficción",
+      "Publicidad",
+      "Doblaje",
+      "Teatro aficionado",
+      "Modelo",
+      "Bailarín/a",
+    ],
+  },
+  {
+    titulo: "Música",
+    opciones: [
+      "Cantante pop",
+      "Cantante rock",
+      "Cantante rap / trap",
+      "Cantante jazz",
+      "Ópera / zarzuela",
+    ],
+  },
+  {
+    titulo: "Medios y contenido digital",
+    opciones: [
+      "Influencer",
+      "YouTuber",
+      "Tiktoker",
+      "Presentador/a",
+      "Periodista",
+      "Tertuliano/a",
+      "Colaborador/a",
+    ],
+  },
+  { titulo: "Otros", opciones: ["Especialista", "Casting de calle"] },
+];
+
+const CARNES_OPCIONES = [
+  "AM",
+  "A1",
+  "A2",
+  "A",
+  "B",
+  "B+E",
+  "C1",
+  "C1+E",
+  "C",
+  "C+E",
+  "D1",
+  "D1+E",
+  "D",
+  "D+E",
+  "Licencia LVA",
+  "Licencia LCM",
+  "ADR",
+];
+
+function Chip({
+  activo,
+  onClick,
+  children,
+}: {
+  activo: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`border px-3 py-1 text-sm transition-colors ${
+        activo
+          ? "border-primary bg-primary text-primary-foreground"
+          : "border-border bg-background hover:bg-muted/60"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function GrupoChips({
+  titulo,
+  opciones,
+  seleccionados,
+  onAlternar,
+}: {
+  titulo: string;
+  opciones: string[];
+  seleccionados: string[];
+  onAlternar: (opcion: string) => void;
+}) {
+  if (opciones.length === 0) return null;
+  return (
+    <div className="space-y-2">
+      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        {titulo}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {opciones.map((o) => (
+          <Chip key={o} activo={seleccionados.includes(o)} onClick={() => onAlternar(o)}>
+            {o}
+          </Chip>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function alternar(lista: string[], valor: string) {
+  return lista.includes(valor) ? lista.filter((x) => x !== valor) : [...lista, valor];
+}
+
+function listaTextos(v: unknown): string[] {
+  return Array.isArray(v) ? (v as unknown[]).filter((x): x is string => typeof x === "string") : [];
+}
+
 function SelectCampo({
   etiqueta,
   valor,
@@ -212,6 +367,11 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   const [borrando, setBorrando] = useState(false);
   const [busquedaIdioma, setBusquedaIdioma] = useState("");
   const [otroIdioma, setOtroIdioma] = useState("");
+  const [busquedaHabilidad, setBusquedaHabilidad] = useState("");
+
+  const habilidadesSel = listaTextos(f["habilidades"]);
+  const tipoPerfilSel = listaTextos(f["tipo_perfil"]);
+  const carnesSel = listaTextos(f["carnes_conducir"]);
 
   const estudios: Estudio[] = Array.isArray(f["estudios"])
     ? (f["estudios"] as unknown[]).map((e) => {
@@ -802,6 +962,104 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         <Campo id="profesion" etiqueta="Profesión" valor={texto(f["profesion"])} onChange={(v) => set("profesion", v)} />
         <Campo id="idiomas" etiqueta="Idiomas" valor={texto(f["idiomas"])} onChange={(v) => set("idiomas", v)} />
       </Seccion>
+
+      <Seccion
+        titulo="Perfil profesional y especialidades"
+        descripcion="Marca todo lo que aplique a ti: habilidades, especialidades y el tipo de perfil con el que encajas en los castings."
+        onGuardar={() =>
+          guardar(
+            "perfil_profesional",
+            [],
+            { habilidades: habilidadesSel, tipo_perfil: tipoPerfilSel },
+          )
+        }
+        guardando={guardando === "perfil_profesional"}
+      >
+        <div className="space-y-4 sm:col-span-2">
+          <Label htmlFor="buscar_habilidad">Habilidades y especialidades</Label>
+          <Input
+            id="buscar_habilidad"
+            placeholder="Buscar habilidad..."
+            value={busquedaHabilidad}
+            onChange={(ev) => setBusquedaHabilidad(ev.target.value)}
+          />
+          {GRUPOS_HABILIDADES.map((g) => {
+            const q = busquedaHabilidad.trim().toLowerCase();
+            const visibles = q
+              ? g.opciones.filter((o) => o.toLowerCase().includes(q))
+              : g.opciones;
+            return (
+              <GrupoChips
+                key={g.titulo}
+                titulo={g.titulo}
+                opciones={visibles}
+                seleccionados={habilidadesSel}
+                onAlternar={(o) => set("habilidades", alternar(habilidadesSel, o))}
+              />
+            );
+          })}
+          {busquedaHabilidad.trim() !== "" &&
+            GRUPOS_HABILIDADES.every(
+              (g) => !g.opciones.some((o) => o.toLowerCase().includes(busquedaHabilidad.trim().toLowerCase())),
+            ) && (
+              <p className="text-sm text-muted-foreground">
+                Ninguna opción coincide con tu búsqueda.
+              </p>
+            )}
+        </div>
+
+        <div className="space-y-4 sm:col-span-2">
+          <Label>Tipo de perfil</Label>
+          {GRUPOS_TIPO_PERFIL.map((g) => (
+            <GrupoChips
+              key={g.titulo}
+              titulo={g.titulo}
+              opciones={g.opciones}
+              seleccionados={tipoPerfilSel}
+              onAlternar={(o) => set("tipo_perfil", alternar(tipoPerfilSel, o))}
+            />
+          ))}
+        </div>
+      </Seccion>
+
+      <section className="border border-border bg-card p-4 sm:p-6">
+        <Accordion type="single" collapsible>
+          <AccordionItem value="carnes" className="border-none">
+            <AccordionTrigger className="py-0 hover:no-underline">
+              <div className="text-left">
+                <h2 className="text-lg font-bold tracking-tight text-card-foreground">
+                  Carnés de conducir
+                </h2>
+                <p className="mt-1 text-sm font-normal text-muted-foreground">
+                  Solo si aplican a tu perfil
+                </p>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-4">
+              <div className="flex flex-wrap gap-2">
+                {CARNES_OPCIONES.map((c) => (
+                  <Chip
+                    key={c}
+                    activo={carnesSel.includes(c)}
+                    onClick={() => set("carnes_conducir", alternar(carnesSel, c))}
+                  >
+                    {c}
+                  </Chip>
+                ))}
+              </div>
+              <Button
+                className="mt-5 w-full sm:w-auto"
+                onClick={() =>
+                  guardar("carnes", [], { carnes_conducir: carnesSel })
+                }
+                disabled={guardando === "carnes"}
+              >
+                {guardando === "carnes" ? "Guardando..." : "Guardar"}
+              </Button>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </section>
 
       <Seccion
         titulo="Redes"

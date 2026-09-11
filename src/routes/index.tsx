@@ -50,6 +50,14 @@ function formatFechaCierre(iso?: string): string | null {
   });
 }
 
+type ProgramaTV = {
+  id: string;
+  nombre: string;
+  imagen_url: string | null;
+  link_formulario: string;
+};
+
+
 export const Route = createFileRoute("/")({
   loader: async (): Promise<{
     castings: CastingAbierto[];

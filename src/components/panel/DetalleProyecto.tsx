@@ -278,8 +278,9 @@ export function DetalleProyecto({ id }: { id: string }) {
         .from("candidatos")
         .select("id,codigo,nombre,categoria,altura_cm,peso_kg,edad,provincia,fotos")
         .in("id", ids);
+      const firmados = await conFotosFirmadas((cands ?? []) as Candidato[]);
       const mapa: Record<string, Candidato> = {};
-      for (const c of (cands ?? []) as Candidato[]) mapa[c.id] = c;
+      for (const c of firmados) mapa[c.id] = c;
       setCandidatos(mapa);
     } else {
       setCandidatos({});

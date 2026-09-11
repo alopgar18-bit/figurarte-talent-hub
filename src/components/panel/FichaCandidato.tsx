@@ -510,6 +510,22 @@ export function FichaCandidato({
             aria-label="Cambiar disponibilidad"
           />
         </div>
+        {esAdmin && (
+          <div className="flex items-center gap-3 rounded-md border bg-card px-4 py-3">
+            <div>
+              <p className="text-xs text-muted-foreground">Visible en la web pública</p>
+              <Badge variant={candidato.disponible_publico ? "default" : "secondary"}>
+                {candidato.disponible_publico ? "Publicado" : "No publicado"}
+              </Badge>
+            </div>
+            <Switch
+              checked={candidato.disponible_publico}
+              disabled={guardandoPublico}
+              onCheckedChange={cambiarDisponiblePublico}
+              aria-label="Publicar en candidatos disponibles"
+            />
+          </div>
+        )}
       </div>
 
       {/* Datos y medidas */}

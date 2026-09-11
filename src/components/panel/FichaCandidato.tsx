@@ -147,7 +147,13 @@ function Dato({
   );
 }
 
-export function FichaCandidato({ id }: { id: string }) {
+export function FichaCandidato({
+  id,
+  volverAProyectoId,
+}: {
+  id: string;
+  volverAProyectoId?: string;
+}) {
   const obtenerFicha = useServerFn(obtenerFichaCandidatoStaff);
   const [candidato, setCandidato] = useState<CandidatoCompleto | null>(null);
   const [castings, setCastings] = useState<CastingAsociado[]>([]);

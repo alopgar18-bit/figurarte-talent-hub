@@ -91,7 +91,10 @@ function CallbackPage() {
             return;
           }
           if (resultado.rol === "cliente") {
-            void navegar({ to: "/portal", replace: true });
+            void navegar({
+              to: destino === "solicitar" ? "/portal/solicitar" : "/portal",
+              replace: true,
+            });
             return;
           }
         }

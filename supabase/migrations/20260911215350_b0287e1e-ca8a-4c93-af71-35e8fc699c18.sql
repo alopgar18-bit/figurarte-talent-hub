@@ -1,0 +1,1 @@
+ALTER TABLE public.candidatos ADD COLUMN IF NOT EXISTS codigo_postal text;

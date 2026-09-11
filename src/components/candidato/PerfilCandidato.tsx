@@ -1227,11 +1227,11 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
           opciones={TALLAS_CHAQUETA}
           onChange={(v) => set("talla_chaqueta", v)}
         />
-        <Campo
-          id="talla_zapato"
-          etiqueta="Talla de zapato"
-          valor={texto(f["talla_zapato"])}
-          onChange={(v) => set("talla_zapato", v)}
+        <SelectCampo
+          etiqueta="Talla de calzado (EU)"
+          valor={texto(f["talla_calzado"])}
+          opciones={conValorActual(TALLAS_CALZADO, f["talla_calzado"])}
+          onChange={(v) => set("talla_calzado", v)}
         />
         <SelectCampo
           etiqueta="Tipo de pelo"

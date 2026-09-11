@@ -321,14 +321,19 @@ function Diapositiva({
       {/* Medidas de vestuario */}
       <dl className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-5">
         <Medida etiqueta="Camisa" valor={candidato.talla_camisa} />
-        <Medida etiqueta="Pecho" valor={candidato.anchura_pecho} />
+        <Medida
+          etiqueta="Pecho"
+          valor={candidato.anchura_pecho != null ? `${candidato.anchura_pecho} cm` : null}
+        />
         <Medida etiqueta="Pantalón" valor={candidato.talla_pantalon} />
-        <Medida etiqueta="Cintura" valor={candidato.anchura_cintura} />
+        <Medida
+          etiqueta="Cintura"
+          valor={candidato.anchura_cintura != null ? `${candidato.anchura_cintura} cm` : null}
+        />
         <Medida etiqueta="Calzado" valor={candidato.talla_calzado} />
         {candidato.talla_chaqueta && (
           <Medida etiqueta="Chaqueta" valor={candidato.talla_chaqueta} />
         )}
-        {candidato.talla_zapato && <Medida etiqueta="Zapato" valor={candidato.talla_zapato} />}
       </dl>
 
       {rasgos.length > 0 && (

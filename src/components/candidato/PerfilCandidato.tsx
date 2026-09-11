@@ -836,7 +836,12 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         onGuardar={() => guardar("identidad", ["genero", "fecha_nacimiento", "dni"])}
         guardando={guardando === "identidad"}
       >
-        <Campo id="genero" etiqueta="Género" valor={texto(f["genero"])} onChange={(v) => set("genero", v)} />
+        <SelectCampo
+          etiqueta="Género"
+          valor={texto(f["genero"])}
+          opciones={conValorActual(GENEROS, f["genero"])}
+          onChange={(v) => set("genero", v)}
+        />
         <Campo
           id="fecha_nacimiento"
           etiqueta="Fecha de nacimiento"

@@ -184,6 +184,15 @@ export const obtenerDossierPublico = createServerFn({ method: "GET" })
         talla_pantalon: c.talla_pantalon ?? null,
         anchura_cintura: c.anchura_cintura ?? null,
         talla_calzado: c.talla_calzado ?? null,
+        tipo_perfil: comoArray<string>(c.tipo_perfil),
+        habilidades: comoArray<string>(c.habilidades),
+        carnes_conducir: comoArray<string>(c.carnes_conducir),
+        idiomas_detalle: comoArray<{ idioma?: string; nivel?: string }>(c.idiomas_detalle),
+        complexion: c.complexion ?? null,
+        tipo_pelo: c.tipo_pelo ?? null,
+        origen_etnia: c.origen_etnia ?? null,
+        talla_chaqueta: c.talla_chaqueta ?? null,
+        talla_zapato: c.talla_zapato ?? null,
         campos: valores[c.id] ?? [],
       }));
 

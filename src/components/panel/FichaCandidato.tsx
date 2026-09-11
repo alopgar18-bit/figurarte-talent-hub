@@ -281,7 +281,8 @@ export function FichaCandidato({
         const inicial: Record<string, string> = {};
         for (const { clave } of CAMPOS_VESTUARIO) {
           const v = ficha[clave];
-          inicial[clave] = typeof v === "string" ? v : "";
+          inicial[clave] =
+            typeof v === "string" ? v : typeof v === "number" ? String(v) : "";
         }
         setVestuario(inicial);
         setCastings((resultado.castings as CastingAsociado[] | null) ?? []);

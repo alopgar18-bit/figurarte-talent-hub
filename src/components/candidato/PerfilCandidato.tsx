@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { Check, Circle, CircleAlert } from "lucide-react";
 import { darConsentimientoRgpd, TEXTO_CESION } from "@/lib/rgpd.functions";
 import { obtenerMisDatos, eliminarMisDatos } from "@/lib/derechos-rgpd.functions";
 import { toast } from "sonner";
@@ -31,6 +32,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { VideoPresentacion } from "@/components/candidato/VideoPresentacion";
+import { Progress } from "@/components/ui/progress";
+import {
+  obtenerMisProcesos,
+  type ProcesoCandidato,
+} from "@/lib/procesos-candidato.functions";
 
 
 type Ficha = Record<string, unknown> & {
@@ -401,6 +407,39 @@ const CAMPOS_IDENTIDAD_FISCAL = [
   "domicilio_fiscal_direccion",
 ];
 
+const SECCIONES = [
+  { id: "basicos", etiqueta: "Datos básicos" },
+  { id: "identidad", etiqueta: "Identidad" },
+  { id: "fisico", etiqueta: "Físico" },
+  { id: "habilidades", etiqueta: "Habilidades y perfil" },
+  { id: "formacion", etiqueta: "Idiomas y formación" },
+  { id: "documentacion", etiqueta: "Carnés y documentación" },
+  { id: "redes", etiqueta: "Redes y enlaces" },
+  { id: "video", etiqueta: "Vídeo de presentación" },
+  { id: "rgpd", etiqueta: "Consentimiento RGPD" },
+  { id: "procesos", etiqueta: "Mis procesos de casting" },
+] as const;
+
+type SeccionId = (typeof SECCIONES)[number]["id"];
+
+function tieneDato(valor: unknown) {
+  if (Array.isArray(valor)) return valor.length > 0;
+  if (typeof valor === "string") return valor.trim() !== "";
+  if (typeof valor === "number") return true;
+  return valor === true;
+}
+
+const CAMPOS_COMPLETADO: Record<Exclude<SeccionId, "rgpd" | "procesos">, string[]> = {
+  basicos: ["nombre", "apellidos", "telefono", "ciudad", "provincia"],
+  identidad: ["genero", "fecha_nacimiento", "dni", "nacionalidad"],
+  fisico: ["altura_cm", "peso_kg", "color_piel", "color_cabello", "color_ojos", "talla_camisa", "talla_pantalon", "talla_chaqueta", "talla_zapato"],
+  habilidades: ["profesion", "habilidad_especial", "habilidades", "tipo_perfil", "canta", "baila", "hace_deporte"],
+  formacion: ["estudios", "idiomas", "idiomas_detalle", "acentos"],
+  documentacion: ["pasaporte", "numero_seguridad_social", "carnes_conducir", "tiene_carnet_conducir", "tiene_titulo_patron_barco"],
+  redes: ["video_book_url", "instagram_url", "tiktok_url", "web_url", "enlaces", "otras_residencias"],
+  video: ["video_youtube_url"],
+};
+
 export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   const [ficha, setFicha] = useState<Ficha | null>(null);
   const [cargando, setCargando] = useState(true);
@@ -410,6 +449,7 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   const firmar = useServerFn(darConsentimientoRgpd);
   const descargarDatos = useServerFn(obtenerMisDatos);
   const eliminarCuenta = useServerFn(eliminarMisDatos);
+  const cargarProcesos = useServerFn(obtenerMisProcesos);
   const [descargando, setDescargando] = useState(false);
   const [dialogoBorrado, setDialogoBorrado] = useState(false);
   const [confirmacion, setConfirmacion] = useState("");
@@ -418,6 +458,10 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   const [otroIdioma, setOtroIdioma] = useState("");
   const [busquedaHabilidad, setBusquedaHabilidad] = useState("");
   const [otrasResidenciasActivo, setOtrasResidenciasActivo] = useState(false);
+  const [seccionActiva, setSeccionActiva] = useState<SeccionId>("basicos");
+  const [procesos, setProcesos] = useState<ProcesoCandidato[]>([]);
+  const [cargandoProcesos, setCargandoProcesos] = useState(true);
+  const [errorProcesos, setErrorProcesos] = useState(false);
 
   const habilidadesSel = listaTextos(f["habilidades"]);
   const tipoPerfilSel = listaTextos(f["tipo_perfil"]);
@@ -500,6 +544,7 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
       }
       setFicha(data as unknown as Ficha);
       setF(data as unknown as Record<string, unknown>);
+      setSeccionActiva(data.consentimiento_rgpd === true ? "basicos" : "rgpd");
       setOtrasResidenciasActivo(
         listaTextos((data as unknown as Record<string, unknown>)["otras_residencias"]).some(
           (x) => x.trim() !== "",
@@ -511,6 +556,23 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
       cancelado = true;
     };
   }, [candidatoId]);
+
+  useEffect(() => {
+    let cancelado = false;
+    void cargarProcesos({ data: undefined as never })
+      .then((lista) => {
+        if (!cancelado) setProcesos(lista);
+      })
+      .catch(() => {
+        if (!cancelado) setErrorProcesos(true);
+      })
+      .finally(() => {
+        if (!cancelado) setCargandoProcesos(false);
+      });
+    return () => {
+      cancelado = true;
+    };
+  }, [cargarProcesos]);
 
   async function firmarConsentimiento() {
     setFirmando(true);
@@ -582,20 +644,78 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   }
 
   const menor = esMenor(texto(f["fecha_nacimiento"]));
+  const completadas = Object.entries(CAMPOS_COMPLETADO).filter(([, campos]) =>
+    campos.some((campo) => tieneDato(f[campo])),
+  ).length;
+  const porcentaje = (completadas / 8) * 100;
+
+  function irASeccion(id: SeccionId) {
+    setSeccionActiva(id);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="border border-border bg-muted/40 p-4">
-        <p className="text-xs uppercase tracking-wider text-muted-foreground">
-          Tu código de candidato
-        </p>
-        <p className="text-xl font-black tracking-tight">{ficha.codigo}</p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Completa tu perfil poco a poco: cada bloque se guarda por separado.
-        </p>
+    <div className="space-y-5">
+      <div className="sticky top-0 z-30 border border-border bg-background/95 p-4 shadow-sm backdrop-blur sm:p-5">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
+          <div className="min-w-0">
+            <p className="truncate text-xl font-black tracking-tight">{texto(f["nombre"])}</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{ficha.codigo}</p>
+          </div>
+          <p className="shrink-0 text-sm font-semibold">{completadas} de 8</p>
+        </div>
+        <Progress value={porcentaje} className="mt-3 h-2" />
+        <p className="mt-2 text-xs text-muted-foreground">{completadas} de 8 secciones completadas</p>
       </div>
 
-      {ficha["consentimiento_rgpd"] !== true && (
+      <div className="lg:hidden">
+        <Label htmlFor="seccion-candidato" className="sr-only">Seleccionar sección</Label>
+        <Select value={seccionActiva} onValueChange={(v) => irASeccion(v as SeccionId)}>
+          <SelectTrigger id="seccion-candidato" className={`w-full bg-card ${ficha["consentimiento_rgpd"] !== true && seccionActiva === "rgpd" ? "border-destructive text-destructive" : ""}`}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {SECCIONES.map((seccion) => {
+              const completa = seccion.id === "rgpd"
+                ? ficha["consentimiento_rgpd"] === true
+                : seccion.id === "procesos"
+                  ? procesos.length > 0
+                  : CAMPOS_COMPLETADO[seccion.id].some((campo) => tieneDato(f[campo]));
+              return <SelectItem key={seccion.id} value={seccion.id}>{seccion.id === "rgpd" && !completa ? "⚠ " : completa ? "✓ " : "○ "}{seccion.etiqueta}</SelectItem>;
+            })}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="grid items-start gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
+        <aside className="sticky top-32 hidden border border-border bg-card p-2 lg:block">
+          <nav aria-label="Secciones de tu ficha" className="space-y-1">
+            {SECCIONES.map((seccion) => {
+              const completa = seccion.id === "rgpd"
+                ? ficha["consentimiento_rgpd"] === true
+                : seccion.id === "procesos"
+                  ? procesos.length > 0
+                  : CAMPOS_COMPLETADO[seccion.id].some((campo) => tieneDato(f[campo]));
+              const pendienteRgpd = seccion.id === "rgpd" && !completa;
+              return (
+                <Button
+                  key={seccion.id}
+                  type="button"
+                  variant={seccionActiva === seccion.id ? "secondary" : "ghost"}
+                  onClick={() => irASeccion(seccion.id)}
+                  className={`grid h-auto w-full grid-cols-[20px_minmax(0,1fr)] justify-start gap-2 px-3 py-2 text-left ${pendienteRgpd ? "text-destructive" : ""}`}
+                >
+                  {pendienteRgpd ? <CircleAlert className="size-4 shrink-0" /> : completa ? <Check className="size-4 shrink-0 text-primary" /> : <Circle className="size-3 shrink-0 text-muted-foreground" />}
+                  <span className="min-w-0 whitespace-normal leading-snug">{seccion.etiqueta}</span>
+                </Button>
+              );
+            })}
+          </nav>
+        </aside>
+
+        <div className="min-w-0 space-y-6">
+
+      {seccionActiva === "rgpd" && ficha["consentimiento_rgpd"] !== true && (
         <section className="border-2 border-primary bg-primary/5 p-4 sm:p-6">
           <h2 className="text-lg font-bold tracking-tight">Autorización de cesión de imagen</h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -616,7 +736,7 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
       )}
 
 
-      <Seccion
+      {seccionActiva === "basicos" && <><Seccion
         titulo="Datos básicos"
         onGuardar={() =>
           guardar("basicos", [
@@ -625,8 +745,6 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
             "telefono",
             "ciudad",
             "provincia",
-            "altura_cm",
-            "peso_kg",
           ])
         }
         guardando={guardando === "basicos"}
@@ -636,20 +754,6 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         <Campo id="telefono" etiqueta="Teléfono" valor={texto(f["telefono"])} onChange={(v) => set("telefono", v)} />
         <Campo id="ciudad" etiqueta="Ciudad" valor={texto(f["ciudad"])} onChange={(v) => set("ciudad", v)} />
         <Campo id="provincia" etiqueta="Provincia" valor={texto(f["provincia"])} onChange={(v) => set("provincia", v)} />
-        <Campo
-          id="altura"
-          etiqueta="Altura (cm)"
-          tipo="number"
-          valor={typeof f["altura_cm"] === "string" ? f["altura_cm"] : numero(f["altura_cm"])}
-          onChange={(v) => set("altura_cm", v)}
-        />
-        <Campo
-          id="peso"
-          etiqueta="Peso (kg)"
-          tipo="number"
-          valor={typeof f["peso_kg"] === "string" ? f["peso_kg"] : numero(f["peso_kg"])}
-          onChange={(v) => set("peso_kg", v)}
-        />
       </Seccion>
 
       <Seccion
@@ -660,10 +764,10 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
       >
         <Campo id="telefono_2" etiqueta="Teléfono secundario" valor={texto(f["telefono_2"])} onChange={(v) => set("telefono_2", v)} />
         <Campo id="email_2" etiqueta="Email secundario" tipo="email" valor={texto(f["email_2"])} onChange={(v) => set("email_2", v)} />
-      </Seccion>
+      </Seccion></>}
 
 
-      <Seccion
+      {seccionActiva === "identidad" && <Seccion
         titulo="Identidad"
         onGuardar={() => guardar("identidad", ["genero", "fecha_nacimiento", "dni"])}
         guardando={guardando === "identidad"}
@@ -677,9 +781,9 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
           onChange={(v) => set("fecha_nacimiento", v)}
         />
         <Campo id="dni" etiqueta="DNI" valor={texto(f["dni"])} onChange={(v) => set("dni", v)} />
-      </Seccion>
+      </Seccion>}
 
-      <Seccion
+      {seccionActiva === "identidad" && <Seccion
         titulo="Identidad y datos fiscales"
         descripcion="Documentación y datos que usamos para contratos y facturación. Solo los ve el equipo de FigurArte."
         onGuardar={() => guardar("identidad_fiscal", CAMPOS_IDENTIDAD_FISCAL)}
@@ -767,9 +871,9 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
             </AccordionItem>
           </Accordion>
         </div>
-      </Seccion>
+      </Seccion>}
 
-      <Seccion
+      {seccionActiva === "formacion" && <Seccion
         titulo="Formación e idiomas"
         descripcion="Tu formación y los idiomas que hablas, con su nivel."
         onGuardar={() => {
@@ -926,9 +1030,9 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
           valor={texto(f["acentos"])}
           onChange={(v) => set("acentos", v)}
         />
-      </Seccion>
+      </Seccion>}
 
-      {menor && (
+      {seccionActiva === "identidad" && menor && (
         <Seccion
           titulo="Tutor legal"
           descripcion="Como eres menor de 18 años, necesitamos los datos de tu madre, padre o tutor legal."
@@ -950,6 +1054,27 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
           <Campo id="tutor_dni" etiqueta="DNI del tutor" valor={texto(f["tutor_dni"])} onChange={(v) => set("tutor_dni", v)} />
         </Seccion>
       )}
+
+      {seccionActiva === "fisico" && <><Seccion
+        titulo="Altura y peso"
+        onGuardar={() => guardar("medidas_basicas", ["altura_cm", "peso_kg"])}
+        guardando={guardando === "medidas_basicas"}
+      >
+        <Campo
+          id="altura"
+          etiqueta="Altura (cm)"
+          tipo="number"
+          valor={typeof f["altura_cm"] === "string" ? f["altura_cm"] : numero(f["altura_cm"])}
+          onChange={(v) => set("altura_cm", v)}
+        />
+        <Campo
+          id="peso"
+          etiqueta="Peso (kg)"
+          tipo="number"
+          valor={typeof f["peso_kg"] === "string" ? f["peso_kg"] : numero(f["peso_kg"])}
+          onChange={(v) => set("peso_kg", v)}
+        />
+      </Seccion>
 
       <Seccion
         titulo="Físico"
@@ -1087,9 +1212,9 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
             </div>
           </>
         )}
-      </Seccion>
+      </Seccion></>}
 
-      <Seccion
+      {seccionActiva === "habilidades" && <><Seccion
         titulo="Habilidades"
         onGuardar={() =>
           guardar("habilidades", [
@@ -1183,9 +1308,9 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
             />
           ))}
         </div>
-      </Seccion>
+      </Seccion></>}
 
-      <section className="border border-border bg-card p-4 sm:p-6">
+      {seccionActiva === "documentacion" && <section className="border border-border bg-card p-4 sm:p-6">
         <Accordion type="single" collapsible>
           <AccordionItem value="carnes" className="border-none">
             <AccordionTrigger className="py-0 hover:no-underline">
@@ -1222,9 +1347,9 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-      </section>
+      </section>}
 
-      <Seccion
+      {seccionActiva === "redes" && <><Seccion
         titulo="Redes"
         onGuardar={() =>
           guardar("redes", [
@@ -1369,15 +1494,15 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
             </>
           )}
         </div>
-      </Seccion>
+      </Seccion></>}
 
-      <VideoPresentacion
+      {seccionActiva === "video" && <VideoPresentacion
         videoUrlActual={texto(f["video_youtube_url"]) || null}
         nombre={texto(f["nombre"])}
         codigo={ficha.codigo}
-      />
+      />}
 
-      <section className="border border-border bg-card p-4 sm:p-6">
+      {seccionActiva === "rgpd" && <section className="border border-border bg-card p-4 sm:p-6">
         <h2 className="text-lg font-bold tracking-tight text-card-foreground">Tus datos y tus derechos</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Puedes descargar una copia de todo lo que guardamos sobre ti o pedir que lo
@@ -1397,7 +1522,39 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
             Eliminar mi cuenta y mis datos
           </Button>
         </div>
-      </section>
+      </section>}
+
+      {seccionActiva === "procesos" && (
+        <section className="border border-border bg-card p-4 sm:p-6">
+          <h2 className="text-lg font-bold tracking-tight text-card-foreground">Mis procesos de casting</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Aquí puedes consultar los procesos en los que participas.</p>
+          {cargandoProcesos ? (
+            <p className="mt-5 text-sm text-muted-foreground">Cargando tus procesos...</p>
+          ) : errorProcesos ? (
+            <p className="mt-5 text-sm text-destructive">No hemos podido cargar tus procesos. Vuelve a intentarlo.</p>
+          ) : procesos.length === 0 ? (
+            <p className="mt-5 border border-border bg-muted/40 p-4 text-sm">Aún no estás en ningún proceso de casting.</p>
+          ) : (
+            <div className="mt-5 space-y-3">
+              {procesos.map((proceso, indice) => (
+                <article key={`${proceso.proyecto}-${proceso.fecha}-${indice}`} className="border border-border p-4">
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                    <div className="min-w-0">
+                      <h3 className="truncate font-bold">{proceso.proyecto}</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">{proceso.categoria.replaceAll("_", " ")}</p>
+                    </div>
+                    <span className="shrink-0 border border-primary/30 bg-primary/10 px-2 py-1 text-xs font-semibold capitalize text-primary">{proceso.estado}</span>
+                  </div>
+                  <div className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
+                    <p>{proceso.origen === "web_directa" ? "Te apuntaste tú" : "Te añadió el equipo"}</p>
+                    <time className="text-muted-foreground sm:text-right" dateTime={proceso.fecha}>{new Intl.DateTimeFormat("es-ES", { dateStyle: "long" }).format(new Date(proceso.fecha))}</time>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       <Dialog open={dialogoBorrado} onOpenChange={setDialogoBorrado}>
         <DialogContent>
@@ -1437,6 +1594,8 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+        </div>
+      </div>
     </div>
   );
 

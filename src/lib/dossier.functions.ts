@@ -16,8 +16,22 @@ export type CandidatoDossier = {
   talla_pantalon: string | null;
   anchura_cintura: string | null;
   talla_calzado: string | null;
+  tipo_perfil: string[];
+  habilidades: string[];
+  carnes_conducir: string[];
+  idiomas_detalle: { idioma?: string; nivel?: string }[];
+  complexion: string | null;
+  tipo_pelo: string | null;
+  origen_etnia: string | null;
+  talla_chaqueta: string | null;
+  talla_zapato: string | null;
   campos: { nombre: string; valor: string }[];
 };
+
+/** Normaliza un jsonb que debería ser un array; nunca lanza. */
+function comoArray<T>(v: unknown): T[] {
+  return Array.isArray(v) ? (v as T[]) : [];
+}
 
 /** Demasiadas lecturas desde la misma IP. */
 export type LimiteDossier = { limitado: true };

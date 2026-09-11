@@ -191,6 +191,7 @@ export type Database = {
           consentimiento_rgpd: boolean
           creado_en: string
           disponible: boolean
+          disponible_publico: boolean
           dni: string | null
           domicilio_fiscal_cp: string | null
           domicilio_fiscal_direccion: string | null
@@ -284,6 +285,7 @@ export type Database = {
           consentimiento_rgpd?: boolean
           creado_en?: string
           disponible?: boolean
+          disponible_publico?: boolean
           dni?: string | null
           domicilio_fiscal_cp?: string | null
           domicilio_fiscal_direccion?: string | null
@@ -377,6 +379,7 @@ export type Database = {
           consentimiento_rgpd?: boolean
           creado_en?: string
           disponible?: boolean
+          disponible_publico?: boolean
           dni?: string | null
           domicilio_fiscal_cp?: string | null
           domicilio_fiscal_direccion?: string | null
@@ -597,6 +600,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      programas_tv: {
+        Row: {
+          activo: boolean
+          actualizado_en: string
+          creado_en: string
+          id: string
+          imagen_url: string | null
+          link_formulario: string
+          nombre: string
+          orden: number
+        }
+        Insert: {
+          activo?: boolean
+          actualizado_en?: string
+          creado_en?: string
+          id?: string
+          imagen_url?: string | null
+          link_formulario: string
+          nombre: string
+          orden?: number
+        }
+        Update: {
+          activo?: boolean
+          actualizado_en?: string
+          creado_en?: string
+          id?: string
+          imagen_url?: string | null
+          link_formulario?: string
+          nombre?: string
+          orden?: number
+        }
+        Relationships: []
       }
       proyecto_candidatos: {
         Row: {
@@ -850,6 +886,32 @@ export type Database = {
     Functions: {
       es_admin: { Args: { _user_id: string }; Returns: boolean }
       es_staff: { Args: { _user_id: string }; Returns: boolean }
+      fn_candidatos_publicos: {
+        Args: never
+        Returns: {
+          altura_cm: number
+          carnes_conducir: Json
+          categoria: Database["public"]["Enums"]["categoria_candidato"]
+          codigo: string
+          color_cabello: string
+          color_ojos: string
+          complexion: string
+          edad: number
+          fotos: string[]
+          genero: string
+          habilidades: Json
+          id: string
+          idiomas_detalle: Json
+          peso_kg: number
+          provincia: string
+          talla_calzado: string
+          talla_camisa: string
+          talla_chaqueta: string
+          talla_pantalon: string
+          tipo_pelo: string
+          tipo_perfil: Json
+        }[]
+      }
       fn_datos_publicos_candidato: {
         Args: { ids: string[] }
         Returns: {

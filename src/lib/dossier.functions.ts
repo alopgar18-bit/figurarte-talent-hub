@@ -23,7 +23,6 @@ export type CandidatoDossier = {
   tipo_pelo: string | null;
   origen_etnia: string | null;
   talla_chaqueta: string | null;
-  talla_zapato: string | null;
   campos: { nombre: string; valor: string }[];
 };
 

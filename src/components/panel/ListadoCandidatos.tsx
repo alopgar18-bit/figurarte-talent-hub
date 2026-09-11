@@ -196,12 +196,13 @@ export function ListadoCandidatos() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [categoria, setCategoria] = useState("todas");
-  const [disponibilidad, setDisponibilidad] = useState("todos");
+  const [categorias, setCategorias] = useState<string[]>([]);
+  const [disponibleSi, setDisponibleSi] = useState(false);
+  const [disponibleNo, setDisponibleNo] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [avanzados, setAvanzados] = useState(false);
-  const [provincia, setProvincia] = useState("todas");
-  const [genero, setGenero] = useState("todos");
+  const [provinciasSel, setProvinciasSel] = useState<string[]>([]);
+  const [generosSel, setGenerosSel] = useState<string[]>([]);
   const [idiomas, setIdiomas] = useState("");
   const [rangos, setRangos] = useState({
     edadMin: "",

@@ -166,172 +166,283 @@ export type Database = {
       }
       candidatos: {
         Row: {
+          acentos: string | null
           actualizado_en: string
+          albino: boolean | null
           altura_cm: number | null
           anchura_cintura: string | null
           anchura_pecho: string | null
           apellidos: string | null
           baila: boolean | null
+          barbudo: boolean | null
           canta: boolean | null
+          capacidad_diversa: boolean | null
+          capacidad_diversa_obs: string | null
+          capacidad_diversa_tipo: string | null
+          carnes_conducir: Json | null
           categoria: Database["public"]["Enums"]["categoria_candidato"]
           ciudad: string | null
           codigo: string
           color_cabello: string | null
           color_ojos: string | null
           color_piel: string | null
+          complexion: string | null
           consentimiento_rgpd: boolean
           creado_en: string
           disponible: boolean
           dni: string | null
+          domicilio_fiscal_cp: string | null
+          domicilio_fiscal_direccion: string | null
+          domicilio_fiscal_localidad: string | null
+          domicilio_fiscal_pais: string | null
+          domicilio_fiscal_provincia: string | null
           edad: number | null
           email: string | null
+          email_2: string | null
+          enlaces: Json | null
+          estudios: Json | null
+          facebook_url: string | null
           fecha_consentimiento: string | null
           fecha_nacimiento: string | null
           fotos: string[]
           fotos_recorte: Json | null
           genero: string | null
           habilidad_especial: string | null
+          habilidades: Json | null
           hace_deporte: boolean | null
           id: string
           idiomas: string | null
+          idiomas_detalle: Json | null
           instagram_url: string | null
+          linkedin_url: string | null
+          lugar_nacimiento: string | null
           monta_a_caballo: boolean | null
+          nacionalidad: string | null
+          nacionalidad_multiple: string | null
           nombre: string
+          numero_seguridad_social: string | null
+          origen_etnia: string | null
+          otras_residencias: Json | null
           pais_origen: string | null
+          pasaporte: string | null
           peso_kg: number | null
           profesion: string | null
           provincia: string | null
+          representacion: string | null
           talla_calzado: string | null
           talla_camisa: string | null
+          talla_chaqueta: string | null
           talla_pantalon: string | null
+          talla_zapato: string | null
           telefono: string | null
+          telefono_2: string | null
           tiene_carnet_conducir: boolean | null
           tiene_cicatrices: boolean | null
           tiene_ortodoncia: boolean | null
           tiene_tatuajes: boolean | null
           tiene_titulo_patron_barco: boolean | null
           tiktok_url: string | null
+          tipo_pelo: string | null
+          tipo_perfil: Json | null
           toca_instrumentos: boolean | null
           tutor_apellidos: string | null
           tutor_dni: string | null
           tutor_nombre: string | null
+          twitch_url: string | null
+          twitter_url: string | null
           user_id: string | null
           video_book_url: string | null
           video_privacy: string
           video_youtube_id: string | null
           video_youtube_url: string | null
+          web_url: string | null
+          youtube_url: string | null
         }
         Insert: {
+          acentos?: string | null
           actualizado_en?: string
+          albino?: boolean | null
           altura_cm?: number | null
           anchura_cintura?: string | null
           anchura_pecho?: string | null
           apellidos?: string | null
           baila?: boolean | null
+          barbudo?: boolean | null
           canta?: boolean | null
+          capacidad_diversa?: boolean | null
+          capacidad_diversa_obs?: string | null
+          capacidad_diversa_tipo?: string | null
+          carnes_conducir?: Json | null
           categoria: Database["public"]["Enums"]["categoria_candidato"]
           ciudad?: string | null
           codigo?: string
           color_cabello?: string | null
           color_ojos?: string | null
           color_piel?: string | null
+          complexion?: string | null
           consentimiento_rgpd?: boolean
           creado_en?: string
           disponible?: boolean
           dni?: string | null
+          domicilio_fiscal_cp?: string | null
+          domicilio_fiscal_direccion?: string | null
+          domicilio_fiscal_localidad?: string | null
+          domicilio_fiscal_pais?: string | null
+          domicilio_fiscal_provincia?: string | null
           edad?: number | null
           email?: string | null
+          email_2?: string | null
+          enlaces?: Json | null
+          estudios?: Json | null
+          facebook_url?: string | null
           fecha_consentimiento?: string | null
           fecha_nacimiento?: string | null
           fotos?: string[]
           fotos_recorte?: Json | null
           genero?: string | null
           habilidad_especial?: string | null
+          habilidades?: Json | null
           hace_deporte?: boolean | null
           id?: string
           idiomas?: string | null
+          idiomas_detalle?: Json | null
           instagram_url?: string | null
+          linkedin_url?: string | null
+          lugar_nacimiento?: string | null
           monta_a_caballo?: boolean | null
+          nacionalidad?: string | null
+          nacionalidad_multiple?: string | null
           nombre: string
+          numero_seguridad_social?: string | null
+          origen_etnia?: string | null
+          otras_residencias?: Json | null
           pais_origen?: string | null
+          pasaporte?: string | null
           peso_kg?: number | null
           profesion?: string | null
           provincia?: string | null
+          representacion?: string | null
           talla_calzado?: string | null
           talla_camisa?: string | null
+          talla_chaqueta?: string | null
           talla_pantalon?: string | null
+          talla_zapato?: string | null
           telefono?: string | null
+          telefono_2?: string | null
           tiene_carnet_conducir?: boolean | null
           tiene_cicatrices?: boolean | null
           tiene_ortodoncia?: boolean | null
           tiene_tatuajes?: boolean | null
           tiene_titulo_patron_barco?: boolean | null
           tiktok_url?: string | null
+          tipo_pelo?: string | null
+          tipo_perfil?: Json | null
           toca_instrumentos?: boolean | null
           tutor_apellidos?: string | null
           tutor_dni?: string | null
           tutor_nombre?: string | null
+          twitch_url?: string | null
+          twitter_url?: string | null
           user_id?: string | null
           video_book_url?: string | null
           video_privacy?: string
           video_youtube_id?: string | null
           video_youtube_url?: string | null
+          web_url?: string | null
+          youtube_url?: string | null
         }
         Update: {
+          acentos?: string | null
           actualizado_en?: string
+          albino?: boolean | null
           altura_cm?: number | null
           anchura_cintura?: string | null
           anchura_pecho?: string | null
           apellidos?: string | null
           baila?: boolean | null
+          barbudo?: boolean | null
           canta?: boolean | null
+          capacidad_diversa?: boolean | null
+          capacidad_diversa_obs?: string | null
+          capacidad_diversa_tipo?: string | null
+          carnes_conducir?: Json | null
           categoria?: Database["public"]["Enums"]["categoria_candidato"]
           ciudad?: string | null
           codigo?: string
           color_cabello?: string | null
           color_ojos?: string | null
           color_piel?: string | null
+          complexion?: string | null
           consentimiento_rgpd?: boolean
           creado_en?: string
           disponible?: boolean
           dni?: string | null
+          domicilio_fiscal_cp?: string | null
+          domicilio_fiscal_direccion?: string | null
+          domicilio_fiscal_localidad?: string | null
+          domicilio_fiscal_pais?: string | null
+          domicilio_fiscal_provincia?: string | null
           edad?: number | null
           email?: string | null
+          email_2?: string | null
+          enlaces?: Json | null
+          estudios?: Json | null
+          facebook_url?: string | null
           fecha_consentimiento?: string | null
           fecha_nacimiento?: string | null
           fotos?: string[]
           fotos_recorte?: Json | null
           genero?: string | null
           habilidad_especial?: string | null
+          habilidades?: Json | null
           hace_deporte?: boolean | null
           id?: string
           idiomas?: string | null
+          idiomas_detalle?: Json | null
           instagram_url?: string | null
+          linkedin_url?: string | null
+          lugar_nacimiento?: string | null
           monta_a_caballo?: boolean | null
+          nacionalidad?: string | null
+          nacionalidad_multiple?: string | null
           nombre?: string
+          numero_seguridad_social?: string | null
+          origen_etnia?: string | null
+          otras_residencias?: Json | null
           pais_origen?: string | null
+          pasaporte?: string | null
           peso_kg?: number | null
           profesion?: string | null
           provincia?: string | null
+          representacion?: string | null
           talla_calzado?: string | null
           talla_camisa?: string | null
+          talla_chaqueta?: string | null
           talla_pantalon?: string | null
+          talla_zapato?: string | null
           telefono?: string | null
+          telefono_2?: string | null
           tiene_carnet_conducir?: boolean | null
           tiene_cicatrices?: boolean | null
           tiene_ortodoncia?: boolean | null
           tiene_tatuajes?: boolean | null
           tiene_titulo_patron_barco?: boolean | null
           tiktok_url?: string | null
+          tipo_pelo?: string | null
+          tipo_perfil?: Json | null
           toca_instrumentos?: boolean | null
           tutor_apellidos?: string | null
           tutor_dni?: string | null
           tutor_nombre?: string | null
+          twitch_url?: string | null
+          twitter_url?: string | null
           user_id?: string | null
           video_book_url?: string | null
           video_privacy?: string
           video_youtube_id?: string | null
           video_youtube_url?: string | null
+          web_url?: string | null
+          youtube_url?: string | null
         }
         Relationships: []
       }

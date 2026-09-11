@@ -323,10 +323,76 @@ export function FormularioCaptacion({
             <Label htmlFor="email">Email *</Label>
             <Input id="email" type="email" value={email} maxLength={255} onChange={(e) => setEmail(e.target.value)} className="mt-2" />
           </div>
-          <div className="sm:col-span-2">
+          <div>
             <Label htmlFor="ciudad">Ciudad</Label>
             <Input id="ciudad" value={ciudad} maxLength={120} onChange={(e) => setCiudad(e.target.value)} className="mt-2" />
           </div>
+          <div>
+            <Label htmlFor="cp">Código postal</Label>
+            <Input
+              id="cp"
+              inputMode="numeric"
+              maxLength={5}
+              value={codigoPostal}
+              onChange={(e) => {
+                const v = e.target.value.replace(/\D/g, "").slice(0, 5);
+                setCodigoPostal(v);
+                const deducida = provinciaPorCp(v);
+                if (deducida) setProvincia(deducida);
+              }}
+              className="mt-2"
+              placeholder="29001"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              Al escribirlo completamos tu provincia; puedes cambiarla.
+            </p>
+          </div>
+          <div>
+            <Label htmlFor="provincia">Provincia</Label>
+            <Select
+              value={provincia || SIN_VALOR}
+              onValueChange={(v) => setProvincia(v === SIN_VALOR ? "" : v)}
+            >
+              <SelectTrigger id="provincia" className="mt-2" aria-label="Provincia">
+                <SelectValue placeholder="Elige provincia" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={SIN_VALOR}>Sin especificar</SelectItem>
+                {PROVINCIAS_ES.map((p) => (
+                  <SelectItem key={p} value={p}>
+                    {p}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {(
+            [
+              { id: "talla-camisa", etiqueta: "Talla de camisa", valor: tallaCamisa, set: setTallaCamisa, opciones: TALLAS_CAMISA },
+              { id: "talla-pantalon", etiqueta: "Talla de pantalón", valor: tallaPantalon, set: setTallaPantalon, opciones: TALLAS_PANTALON },
+              { id: "talla-calzado", etiqueta: "Talla de calzado (EU)", valor: tallaCalzado, set: setTallaCalzado, opciones: TALLAS_CALZADO },
+            ] as const
+          ).map((campo) => (
+            <div key={campo.id}>
+              <Label htmlFor={campo.id}>{campo.etiqueta}</Label>
+              <Select
+                value={campo.valor || SIN_VALOR}
+                onValueChange={(v) => campo.set(v === SIN_VALOR ? "" : v)}
+              >
+                <SelectTrigger id={campo.id} className="mt-2" aria-label={campo.etiqueta}>
+                  <SelectValue placeholder="Sin especificar" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={SIN_VALOR}>Sin especificar</SelectItem>
+                  {campo.opciones.map((o) => (
+                    <SelectItem key={o} value={o}>
+                      {o}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ))}
         </div>
       </section>
 

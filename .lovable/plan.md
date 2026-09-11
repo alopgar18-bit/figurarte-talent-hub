@@ -1,24 +1,33 @@
-# Fotos privadas visibles y dossier protegido
+# Rediseño del área de candidato por secciones
 
-## Qué se va a cambiar
-- Añadir una función protegida para cargar la ficha del candidato y generar enlaces temporales de una hora para sus fotos privadas.
-- Hacer que la ficha del panel consuma esa función, manteniendo intactas las referencias de prueba `placeholder://`.
-- Crear en Supabase una función de lectura limitada que solo exponga los campos no identificativos permitidos para dossiers.
-- Cambiar el dossier público para leer candidatos exclusivamente mediante esa función y firmar en servidor las fotos privadas en cada visita.
-- Restringir el bucket `candidatos-fotos` a JPEG, PNG, WebP y HEIC, con un límite razonable por archivo.
+## Qué se va a construir
+- Sustituir el formulario largo por una navegación de diez apartados, mostrando solo el apartado activo.
+- Mantener todos los campos y botones de guardado actuales, reagrupándolos sin cambiar su lógica.
+- Añadir indicadores de completado basados en datos reales para los ocho apartados editables.
+- Destacar Consentimiento RGPD mientras esté pendiente y abrirlo inicialmente en ese caso.
+- Añadir “Mis procesos de casting” en modo lectura, con proyecto, categoría, estado, origen explicado y fecha, sin datos del cliente.
+- Mostrar siempre código, nombre y progreso de los ocho apartados editables.
+- En escritorio usar navegación lateral; en móvil, un selector desplegable superior.
 
-## Seguridad
-- La función de ficha exigirá una sesión staff válida; no confiará solo en la protección visual de `/panel`.
-- La función SQL del dossier devolverá únicamente código, nombre, categoría, edad, provincia, altura, peso y fotos; no podrá devolver email, teléfono u otros datos aunque se amplíe accidentalmente una consulta del dossier.
-- El bucket seguirá siendo privado y rechazará tipos no permitidos en el propio almacenamiento.
+## Agrupación
+1. Datos básicos: datos personales de contacto y ubicación.
+2. Identidad: identidad, tutor legal para menores y datos fiscales.
+3. Físico: físico general, ampliado y vestuario.
+4. Habilidades y perfil: habilidades actuales, especialidades y tipos de perfil.
+5. Idiomas y formación: estudios, idiomas y acentos.
+6. Carnés y documentación: carnés y documentación personal.
+7. Redes y enlaces: redes, enlaces adicionales y otras residencias.
+8. Vídeo de presentación.
+9. Consentimiento RGPD y derechos sobre los datos.
+10. Mis procesos de casting.
+
+## Seguridad y datos
+- La consulta de procesos será una función protegida por sesión y limitará la respuesta a los campos solicitados.
+- No devolverá cliente, brief, condiciones ni otros datos internos del proyecto.
+- Se conservarán las políticas actuales y no se crearán tablas ni se cambiará el esquema.
 
 ## Verificación
-- Subir una imagen real a un candidato de prueba y confirmar que el enlace firmado responde y que la foto aparece en la ficha del panel y en un dossier que lo incluya.
-- Intentar subir un archivo `.txt` y confirmar que Supabase Storage lo rechaza.
-- Comprobar la vista del dossier y la ficha en escritorio y a unos 390 px.
-- Ejecutar las comprobaciones de seguridad de Supabase relacionadas con el cambio.
-
-## Supuestos técnicos
-- Los enlaces `http(s)` existentes se conservan para los datos demo; las rutas internas del bucket se firman.
-- Se usará una hora de validez y un límite de 10 MB por foto.
-- La prueba usará un candidato demo existente y dejará su foto real disponible para validar el resultado.
+- Comprobar TypeScript y el funcionamiento visual a escritorio y unos 390 px.
+- Probar navegación entre apartados, estado inicial de RGPD y progreso calculado con el candidato demo.
+- Verificar con datos reales que “Mis procesos” muestra inscripciones y que la respuesta no contiene información del cliente.
+- Confirmar que los guardados existentes siguen disponibles dentro de su apartado correspondiente.

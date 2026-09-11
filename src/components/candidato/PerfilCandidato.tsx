@@ -910,16 +910,16 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
               </AccordionTrigger>
               <AccordionContent className="pt-2">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Campo
-                    id="domicilio_fiscal_pais"
+                  <SelectCampo
                     etiqueta="País"
                     valor={texto(f["domicilio_fiscal_pais"])}
+                    opciones={conValorActual(PAISES, f["domicilio_fiscal_pais"])}
                     onChange={(v) => set("domicilio_fiscal_pais", v)}
                   />
-                  <Campo
-                    id="domicilio_fiscal_provincia"
+                  <SelectCampo
                     etiqueta="Provincia"
                     valor={texto(f["domicilio_fiscal_provincia"])}
+                    opciones={conValorActual(PROVINCIAS_ES, f["domicilio_fiscal_provincia"])}
                     onChange={(v) => set("domicilio_fiscal_provincia", v)}
                   />
                   <Campo

@@ -37,6 +37,18 @@ import {
   obtenerMisProcesos,
   type ProcesoCandidato,
 } from "@/lib/procesos-candidato.functions";
+import {
+  ACENTOS,
+  COLORES_CABELLO,
+  COLORES_OJOS,
+  GENEROS,
+  PAISES,
+  PROVINCIAS_ES,
+  TALLAS_CALZADO,
+  aTextoLista,
+  conValorActual,
+  desdeTextoLista,
+} from "@/lib/catalogos";
 
 
 type Ficha = Record<string, unknown> & {

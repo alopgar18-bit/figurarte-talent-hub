@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.fn_guardia_disponible_publico() FROM PUBLIC, anon, authenticated;

@@ -65,6 +65,7 @@ export type CandidatoCompleto = Record<string, unknown> & {
   altura_cm: number | null;
   peso_kg: number | null;
   disponible: boolean;
+  disponible_publico: boolean;
   fotos: string[];
   email: string | null;
   telefono: string | null;
@@ -235,16 +236,20 @@ function Dato({
 export function FichaCandidato({
   id,
   volverAProyectoId,
+  rol,
 }: {
   id: string;
   volverAProyectoId?: string | undefined;
+  rol?: string | undefined;
 }) {
+  const esAdmin = rol === "admin_figurarte" || rol === "superadmin";
   const obtenerFicha = useServerFn(obtenerFichaCandidatoStaff);
   const [candidato, setCandidato] = useState<CandidatoCompleto | null>(null);
   const [castings, setCastings] = useState<CastingAsociado[]>([]);
   const [cargando, setCargando] = useState(true);
   const [noEncontrado, setNoEncontrado] = useState(false);
   const [guardandoDisponible, setGuardandoDisponible] = useState(false);
+  const [guardandoPublico, setGuardandoPublico] = useState(false);
   const navigate = useNavigate();
   const borrarCandidato = useServerFn(eliminarCandidatoStaff);
   const [dialogoBorrado, setDialogoBorrado] = useState(false);
@@ -336,6 +341,30 @@ export function FichaCandidato({
       toast.success(valor ? "Marcado como disponible" : "Marcado como no disponible");
     }
   }
+
+  /** Solo admin: publica o retira al candidato de la vista pública. */
+  async function cambiarDisponiblePublico(valor: boolean) {
+    if (!candidato) return;
+    setGuardandoPublico(true);
+    const anterior = candidato.disponible_publico;
+    setCandidato({ ...candidato, disponible_publico: valor });
+    const { error } = await supabase
+      .from("candidatos")
+      .update({ disponible_publico: valor })
+      .eq("id", candidato.id);
+    setGuardandoPublico(false);
+    if (error) {
+      setCandidato({ ...candidato, disponible_publico: anterior });
+      toast.error(
+        "No se pudo cambiar la publicación. Solo un administrador puede hacerlo.",
+      );
+    } else {
+      toast.success(
+        valor ? "Publicado en candidatos disponibles" : "Retirado de la vista pública",
+      );
+    }
+  }
+
 
   async function guardarCatalogo() {
     if (!candidato) return;
@@ -484,6 +513,22 @@ export function FichaCandidato({
             aria-label="Cambiar disponibilidad"
           />
         </div>
+        {esAdmin && (
+          <div className="flex items-center gap-3 rounded-md border bg-card px-4 py-3">
+            <div>
+              <p className="text-xs text-muted-foreground">Visible en la web pública</p>
+              <Badge variant={candidato.disponible_publico ? "default" : "secondary"}>
+                {candidato.disponible_publico ? "Publicado" : "No publicado"}
+              </Badge>
+            </div>
+            <Switch
+              checked={candidato.disponible_publico}
+              disabled={guardandoPublico}
+              onCheckedChange={cambiarDisponiblePublico}
+              aria-label="Publicar en candidatos disponibles"
+            />
+          </div>
+        )}
       </div>
 
       {/* Datos y medidas */}

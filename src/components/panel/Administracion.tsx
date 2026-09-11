@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { ETIQUETAS_ROL } from "@/components/panel/PanelShell";
 import { RegistroAccesos } from "@/components/panel/RegistroAccesos";
+import { ProgramasTv } from "@/components/panel/ProgramasTv";
 
 import type { Database } from "@/integrations/supabase/types";
 
@@ -374,6 +375,8 @@ export function Administracion({ rol, email }: { rol: string; email: string }) {
           </table>
         </div>
       </section>
+
+      <ProgramasTv esAdmin={esAdmin} />
 
       <RegistroAccesos />
 

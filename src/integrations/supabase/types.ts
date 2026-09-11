@@ -183,6 +183,7 @@ export type Database = {
           categoria: Database["public"]["Enums"]["categoria_candidato"]
           ciudad: string | null
           codigo: string
+          codigo_postal: string | null
           color_cabello: string | null
           color_ojos: string | null
           color_piel: string | null
@@ -275,6 +276,7 @@ export type Database = {
           categoria: Database["public"]["Enums"]["categoria_candidato"]
           ciudad?: string | null
           codigo?: string
+          codigo_postal?: string | null
           color_cabello?: string | null
           color_ojos?: string | null
           color_piel?: string | null
@@ -367,6 +369,7 @@ export type Database = {
           categoria?: Database["public"]["Enums"]["categoria_candidato"]
           ciudad?: string | null
           codigo?: string
+          codigo_postal?: string | null
           color_cabello?: string | null
           color_ojos?: string | null
           color_piel?: string | null

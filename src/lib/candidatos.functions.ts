@@ -12,6 +12,11 @@ const candidaturaSchema = z.object({
   altura_cm: z.number().int().min(50).max(260).nullable().optional(),
   peso_kg: z.number().int().min(20).max(300).nullable().optional(),
   ciudad: z.string().trim().max(120).nullable().optional(),
+  provincia: z.string().trim().max(120).nullable().optional(),
+  codigo_postal: z.string().trim().max(10).nullable().optional(),
+  talla_camisa: z.string().trim().max(20).nullable().optional(),
+  talla_pantalon: z.string().trim().max(20).nullable().optional(),
+  talla_calzado: z.string().trim().max(20).nullable().optional(),
   fotos: z.array(z.string().max(300)).max(3).optional(),
   fotos_recorte: z
     .record(
@@ -193,6 +198,11 @@ export const crearCandidatura = createServerFn({ method: "POST" })
         email,
         telefono: data.telefono,
         ciudad: data.ciudad ?? null,
+        provincia: data.provincia ?? null,
+        codigo_postal: data.codigo_postal ?? null,
+        talla_camisa: data.talla_camisa ?? null,
+        talla_pantalon: data.talla_pantalon ?? null,
+        talla_calzado: data.talla_calzado ?? null,
         altura_cm: data.altura_cm ?? null,
         peso_kg: data.peso_kg ?? null,
         fotos: data.fotos ?? [],

@@ -817,7 +817,6 @@ export type Database = {
           habilidades: Json
           id: string
           idiomas_detalle: Json
-          nombre: string
           origen_etnia: string
           peso_kg: number
           provincia: string

@@ -72,10 +72,12 @@ export const cambiarEstadoProyectoCandidato = createServerFn({ method: "POST" })
       .eq("id", data.candidatoId)
       .maybeSingle();
 
-    const enviado = await enviarAviso(
+    const { enviarAvisoEstado } = await import("@/lib/comunicaciones.server");
+    const enviado = await enviarAvisoEstado(
       data.estado,
       candidato?.nombre ?? "",
       candidato?.email ?? null,
+      origenPeticion(),
     );
 
     if (enviado) {

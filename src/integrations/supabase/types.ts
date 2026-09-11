@@ -808,17 +808,26 @@ export type Database = {
           altura_cm: number
           anchura_cintura: string
           anchura_pecho: string
+          carnes_conducir: Json
           categoria: Database["public"]["Enums"]["categoria_candidato"]
           codigo: string
+          complexion: string
           edad: number
           fotos: string[]
+          habilidades: Json
           id: string
+          idiomas_detalle: Json
           nombre: string
+          origen_etnia: string
           peso_kg: number
           provincia: string
           talla_calzado: string
           talla_camisa: string
+          talla_chaqueta: string
           talla_pantalon: string
+          talla_zapato: string
+          tipo_pelo: string
+          tipo_perfil: Json
         }[]
       }
       fn_dossier_publico: {

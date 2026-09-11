@@ -9,7 +9,7 @@
 - [x] Subida de fotos solo con URL firmada de un solo uso (`obtenerUrlSubidaFoto`, límite por IP) y policy pública de INSERT eliminada.
 - [x] Claves foráneas `proyectos_casting.cliente_id` y `usuarios.cliente_id` con desvinculación al borrar cliente.
 - [ ] Confirmar visualmente la ficha del panel con una sesión staff (bloqueado: Supabase externo no permite inyectar sesión de prueba).
-- [ ] Limpiar una foto de prueba huérfana en `candidatos-fotos` (requiere API de Storage con clave de servicio).
+- [x] Limpiar la foto de prueba huérfana en `candidatos-fotos`.
 
 ## Bloque RGPD (hecho)
 - Derecho al olvido (candidato y equipo), descarga de datos en JSON.
@@ -20,7 +20,6 @@
 ## Pendientes de Alejandro/Javi
 - Activar "Prevent use of leaked passwords" en Supabase.
 - Rellenar los placeholders legales.
-- Limpiar la foto de prueba huerfana en el bucket.
 
 ## Revisión de experiencia de usuario (hecho)
 - Cabecera pública común (CabeceraPublica + PieLegal) en Home, /auth, /registro, /casting/$slug, /aviso-legal y /privacidad; nav visible también en móvil.

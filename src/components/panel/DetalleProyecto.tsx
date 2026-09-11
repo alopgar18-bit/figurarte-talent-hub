@@ -29,6 +29,21 @@ import { useServerFn } from "@tanstack/react-start";
 import { asignarCandidatosAProyecto } from "@/lib/rgpd.functions";
 import { registrarAccesoStaff } from "@/lib/registro-accesos.functions";
 import { firmarFotosStaff } from "@/lib/fotos.functions";
+import { MultiSelect } from "@/components/panel/MultiSelect";
+import {
+  cumpleCriterios,
+  hayCriterios,
+  type CriteriosBusqueda,
+} from "@/lib/criterios-candidato";
+import {
+  HABILIDADES,
+  IDIOMAS,
+  PROVINCIAS_ES,
+  TALLAS_CALZADO,
+  TALLAS_CAMISA,
+  TALLAS_PANTALON,
+  TIPOS_PERFIL,
+} from "@/lib/catalogos";
 
 
 type Brief = {
@@ -50,6 +65,7 @@ type Proyecto = {
   slug_publico: string | null;
   cliente_id: string | null;
   brief_publico: Brief | null;
+  criterios_busqueda: CriteriosBusqueda | null;
   campos_personalizados_activados: string[];
   creado_en: string;
 };

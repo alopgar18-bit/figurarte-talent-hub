@@ -37,6 +37,18 @@ import {
   obtenerMisProcesos,
   type ProcesoCandidato,
 } from "@/lib/procesos-candidato.functions";
+import {
+  ACENTOS,
+  COLORES_CABELLO,
+  COLORES_OJOS,
+  GENEROS,
+  PAISES,
+  PROVINCIAS_ES,
+  TALLAS_CALZADO,
+  aTextoLista,
+  conValorActual,
+  desdeTextoLista,
+} from "@/lib/catalogos";
 
 
 type Ficha = Record<string, unknown> & {
@@ -393,6 +405,53 @@ function SelectCampoPares({
   );
 }
 
+function MultiSelectChips({
+  etiqueta,
+  descripcion,
+  opciones,
+  seleccionados,
+  onChange,
+  buscador = false,
+  ancho = true,
+}: {
+  etiqueta: string;
+  descripcion?: string;
+  opciones: string[];
+  seleccionados: string[];
+  onChange: (lista: string[]) => void;
+  buscador?: boolean;
+  ancho?: boolean;
+}) {
+  const [busqueda, setBusqueda] = useState("");
+  const filtradas = buscador
+    ? opciones.filter((o) => o.toLowerCase().includes(busqueda.trim().toLowerCase()))
+    : opciones;
+  return (
+    <div className={ancho ? "space-y-2 sm:col-span-2" : "space-y-2"}>
+      <Label>{etiqueta}</Label>
+      {descripcion && <p className="text-sm text-muted-foreground">{descripcion}</p>}
+      {buscador && (
+        <Input
+          placeholder="Buscar..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+        />
+      )}
+      <div className="flex max-h-64 flex-wrap gap-2 overflow-y-auto">
+        {filtradas.map((o) => (
+          <Chip
+            key={o}
+            activo={seleccionados.includes(o)}
+            onClick={() => onChange(alternar(seleccionados, o))}
+          >
+            {o}
+          </Chip>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const CAMPOS_IDENTIDAD_FISCAL = [
   "pasaporte",
   "numero_seguridad_social",
@@ -432,7 +491,7 @@ function tieneDato(valor: unknown) {
 const CAMPOS_COMPLETADO: Record<Exclude<SeccionId, "rgpd" | "procesos">, string[]> = {
   basicos: ["nombre", "apellidos", "telefono", "ciudad", "provincia"],
   identidad: ["genero", "fecha_nacimiento", "dni", "nacionalidad"],
-  fisico: ["altura_cm", "peso_kg", "color_piel", "color_cabello", "color_ojos", "talla_camisa", "talla_pantalon", "talla_chaqueta", "talla_zapato"],
+  fisico: ["altura_cm", "peso_kg", "color_piel", "color_cabello", "color_ojos", "talla_camisa", "talla_pantalon", "talla_chaqueta", "talla_calzado"],
   habilidades: ["profesion", "habilidad_especial", "habilidades", "tipo_perfil", "canta", "baila", "hace_deporte"],
   formacion: ["estudios", "idiomas", "idiomas_detalle", "acentos"],
   documentacion: ["pasaporte", "numero_seguridad_social", "carnes_conducir", "tiene_carnet_conducir", "tiene_titulo_patron_barco"],
@@ -753,7 +812,12 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         <Campo id="apellidos" etiqueta="Apellidos" valor={texto(f["apellidos"])} onChange={(v) => set("apellidos", v)} />
         <Campo id="telefono" etiqueta="Teléfono" valor={texto(f["telefono"])} onChange={(v) => set("telefono", v)} />
         <Campo id="ciudad" etiqueta="Ciudad" valor={texto(f["ciudad"])} onChange={(v) => set("ciudad", v)} />
-        <Campo id="provincia" etiqueta="Provincia" valor={texto(f["provincia"])} onChange={(v) => set("provincia", v)} />
+        <SelectCampo
+          etiqueta="Provincia"
+          valor={texto(f["provincia"])}
+          opciones={conValorActual(PROVINCIAS_ES, f["provincia"])}
+          onChange={(v) => set("provincia", v)}
+        />
       </Seccion>
 
       <Seccion
@@ -772,7 +836,12 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         onGuardar={() => guardar("identidad", ["genero", "fecha_nacimiento", "dni"])}
         guardando={guardando === "identidad"}
       >
-        <Campo id="genero" etiqueta="Género" valor={texto(f["genero"])} onChange={(v) => set("genero", v)} />
+        <SelectCampo
+          etiqueta="Género"
+          valor={texto(f["genero"])}
+          opciones={conValorActual(GENEROS, f["genero"])}
+          onChange={(v) => set("genero", v)}
+        />
         <Campo
           id="fecha_nacimiento"
           etiqueta="Fecha de nacimiento"
@@ -796,12 +865,19 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
           valor={texto(f["numero_seguridad_social"])}
           onChange={(v) => set("numero_seguridad_social", v)}
         />
-        <Campo id="nacionalidad" etiqueta="Nacionalidad" valor={texto(f["nacionalidad"])} onChange={(v) => set("nacionalidad", v)} />
-        <Campo
-          id="nacionalidad_multiple"
+        <SelectCampo
+          etiqueta="Nacionalidad"
+          valor={texto(f["nacionalidad"])}
+          opciones={conValorActual(PAISES, f["nacionalidad"])}
+          onChange={(v) => set("nacionalidad", v)}
+        />
+        <MultiSelectChips
           etiqueta="Otras nacionalidades"
-          valor={texto(f["nacionalidad_multiple"])}
-          onChange={(v) => set("nacionalidad_multiple", v)}
+          descripcion="Selecciona todos los países de los que tengas nacionalidad."
+          buscador
+          opciones={PAISES}
+          seleccionados={desdeTextoLista(f["nacionalidad_multiple"])}
+          onChange={(lista) => set("nacionalidad_multiple", aTextoLista(lista))}
         />
         <Campo
           id="lugar_nacimiento"
@@ -834,16 +910,16 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
               </AccordionTrigger>
               <AccordionContent className="pt-2">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Campo
-                    id="domicilio_fiscal_pais"
+                  <SelectCampo
                     etiqueta="País"
                     valor={texto(f["domicilio_fiscal_pais"])}
+                    opciones={conValorActual(PAISES, f["domicilio_fiscal_pais"])}
                     onChange={(v) => set("domicilio_fiscal_pais", v)}
                   />
-                  <Campo
-                    id="domicilio_fiscal_provincia"
+                  <SelectCampo
                     etiqueta="Provincia"
                     valor={texto(f["domicilio_fiscal_provincia"])}
+                    opciones={conValorActual(PROVINCIAS_ES, f["domicilio_fiscal_provincia"])}
                     onChange={(v) => set("domicilio_fiscal_provincia", v)}
                   />
                   <Campo
@@ -1024,11 +1100,11 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
             onChange={(ev) => setOtroIdioma(ev.target.value)}
           />
         </div>
-        <Campo
-          id="acentos"
+        <MultiSelectChips
           etiqueta="¿Dominas algún acento? ¿Cuáles?"
-          valor={texto(f["acentos"])}
-          onChange={(v) => set("acentos", v)}
+          opciones={ACENTOS}
+          seleccionados={desdeTextoLista(f["acentos"])}
+          onChange={(lista) => set("acentos", aTextoLista(lista))}
         />
       </Seccion>}
 
@@ -1091,8 +1167,18 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         guardando={guardando === "fisico"}
       >
         <Campo id="color_piel" etiqueta="Color de piel" valor={texto(f["color_piel"])} onChange={(v) => set("color_piel", v)} />
-        <Campo id="color_cabello" etiqueta="Color de cabello" valor={texto(f["color_cabello"])} onChange={(v) => set("color_cabello", v)} />
-        <Campo id="color_ojos" etiqueta="Color de ojos" valor={texto(f["color_ojos"])} onChange={(v) => set("color_ojos", v)} />
+        <SelectCampo
+          etiqueta="Color de cabello"
+          valor={texto(f["color_cabello"])}
+          opciones={conValorActual(COLORES_CABELLO, f["color_cabello"])}
+          onChange={(v) => set("color_cabello", v)}
+        />
+        <SelectCampo
+          etiqueta="Color de ojos"
+          valor={texto(f["color_ojos"])}
+          opciones={conValorActual(COLORES_OJOS, f["color_ojos"])}
+          onChange={(v) => set("color_ojos", v)}
+        />
         <Interruptor etiqueta="Tatuajes" valor={f["tiene_tatuajes"] === true} onChange={(v) => set("tiene_tatuajes", v)} />
         <Interruptor etiqueta="Cicatrices" valor={f["tiene_cicatrices"] === true} onChange={(v) => set("tiene_cicatrices", v)} />
         <Interruptor etiqueta="Ortodoncia" valor={f["tiene_ortodoncia"] === true} onChange={(v) => set("tiene_ortodoncia", v)} />
@@ -1109,7 +1195,7 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
               "talla_camisa",
               "talla_pantalon",
               "talla_chaqueta",
-              "talla_zapato",
+              "talla_calzado",
               "tipo_pelo",
               "origen_etnia",
               "complexion",
@@ -1141,11 +1227,11 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
           opciones={TALLAS_CHAQUETA}
           onChange={(v) => set("talla_chaqueta", v)}
         />
-        <Campo
-          id="talla_zapato"
-          etiqueta="Talla de zapato"
-          valor={texto(f["talla_zapato"])}
-          onChange={(v) => set("talla_zapato", v)}
+        <SelectCampo
+          etiqueta="Talla de calzado (EU)"
+          valor={texto(f["talla_calzado"])}
+          opciones={conValorActual(TALLAS_CALZADO, f["talla_calzado"])}
+          onChange={(v) => set("talla_calzado", v)}
         />
         <SelectCampo
           etiqueta="Tipo de pelo"
@@ -1457,41 +1543,13 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
             onChange={setOtrasResidenciasActivo}
           />
           {otrasResidenciasActivo && (
-            <>
-              {otrasResidencias.map((r, i) => (
-                <div key={i} className="flex flex-col gap-2 sm:flex-row">
-                  <Input
-                    className="sm:flex-1"
-                    placeholder="Indica la localidad y condiciones"
-                    value={r}
-                    onChange={(ev) =>
-                      set(
-                        "otras_residencias",
-                        otrasResidencias.map((x, j) => (j === i ? ev.target.value : x)),
-                      )
-                    }
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="sm:w-auto"
-                    onClick={() =>
-                      set("otras_residencias", otrasResidencias.filter((_, j) => j !== i))
-                    }
-                  >
-                    Quitar
-                  </Button>
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full sm:w-auto"
-                onClick={() => set("otras_residencias", [...otrasResidencias, ""])}
-              >
-                + Añadir otra residencia posible
-              </Button>
-            </>
+            <MultiSelectChips
+              etiqueta="Provincias donde podrías residir"
+              buscador
+              opciones={PROVINCIAS_ES}
+              seleccionados={otrasResidencias}
+              onChange={(lista) => set("otras_residencias", lista)}
+            />
           )}
         </div>
       </Seccion></>}

@@ -170,8 +170,8 @@ export type Database = {
           actualizado_en: string
           albino: boolean | null
           altura_cm: number | null
-          anchura_cintura: string | null
-          anchura_pecho: string | null
+          anchura_cintura: number | null
+          anchura_pecho: number | null
           apellidos: string | null
           baila: boolean | null
           barbudo: boolean | null
@@ -233,7 +233,6 @@ export type Database = {
           talla_camisa: string | null
           talla_chaqueta: string | null
           talla_pantalon: string | null
-          talla_zapato: string | null
           telefono: string | null
           telefono_2: string | null
           tiene_carnet_conducir: boolean | null
@@ -263,8 +262,8 @@ export type Database = {
           actualizado_en?: string
           albino?: boolean | null
           altura_cm?: number | null
-          anchura_cintura?: string | null
-          anchura_pecho?: string | null
+          anchura_cintura?: number | null
+          anchura_pecho?: number | null
           apellidos?: string | null
           baila?: boolean | null
           barbudo?: boolean | null
@@ -326,7 +325,6 @@ export type Database = {
           talla_camisa?: string | null
           talla_chaqueta?: string | null
           talla_pantalon?: string | null
-          talla_zapato?: string | null
           telefono?: string | null
           telefono_2?: string | null
           tiene_carnet_conducir?: boolean | null
@@ -356,8 +354,8 @@ export type Database = {
           actualizado_en?: string
           albino?: boolean | null
           altura_cm?: number | null
-          anchura_cintura?: string | null
-          anchura_pecho?: string | null
+          anchura_cintura?: number | null
+          anchura_pecho?: number | null
           apellidos?: string | null
           baila?: boolean | null
           barbudo?: boolean | null
@@ -419,7 +417,6 @@ export type Database = {
           talla_camisa?: string | null
           talla_chaqueta?: string | null
           talla_pantalon?: string | null
-          talla_zapato?: string | null
           telefono?: string | null
           telefono_2?: string | null
           tiene_carnet_conducir?: boolean | null
@@ -806,8 +803,8 @@ export type Database = {
         Args: { ids: string[] }
         Returns: {
           altura_cm: number
-          anchura_cintura: string
-          anchura_pecho: string
+          anchura_cintura: number
+          anchura_pecho: number
           carnes_conducir: Json
           categoria: Database["public"]["Enums"]["categoria_candidato"]
           codigo: string
@@ -824,7 +821,6 @@ export type Database = {
           talla_camisa: string
           talla_chaqueta: string
           talla_pantalon: string
-          talla_zapato: string
           tipo_pelo: string
           tipo_perfil: Json
         }[]

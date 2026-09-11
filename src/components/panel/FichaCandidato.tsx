@@ -28,6 +28,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { TALLAS_CALZADO } from "@/lib/catalogos";
+
+const SIN_TALLA = "__sin_talla__";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
@@ -126,7 +136,7 @@ const CAMPOS_PERFIL: {
   { clave: "color_cabello", etiqueta: "Color de cabello" },
   { clave: "color_ojos", etiqueta: "Color de ojos" },
   { clave: "talla_chaqueta", etiqueta: "Talla chaqueta" },
-  { clave: "talla_zapato", etiqueta: "Talla zapato" },
+  
   { clave: "tipo_pelo", etiqueta: "Tipo de pelo" },
   { clave: "complexion", etiqueta: "Complexión" },
   { clave: "origen_etnia", etiqueta: "Origen / etnia" },
@@ -172,11 +182,11 @@ function arrayObjetos(v: unknown): Record<string, unknown>[] {
 }
 
 export const CAMPOS_VESTUARIO = [
-  { clave: "talla_camisa", etiqueta: "Talla camisa" },
-  { clave: "anchura_pecho", etiqueta: "Anchura pecho" },
-  { clave: "talla_pantalon", etiqueta: "Talla pantalón" },
-  { clave: "anchura_cintura", etiqueta: "Anchura cintura" },
-  { clave: "talla_calzado", etiqueta: "Talla calzado" },
+  { clave: "talla_camisa", etiqueta: "Talla camisa", tipo: "texto" },
+  { clave: "anchura_pecho", etiqueta: "Anchura pecho (cm)", tipo: "numero" },
+  { clave: "talla_pantalon", etiqueta: "Talla pantalón", tipo: "texto" },
+  { clave: "anchura_cintura", etiqueta: "Anchura cintura (cm)", tipo: "numero" },
+  { clave: "talla_calzado", etiqueta: "Talla calzado (EU)", tipo: "catalogo" },
 ] as const;
 
 function formateaFecha(iso: string) {
@@ -271,7 +281,8 @@ export function FichaCandidato({
         const inicial: Record<string, string> = {};
         for (const { clave } of CAMPOS_VESTUARIO) {
           const v = ficha[clave];
-          inicial[clave] = typeof v === "string" ? v : "";
+          inicial[clave] =
+            typeof v === "string" ? v : typeof v === "number" ? String(v) : "";
         }
         setVestuario(inicial);
         setCastings((resultado.castings as CastingAsociado[] | null) ?? []);
@@ -304,9 +315,20 @@ export function FichaCandidato({
   async function guardarVestuario() {
     if (!candidato) return;
     setGuardandoVestuario(true);
-    const valores: Record<string, string | null> = {};
-    for (const { clave } of CAMPOS_VESTUARIO) {
-      valores[clave] = (vestuario[clave] ?? "").trim() || null;
+    const valores: Record<string, string | number | null> = {};
+    for (const { clave, tipo } of CAMPOS_VESTUARIO) {
+      const bruto = (vestuario[clave] ?? "").trim();
+      if (tipo === "numero") {
+        const n = Number(bruto.replace(",", "."));
+        if (bruto !== "" && (!Number.isFinite(n) || n <= 0 || n > 300)) {
+          setGuardandoVestuario(false);
+          toast.error("Las medidas de pecho y cintura deben ser un número en centímetros.");
+          return;
+        }
+        valores[clave] = bruto === "" ? null : Math.round(n);
+      } else {
+        valores[clave] = bruto || null;
+      }
     }
     const { error } = await supabase
       .from("candidatos")
@@ -455,19 +477,42 @@ export function FichaCandidato({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            {CAMPOS_VESTUARIO.map(({ clave, etiqueta }) => (
+            {CAMPOS_VESTUARIO.map(({ clave, etiqueta, tipo }) => (
               <div key={clave} className="space-y-1.5">
                 <Label htmlFor={`v-${clave}`} className="text-xs text-muted-foreground">
                   {etiqueta}
                 </Label>
-                <Input
-                  id={`v-${clave}`}
-                  value={vestuario[clave] ?? ""}
-                  onChange={(e) =>
-                    setVestuario((s) => ({ ...s, [clave]: e.target.value }))
-                  }
-                  placeholder="—"
-                />
+                {tipo === "catalogo" ? (
+                  <Select
+                    value={vestuario[clave] ? vestuario[clave] : SIN_TALLA}
+                    onValueChange={(v) =>
+                      setVestuario((s) => ({ ...s, [clave]: v === SIN_TALLA ? "" : v }))
+                    }
+                  >
+                    <SelectTrigger id={`v-${clave}`} aria-label={etiqueta}>
+                      <SelectValue placeholder="—" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={SIN_TALLA}>Sin especificar</SelectItem>
+                      {TALLAS_CALZADO.map((t) => (
+                        <SelectItem key={t} value={t}>
+                          {t}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input
+                    id={`v-${clave}`}
+                    type={tipo === "numero" ? "number" : "text"}
+                    inputMode={tipo === "numero" ? "numeric" : undefined}
+                    value={vestuario[clave] ?? ""}
+                    onChange={(e) =>
+                      setVestuario((s) => ({ ...s, [clave]: e.target.value }))
+                    }
+                    placeholder="—"
+                  />
+                )}
               </div>
             ))}
           </div>

@@ -11,9 +11,9 @@ export type CandidatoDossier = {
   peso_kg: number | null;
   fotos: string[];
   talla_camisa: string | null;
-  anchura_pecho: string | null;
+  anchura_pecho: number | null;
   talla_pantalon: string | null;
-  anchura_cintura: string | null;
+  anchura_cintura: number | null;
   talla_calzado: string | null;
   tipo_perfil: string[];
   habilidades: string[];
@@ -23,7 +23,6 @@ export type CandidatoDossier = {
   tipo_pelo: string | null;
   origen_etnia: string | null;
   talla_chaqueta: string | null;
-  talla_zapato: string | null;
   campos: { nombre: string; valor: string }[];
 };
 
@@ -191,7 +190,7 @@ export const obtenerDossierPublico = createServerFn({ method: "GET" })
         tipo_pelo: c.tipo_pelo ?? null,
         origen_etnia: c.origen_etnia ?? null,
         talla_chaqueta: c.talla_chaqueta ?? null,
-        talla_zapato: c.talla_zapato ?? null,
+        
         campos: valores[c.id] ?? [],
       }));
 

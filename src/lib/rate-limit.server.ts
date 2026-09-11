@@ -58,4 +58,5 @@ export const LIMITES = {
   video: { max: 5, ventanaMs: HORA },
   subidaFoto: { max: 20, ventanaMs: HORA },
   captacion: { max: 30, ventanaMs: 10 * MINUTO },
+  candidatosPublicos: { max: 60, ventanaMs: 10 * MINUTO },
 } as const;

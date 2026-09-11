@@ -35,7 +35,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TALLAS_CALZADO } from "@/lib/catalogos";
+import {
+  ACENTOS,
+  COLORES_CABELLO,
+  COLORES_OJOS,
+  GENEROS,
+  PAISES,
+  PROVINCIAS_ES,
+  TALLAS_CALZADO,
+  aTextoLista,
+  conValorActual,
+  desdeTextoLista,
+} from "@/lib/catalogos";
 
 const SIN_TALLA = "__sin_talla__";
 import { Switch } from "@/components/ui/switch";
@@ -98,7 +109,6 @@ const CAMPOS_PERFIL: {
   tipo?: "bool" | "fecha" | "etiqueta";
   etiquetas?: Record<string, string>;
 }[] = [
-  { clave: "genero", etiqueta: "Género" },
   { clave: "fecha_nacimiento", etiqueta: "Fecha de nacimiento", tipo: "fecha" },
   { clave: "dni", etiqueta: "DNI" },
   { clave: "tutor_nombre", etiqueta: "Tutor/a (nombre)" },
@@ -107,7 +117,6 @@ const CAMPOS_PERFIL: {
   { clave: "pais_origen", etiqueta: "País de origen" },
   { clave: "pasaporte", etiqueta: "Pasaporte" },
   { clave: "numero_seguridad_social", etiqueta: "Nº Seguridad Social" },
-  { clave: "nacionalidad", etiqueta: "Nacionalidad" },
   { clave: "nacionalidad_multiple", etiqueta: "Otras nacionalidades" },
   { clave: "lugar_nacimiento", etiqueta: "Lugar de nacimiento" },
   {
@@ -133,8 +142,6 @@ const CAMPOS_PERFIL: {
   { clave: "youtube_url", etiqueta: "Canal de YouTube" },
   { clave: "twitch_url", etiqueta: "Twitch" },
   { clave: "color_piel", etiqueta: "Color de piel" },
-  { clave: "color_cabello", etiqueta: "Color de cabello" },
-  { clave: "color_ojos", etiqueta: "Color de ojos" },
   { clave: "talla_chaqueta", etiqueta: "Talla chaqueta" },
   
   { clave: "tipo_pelo", etiqueta: "Tipo de pelo" },
@@ -158,7 +165,6 @@ const CAMPOS_PERFIL: {
   { clave: "habilidad_especial", etiqueta: "Habilidad especial" },
   { clave: "profesion", etiqueta: "Profesión" },
   { clave: "idiomas", etiqueta: "Idiomas" },
-  { clave: "acentos", etiqueta: "Acentos" },
   { clave: "video_book_url", etiqueta: "Vídeo book" },
   { clave: "tiktok_url", etiqueta: "TikTok" },
   { clave: "instagram_url", etiqueta: "Instagram" },

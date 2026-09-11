@@ -85,6 +85,7 @@ export function CabeceraPublica({ ancho = "max-w-6xl" }: { ancho?: string }) {
           </Link>
         ))}
         <EnlaceCandidatos clase="whitespace-nowrap px-3 py-1.5 sm:hidden" />
+        <EnlaceProgramasTv clase="whitespace-nowrap px-3 py-1.5 lg:hidden" />
       </nav>
     </header>
   );

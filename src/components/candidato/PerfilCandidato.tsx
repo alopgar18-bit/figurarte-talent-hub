@@ -367,6 +367,11 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   const [borrando, setBorrando] = useState(false);
   const [busquedaIdioma, setBusquedaIdioma] = useState("");
   const [otroIdioma, setOtroIdioma] = useState("");
+  const [busquedaHabilidad, setBusquedaHabilidad] = useState("");
+
+  const habilidadesSel = listaTextos(f["habilidades"]);
+  const tipoPerfilSel = listaTextos(f["tipo_perfil"]);
+  const carnesSel = listaTextos(f["carnes_conducir"]);
 
   const estudios: Estudio[] = Array.isArray(f["estudios"])
     ? (f["estudios"] as unknown[]).map((e) => {
@@ -957,6 +962,104 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         <Campo id="profesion" etiqueta="Profesión" valor={texto(f["profesion"])} onChange={(v) => set("profesion", v)} />
         <Campo id="idiomas" etiqueta="Idiomas" valor={texto(f["idiomas"])} onChange={(v) => set("idiomas", v)} />
       </Seccion>
+
+      <Seccion
+        titulo="Perfil profesional y especialidades"
+        descripcion="Marca todo lo que aplique a ti: habilidades, especialidades y el tipo de perfil con el que encajas en los castings."
+        onGuardar={() =>
+          guardar(
+            "perfil_profesional",
+            [],
+            { habilidades: habilidadesSel, tipo_perfil: tipoPerfilSel },
+          )
+        }
+        guardando={guardando === "perfil_profesional"}
+      >
+        <div className="space-y-4 sm:col-span-2">
+          <Label htmlFor="buscar_habilidad">Habilidades y especialidades</Label>
+          <Input
+            id="buscar_habilidad"
+            placeholder="Buscar habilidad..."
+            value={busquedaHabilidad}
+            onChange={(ev) => setBusquedaHabilidad(ev.target.value)}
+          />
+          {GRUPOS_HABILIDADES.map((g) => {
+            const q = busquedaHabilidad.trim().toLowerCase();
+            const visibles = q
+              ? g.opciones.filter((o) => o.toLowerCase().includes(q))
+              : g.opciones;
+            return (
+              <GrupoChips
+                key={g.titulo}
+                titulo={g.titulo}
+                opciones={visibles}
+                seleccionados={habilidadesSel}
+                onAlternar={(o) => set("habilidades", alternar(habilidadesSel, o))}
+              />
+            );
+          })}
+          {busquedaHabilidad.trim() !== "" &&
+            GRUPOS_HABILIDADES.every(
+              (g) => !g.opciones.some((o) => o.toLowerCase().includes(busquedaHabilidad.trim().toLowerCase())),
+            ) && (
+              <p className="text-sm text-muted-foreground">
+                Ninguna opción coincide con tu búsqueda.
+              </p>
+            )}
+        </div>
+
+        <div className="space-y-4 sm:col-span-2">
+          <Label>Tipo de perfil</Label>
+          {GRUPOS_TIPO_PERFIL.map((g) => (
+            <GrupoChips
+              key={g.titulo}
+              titulo={g.titulo}
+              opciones={g.opciones}
+              seleccionados={tipoPerfilSel}
+              onAlternar={(o) => set("tipo_perfil", alternar(tipoPerfilSel, o))}
+            />
+          ))}
+        </div>
+      </Seccion>
+
+      <section className="border border-border bg-card p-4 sm:p-6">
+        <Accordion type="single" collapsible>
+          <AccordionItem value="carnes" className="border-none">
+            <AccordionTrigger className="py-0 hover:no-underline">
+              <div className="text-left">
+                <h2 className="text-lg font-bold tracking-tight text-card-foreground">
+                  Carnés de conducir
+                </h2>
+                <p className="mt-1 text-sm font-normal text-muted-foreground">
+                  Solo si aplican a tu perfil
+                </p>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-4">
+              <div className="flex flex-wrap gap-2">
+                {CARNES_OPCIONES.map((c) => (
+                  <Chip
+                    key={c}
+                    activo={carnesSel.includes(c)}
+                    onClick={() => set("carnes_conducir", alternar(carnesSel, c))}
+                  >
+                    {c}
+                  </Chip>
+                ))}
+              </div>
+              <Button
+                className="mt-5 w-full sm:w-auto"
+                onClick={() =>
+                  guardar("carnes", [], { carnes_conducir: carnesSel })
+                }
+                disabled={guardando === "carnes"}
+              >
+                {guardando === "carnes" ? "Guardando..." : "Guardar"}
+              </Button>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </section>
 
       <Seccion
         titulo="Redes"

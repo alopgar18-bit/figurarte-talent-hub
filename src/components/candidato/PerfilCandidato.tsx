@@ -405,6 +405,53 @@ function SelectCampoPares({
   );
 }
 
+function MultiSelectChips({
+  etiqueta,
+  descripcion,
+  opciones,
+  seleccionados,
+  onChange,
+  buscador = false,
+  ancho = true,
+}: {
+  etiqueta: string;
+  descripcion?: string;
+  opciones: string[];
+  seleccionados: string[];
+  onChange: (lista: string[]) => void;
+  buscador?: boolean;
+  ancho?: boolean;
+}) {
+  const [busqueda, setBusqueda] = useState("");
+  const filtradas = buscador
+    ? opciones.filter((o) => o.toLowerCase().includes(busqueda.trim().toLowerCase()))
+    : opciones;
+  return (
+    <div className={ancho ? "space-y-2 sm:col-span-2" : "space-y-2"}>
+      <Label>{etiqueta}</Label>
+      {descripcion && <p className="text-sm text-muted-foreground">{descripcion}</p>}
+      {buscador && (
+        <Input
+          placeholder="Buscar..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+        />
+      )}
+      <div className="flex max-h-64 flex-wrap gap-2 overflow-y-auto">
+        {filtradas.map((o) => (
+          <Chip
+            key={o}
+            activo={seleccionados.includes(o)}
+            onClick={() => onChange(alternar(seleccionados, o))}
+          >
+            {o}
+          </Chip>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const CAMPOS_IDENTIDAD_FISCAL = [
   "pasaporte",
   "numero_seguridad_social",

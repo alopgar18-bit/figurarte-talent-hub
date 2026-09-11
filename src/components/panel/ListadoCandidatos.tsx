@@ -42,6 +42,15 @@ import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import { asignarCandidatosAProyecto } from "@/lib/rgpd.functions";
 import { registrarAccesoStaff } from "@/lib/registro-accesos.functions";
+import { firmarFotosStaff } from "@/lib/fotos.functions";
+import {
+  COLORES_CABELLO,
+  COLORES_OJOS,
+  PAISES,
+  TALLAS_CALZADO,
+  TALLAS_CAMISA,
+  TALLAS_PANTALON,
+} from "@/lib/catalogos";
 
 
 type Candidato = Record<string, unknown> & {
@@ -59,6 +68,7 @@ type Candidato = Record<string, unknown> & {
 type Proyecto = { id: string; nombre: string; creado_en: string };
 
 type ColumnaId =
+  | "foto"
   | "codigo"
   | "nombre"
   | "categoria"
@@ -73,6 +83,7 @@ type ColumnaId =
   | "habilidades";
 
 const COLUMNAS: { id: ColumnaId; etiqueta: string; pordefecto: boolean }[] = [
+  { id: "foto", etiqueta: "Foto", pordefecto: true },
   { id: "codigo", etiqueta: "Código", pordefecto: true },
   { id: "nombre", etiqueta: "Nombre", pordefecto: true },
   { id: "categoria", etiqueta: "Categoría", pordefecto: true },
@@ -124,6 +135,12 @@ const filtrosGuardados = {
   habilidadesSel: [] as string[],
   tiposPerfilSel: [] as string[],
   carnesSel: [] as string[],
+  camisaSel: [] as string[],
+  pantalonSel: [] as string[],
+  calzadoSel: [] as string[],
+  nacionalidadSel: [] as string[],
+  cabelloSel: [] as string[],
+  ojosSel: [] as string[],
   idiomas: "",
   rangos: { ...RANGOS_VACIOS },
 };
@@ -251,6 +268,13 @@ export function ListadoCandidatos() {
   const [habilidadesSel, setHabilidadesSel] = useState<string[]>(filtrosGuardados.habilidadesSel);
   const [tiposPerfilSel, setTiposPerfilSel] = useState<string[]>(filtrosGuardados.tiposPerfilSel);
   const [carnesSel, setCarnesSel] = useState<string[]>(filtrosGuardados.carnesSel);
+  const [camisaSel, setCamisaSel] = useState<string[]>(filtrosGuardados.camisaSel);
+  const [pantalonSel, setPantalonSel] = useState<string[]>(filtrosGuardados.pantalonSel);
+  const [calzadoSel, setCalzadoSel] = useState<string[]>(filtrosGuardados.calzadoSel);
+  const [nacionalidadSel, setNacionalidadSel] = useState<string[]>(filtrosGuardados.nacionalidadSel);
+  const [cabelloSel, setCabelloSel] = useState<string[]>(filtrosGuardados.cabelloSel);
+  const [ojosSel, setOjosSel] = useState<string[]>(filtrosGuardados.ojosSel);
+  const [fotosFirmadas, setFotosFirmadas] = useState<Record<string, string>>({});
   const [idiomas, setIdiomas] = useState(filtrosGuardados.idiomas);
   const [rangos, setRangos] = useState(filtrosGuardados.rangos);
 
@@ -265,6 +289,12 @@ export function ListadoCandidatos() {
     filtrosGuardados.habilidadesSel = habilidadesSel;
     filtrosGuardados.tiposPerfilSel = tiposPerfilSel;
     filtrosGuardados.carnesSel = carnesSel;
+    filtrosGuardados.camisaSel = camisaSel;
+    filtrosGuardados.pantalonSel = pantalonSel;
+    filtrosGuardados.calzadoSel = calzadoSel;
+    filtrosGuardados.nacionalidadSel = nacionalidadSel;
+    filtrosGuardados.cabelloSel = cabelloSel;
+    filtrosGuardados.ojosSel = ojosSel;
     filtrosGuardados.idiomas = idiomas;
     filtrosGuardados.rangos = rangos;
   }, [
@@ -277,6 +307,12 @@ export function ListadoCandidatos() {
     habilidadesSel,
     tiposPerfilSel,
     carnesSel,
+    camisaSel,
+    pantalonSel,
+    calzadoSel,
+    nacionalidadSel,
+    cabelloSel,
+    ojosSel,
     idiomas,
     rangos,
   ]);
@@ -289,6 +325,7 @@ export function ListadoCandidatos() {
   const [asignando, setAsignando] = useState(false);
   const asignar = useServerFn(asignarCandidatosAProyecto);
   const anotar = useServerFn(registrarAccesoStaff);
+  const firmarFotos = useServerFn(firmarFotosStaff);
 
   const [aviso, setAviso] = useState<string | null>(null);
   const [dialogoExport, setDialogoExport] = useState(false);
@@ -303,11 +340,30 @@ export function ListadoCandidatos() {
           .order("creado_en", { ascending: false }),
       ]);
       if (e1) setError("No se han podido cargar los candidatos.");
-      setCandidatos((cands ?? []) as Candidato[]);
+      const lista = (cands ?? []) as Candidato[];
+      setCandidatos(lista);
       setProyectos((proys ?? []) as Proyecto[]);
       setCargando(false);
+
+      // Las fotos se guardan como rutas privadas: hay que firmarlas para poder verlas.
+      const rutas = lista
+        .map((c) => (Array.isArray(c["fotos"]) ? (c["fotos"] as unknown[])[0] : null))
+        .filter(
+          (f): f is string =>
+            typeof f === "string" &&
+            f !== "" &&
+            !/^https?:\/\//i.test(f) &&
+            !f.startsWith("placeholder://"),
+        );
+      if (rutas.length > 0) {
+        try {
+          setFotosFirmadas(await firmarFotos({ data: { rutas: [...new Set(rutas)] } }));
+        } catch {
+          /* si falla la firma, se muestra el hueco sin foto */
+        }
+      }
     })();
-  }, []);
+  }, [firmarFotos]);
 
   const provincias = useMemo(() => {
     const set = new Set<string>();
@@ -334,6 +390,25 @@ export function ListadoCandidatos() {
       habilidades: recoger("habilidades"),
       tipo_perfil: recoger("tipo_perfil"),
       carnes_conducir: recoger("carnes_conducir"),
+    };
+  }, [candidatos]);
+
+  const opcionesCatalogo = useMemo(() => {
+    const recoger = (campo: string, catalogo: string[]) => {
+      const set = new Set<string>(catalogo);
+      for (const c of candidatos) {
+        const v = c[campo];
+        if (typeof v === "string" && v.trim()) set.add(v.trim());
+      }
+      return [...set];
+    };
+    return {
+      talla_camisa: recoger("talla_camisa", TALLAS_CAMISA),
+      talla_pantalon: recoger("talla_pantalon", TALLAS_PANTALON),
+      talla_calzado: recoger("talla_calzado", TALLAS_CALZADO),
+      nacionalidad: recoger("nacionalidad", PAISES).sort((a, b) => a.localeCompare(b, "es")),
+      color_cabello: recoger("color_cabello", COLORES_CABELLO),
+      color_ojos: recoger("color_ojos", COLORES_OJOS),
     };
   }, [candidatos]);
 
@@ -364,6 +439,14 @@ export function ListadoCandidatos() {
       if (!alguno(c["habilidades"], habilidadesSel)) return false;
       if (!alguno(c["tipo_perfil"], tiposPerfilSel)) return false;
       if (!alguno(c["carnes_conducir"], carnesSel)) return false;
+      const coincide = (valor: unknown, sel: string[]) =>
+        sel.length === 0 || sel.includes(String(valor ?? ""));
+      if (!coincide(c["talla_camisa"], camisaSel)) return false;
+      if (!coincide(c["talla_pantalon"], pantalonSel)) return false;
+      if (!coincide(c["talla_calzado"], calzadoSel)) return false;
+      if (!coincide(c["nacionalidad"], nacionalidadSel)) return false;
+      if (!coincide(c["color_cabello"], cabelloSel)) return false;
+      if (!coincide(c["color_ojos"], ojosSel)) return false;
       if (qIdiomas) {
         const enTextoLibre = String(c["idiomas"] ?? "")
           .toLowerCase()
@@ -391,6 +474,12 @@ export function ListadoCandidatos() {
     habilidadesSel,
     tiposPerfilSel,
     carnesSel,
+    camisaSel,
+    pantalonSel,
+    calzadoSel,
+    nacionalidadSel,
+    cabelloSel,
+    ojosSel,
     idiomas,
     rangos,
   ]);
@@ -597,6 +686,26 @@ export function ListadoCandidatos() {
                 alCambiar={setCarnesSel}
               />
             </div>
+            {(
+              [
+                { clave: "talla_camisa", etiqueta: "Talla camisa", sel: camisaSel, set: setCamisaSel },
+                { clave: "talla_pantalon", etiqueta: "Talla pantalón", sel: pantalonSel, set: setPantalonSel },
+                { clave: "talla_calzado", etiqueta: "Talla calzado", sel: calzadoSel, set: setCalzadoSel },
+                { clave: "nacionalidad", etiqueta: "Nacionalidad", sel: nacionalidadSel, set: setNacionalidadSel },
+                { clave: "color_cabello", etiqueta: "Color de cabello", sel: cabelloSel, set: setCabelloSel },
+                { clave: "color_ojos", etiqueta: "Color de ojos", sel: ojosSel, set: setOjosSel },
+              ] as const
+            ).map((f) => (
+              <div key={f.clave} className="space-y-1.5">
+                <Label>{f.etiqueta}</Label>
+                <MultiSelect
+                  etiqueta={f.etiqueta}
+                  opciones={opcionesCatalogo[f.clave].map((v) => ({ valor: v, etiqueta: v }))}
+                  seleccionados={f.sel}
+                  alCambiar={f.set}
+                />
+              </div>
+            ))}
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="f-idiomas">Idiomas</Label>
               <Input
@@ -652,6 +761,12 @@ export function ListadoCandidatos() {
               setHabilidadesSel([]);
               setTiposPerfilSel([]);
               setCarnesSel([]);
+              setCamisaSel([]);
+              setPantalonSel([]);
+              setCalzadoSel([]);
+              setNacionalidadSel([]);
+              setCabelloSel([]);
+              setOjosSel([]);
               setIdiomas("");
               setRangos({
                 edadMin: "",
@@ -745,7 +860,31 @@ export function ListadoCandidatos() {
                 </td>
                 {columnasVisibles.map((col) => (
                   <td key={col.id} className="whitespace-nowrap p-3">
-                    {col.id === "categoria" ? (
+                    {col.id === "foto" ? (
+                      (() => {
+                        const primera = Array.isArray(c["fotos"])
+                          ? ((c["fotos"] as unknown[])[0] as string | undefined)
+                          : undefined;
+                        const src =
+                          primera && /^https?:\/\//i.test(primera)
+                            ? primera
+                            : primera
+                              ? fotosFirmadas[primera]
+                              : undefined;
+                        return src ? (
+                          <img
+                            src={src}
+                            alt=""
+                            loading="lazy"
+                            className="h-14 w-[42px] rounded-sm border border-border object-cover"
+                          />
+                        ) : (
+                          <span className="flex h-14 w-[42px] items-center justify-center rounded-sm border border-dashed border-border text-[10px] text-muted-foreground">
+                            —
+                          </span>
+                        );
+                      })()
+                    ) : col.id === "categoria" ? (
                       <Badge variant="outline" className={cn("font-medium", COLOR_CATEGORIA[c.categoria])}>
                         {ETIQUETA_CATEGORIA[c.categoria] ?? c.categoria}
                       </Badge>

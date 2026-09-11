@@ -325,7 +325,48 @@ function Diapositiva({
         <Medida etiqueta="Pantalón" valor={candidato.talla_pantalon} />
         <Medida etiqueta="Cintura" valor={candidato.anchura_cintura} />
         <Medida etiqueta="Calzado" valor={candidato.talla_calzado} />
+        {candidato.talla_chaqueta && (
+          <Medida etiqueta="Chaqueta" valor={candidato.talla_chaqueta} />
+        )}
+        {candidato.talla_zapato && <Medida etiqueta="Zapato" valor={candidato.talla_zapato} />}
       </dl>
+
+      {rasgos.length > 0 && (
+        <dl className="mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-3">
+          {rasgos.map(([etiqueta, valor]) => (
+            <div key={etiqueta} className="flex justify-between gap-4 text-sm">
+              <dt className="text-muted-foreground">{etiqueta}</dt>
+              <dd className="font-medium">{valor}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {(candidato.tipo_perfil.length > 0 ||
+        candidato.habilidades.length > 0 ||
+        candidato.carnes_conducir.length > 0 ||
+        idiomas.length > 0) && (
+        <div className="mt-5 grid gap-4 border-t border-border pt-4">
+          <GrupoChips titulo="Tipo de perfil" valores={candidato.tipo_perfil} />
+          <GrupoChips titulo="Habilidades" valores={candidato.habilidades} />
+          <GrupoChips titulo="Carnés de conducir" valores={candidato.carnes_conducir} />
+          {idiomas.length > 0 && (
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                Idiomas
+              </p>
+              <ul className="mt-1.5 flex flex-wrap gap-x-5 gap-y-1 text-sm">
+                {idiomas.map((i, n) => (
+                  <li key={`${i.idioma}-${n}`}>
+                    <span className="font-medium">{i.idioma}</span>
+                    {i.nivel && <span className="text-muted-foreground"> — {i.nivel}</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
 
       {candidato.campos.length > 0 && (
         <dl className="mt-5 grid gap-x-8 gap-y-2 border-t border-border pt-4 sm:grid-cols-2">

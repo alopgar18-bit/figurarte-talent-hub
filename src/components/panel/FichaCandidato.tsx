@@ -172,11 +172,11 @@ function arrayObjetos(v: unknown): Record<string, unknown>[] {
 }
 
 export const CAMPOS_VESTUARIO = [
-  { clave: "talla_camisa", etiqueta: "Talla camisa" },
-  { clave: "anchura_pecho", etiqueta: "Anchura pecho" },
-  { clave: "talla_pantalon", etiqueta: "Talla pantalón" },
-  { clave: "anchura_cintura", etiqueta: "Anchura cintura" },
-  { clave: "talla_calzado", etiqueta: "Talla calzado" },
+  { clave: "talla_camisa", etiqueta: "Talla camisa", tipo: "texto" },
+  { clave: "anchura_pecho", etiqueta: "Anchura pecho (cm)", tipo: "numero" },
+  { clave: "talla_pantalon", etiqueta: "Talla pantalón", tipo: "texto" },
+  { clave: "anchura_cintura", etiqueta: "Anchura cintura (cm)", tipo: "numero" },
+  { clave: "talla_calzado", etiqueta: "Talla calzado (EU)", tipo: "catalogo" },
 ] as const;
 
 function formateaFecha(iso: string) {

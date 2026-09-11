@@ -121,6 +121,11 @@ export function FormularioCaptacion({
   const [telefono, setTelefono] = useState("");
   const [email, setEmail] = useState("");
   const [ciudad, setCiudad] = useState("");
+  const [provincia, setProvincia] = useState("");
+  const [codigoPostal, setCodigoPostal] = useState("");
+  const [tallaCamisa, setTallaCamisa] = useState("");
+  const [tallaPantalon, setTallaPantalon] = useState("");
+  const [tallaCalzado, setTallaCalzado] = useState("");
   const [rgpd, setRgpd] = useState(false);
   const [archivos, setArchivos] = useState<
     Record<string, { file: File; area: AreaRecorte; preview: string } | undefined>

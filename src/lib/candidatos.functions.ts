@@ -12,6 +12,11 @@ const candidaturaSchema = z.object({
   altura_cm: z.number().int().min(50).max(260).nullable().optional(),
   peso_kg: z.number().int().min(20).max(300).nullable().optional(),
   ciudad: z.string().trim().max(120).nullable().optional(),
+  provincia: z.string().trim().max(120).nullable().optional(),
+  codigo_postal: z.string().trim().max(10).nullable().optional(),
+  talla_camisa: z.string().trim().max(20).nullable().optional(),
+  talla_pantalon: z.string().trim().max(20).nullable().optional(),
+  talla_calzado: z.string().trim().max(20).nullable().optional(),
   fotos: z.array(z.string().max(300)).max(3).optional(),
   fotos_recorte: z
     .record(

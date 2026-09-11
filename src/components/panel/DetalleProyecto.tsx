@@ -348,6 +348,19 @@ export function DetalleProyecto({ id }: { id: string }) {
       if (activo) setCampos((cp ?? []) as CampoPersonalizado[]);
       await cargarAsociaciones();
       await cargarDossier();
+      // Base para las recomendaciones: solo los campos que usan los criterios.
+      const { data: base, error: errBase } = await supabase
+        .from("candidatos")
+        .select(
+          "id,codigo,nombre,categoria,edad,provincia,altura_cm,peso_kg,fotos,disponible,talla_camisa,talla_pantalon,talla_calzado,idiomas,idiomas_detalle,tipo_perfil,habilidades",
+        )
+        .limit(1000);
+      if (activo) {
+        setErrorRecomendados(
+          errBase ? "No se pudo cargar la base de candidatos. Reintenta." : null,
+        );
+        setBaseCandidatos((base ?? []) as unknown as Record<string, unknown>[]);
+      }
       if (activo) {
         setError(fallo);
         setCargando(false);

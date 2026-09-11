@@ -51,13 +51,26 @@ function formatFechaCierre(iso?: string): string | null {
 }
 
 export const Route = createFileRoute("/")({
-  loader: async (): Promise<{ castings: CastingAbierto[] }> => {
-    const { data } = await supabase
-      .from("proyectos_casting")
-      .select("id, nombre, slug_publico, brief_publico")
-      .eq("publicado", true)
-      .order("creado_en", { ascending: false });
-    return { castings: (data as CastingAbierto[] | null) ?? [] };
+  loader: async (): Promise<{
+    castings: CastingAbierto[];
+    programas: ProgramaTV[];
+  }> => {
+    const [{ data }, { data: programas }] = await Promise.all([
+      supabase
+        .from("proyectos_casting")
+        .select("id, nombre, slug_publico, brief_publico")
+        .eq("publicado", true)
+        .order("creado_en", { ascending: false }),
+      supabase
+        .from("programas_tv")
+        .select("id, nombre, imagen_url, link_formulario")
+        .eq("activo", true)
+        .order("orden", { ascending: true }),
+    ]);
+    return {
+      castings: (data as CastingAbierto[] | null) ?? [],
+      programas: (programas as ProgramaTV[] | null) ?? [],
+    };
   },
   head: () => ({
     meta: [

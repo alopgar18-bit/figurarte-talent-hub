@@ -31,6 +31,10 @@ import { registrarAccesoStaff } from "@/lib/registro-accesos.functions";
 import { firmarFotosStaff } from "@/lib/fotos.functions";
 import { MultiSelect } from "@/components/panel/MultiSelect";
 import {
+  cambiarEstadoProyectoCandidato,
+  type EstadoProyectoCandidato,
+} from "@/lib/comunicaciones.functions";
+import {
   cumpleCriterios,
   hayCriterios,
   type CriteriosBusqueda,
@@ -171,6 +175,7 @@ export function DetalleProyecto({ id }: { id: string }) {
   const [guardandoBrief, setGuardandoBrief] = useState(false);
   const [publicando, setPublicando] = useState(false);
 
+  const cambiarEstado = useServerFn(cambiarEstadoProyectoCandidato);
   const [criterios, setCriterios] = useState<CriteriosBusqueda>({});
   const [guardandoCriterios, setGuardandoCriterios] = useState(false);
   const [baseCandidatos, setBaseCandidatos] = useState<Record<string, unknown>[]>([]);

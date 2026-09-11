@@ -65,6 +65,7 @@ export type CandidatoCompleto = Record<string, unknown> & {
   altura_cm: number | null;
   peso_kg: number | null;
   disponible: boolean;
+  disponible_publico: boolean;
   fotos: string[];
   email: string | null;
   telefono: string | null;

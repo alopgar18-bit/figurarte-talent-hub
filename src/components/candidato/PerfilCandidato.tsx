@@ -45,6 +45,8 @@ import {
   PAISES,
   PROVINCIAS_ES,
   TALLAS_CALZADO,
+  TALLAS_CAMISA,
+  TALLAS_PANTALON,
   aTextoLista,
   conValorActual,
   desdeTextoLista,
@@ -166,8 +168,7 @@ const IDIOMAS_LISTA = [
 ];
 const NIVELES_IDIOMA = ["Básico", "Intermedio", "Avanzado", "Nativo o bilingüe"];
 const SIN_VALOR = "__sin_valor__";
-const TALLAS_CAMISA = ["XS", "S", "M", "L", "XL"];
-const TALLAS_PANTALON = ["36", "38", "40", "42", "44"];
+const TALLAS_CHAQUETA = ["S", "M", "L"];
 const TALLAS_CHAQUETA = ["S", "M", "L"];
 const TIPOS_PELO = ["Liso", "Ondulado", "Rizado", "Afro"];
 const COMPLEXIONES = [

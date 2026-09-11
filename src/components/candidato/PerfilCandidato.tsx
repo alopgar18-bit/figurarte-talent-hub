@@ -1195,7 +1195,7 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
               "talla_camisa",
               "talla_pantalon",
               "talla_chaqueta",
-              "talla_zapato",
+              "talla_calzado",
               "tipo_pelo",
               "origen_etnia",
               "complexion",

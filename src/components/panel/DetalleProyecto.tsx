@@ -433,6 +433,22 @@ export function DetalleProyecto({ id }: { id: string }) {
     if (ok) toast.success("Brief guardado.");
   }
 
+  async function guardarCriterios() {
+    setGuardandoCriterios(true);
+    const ok = await actualizar({ criterios_busqueda: criterios } as Partial<Proyecto>);
+    setGuardandoCriterios(false);
+    if (ok) toast.success("Criterios de búsqueda guardados.");
+  }
+
+  function ponerLista(clave: keyof CriteriosBusqueda, valores: string[]) {
+    setCriterios((c) => ({ ...c, [clave]: valores }));
+  }
+
+  function ponerNumero(clave: keyof CriteriosBusqueda, valor: string) {
+    const n = valor.trim() === "" ? null : Number(valor);
+    setCriterios((c) => ({ ...c, [clave]: Number.isNaN(n as number) ? null : n }));
+  }
+
   async function alternarCampo(campoId: string, activo: boolean) {
     if (!proyecto) return;
     const actuales = proyecto.campos_personalizados_activados ?? [];

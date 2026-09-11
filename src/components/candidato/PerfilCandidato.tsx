@@ -353,6 +353,54 @@ function SelectCampo({
   );
 }
 
+function SelectCampoPares({
+  etiqueta,
+  valor,
+  opciones,
+  onChange,
+}: {
+  etiqueta: string;
+  valor: string;
+  opciones: { valor: string; etiqueta: string }[];
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label>{etiqueta}</Label>
+      <Select
+        value={valor === "" ? SIN_VALOR : valor}
+        onValueChange={(v) => onChange(v === SIN_VALOR ? "" : v)}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="No especificado" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={SIN_VALOR}>No especificado</SelectItem>
+          {opciones.map((o) => (
+            <SelectItem key={o.valor} value={o.valor}>
+              {o.etiqueta}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+const CAMPOS_IDENTIDAD_FISCAL = [
+  "pasaporte",
+  "numero_seguridad_social",
+  "nacionalidad",
+  "nacionalidad_multiple",
+  "lugar_nacimiento",
+  "representacion",
+  "domicilio_fiscal_pais",
+  "domicilio_fiscal_provincia",
+  "domicilio_fiscal_localidad",
+  "domicilio_fiscal_cp",
+  "domicilio_fiscal_direccion",
+];
+
 export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   const [ficha, setFicha] = useState<Ficha | null>(null);
   const [cargando, setCargando] = useState(true);
@@ -629,6 +677,96 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
           onChange={(v) => set("fecha_nacimiento", v)}
         />
         <Campo id="dni" etiqueta="DNI" valor={texto(f["dni"])} onChange={(v) => set("dni", v)} />
+      </Seccion>
+
+      <Seccion
+        titulo="Identidad y datos fiscales"
+        descripcion="Documentación y datos que usamos para contratos y facturación. Solo los ve el equipo de FigurArte."
+        onGuardar={() => guardar("identidad_fiscal", CAMPOS_IDENTIDAD_FISCAL)}
+        guardando={guardando === "identidad_fiscal"}
+      >
+        <Campo id="pasaporte" etiqueta="Pasaporte" valor={texto(f["pasaporte"])} onChange={(v) => set("pasaporte", v)} />
+        <Campo
+          id="numero_seguridad_social"
+          etiqueta="Número de la Seguridad Social"
+          valor={texto(f["numero_seguridad_social"])}
+          onChange={(v) => set("numero_seguridad_social", v)}
+        />
+        <Campo id="nacionalidad" etiqueta="Nacionalidad" valor={texto(f["nacionalidad"])} onChange={(v) => set("nacionalidad", v)} />
+        <Campo
+          id="nacionalidad_multiple"
+          etiqueta="Otras nacionalidades"
+          valor={texto(f["nacionalidad_multiple"])}
+          onChange={(v) => set("nacionalidad_multiple", v)}
+        />
+        <Campo
+          id="lugar_nacimiento"
+          etiqueta="Lugar de nacimiento"
+          valor={texto(f["lugar_nacimiento"])}
+          onChange={(v) => set("lugar_nacimiento", v)}
+        />
+        <SelectCampoPares
+          etiqueta="Representación"
+          valor={texto(f["representacion"])}
+          opciones={[
+            { valor: "sin_representacion", etiqueta: "Sin representación" },
+            { valor: "con_representacion", etiqueta: "Con representación / agencia" },
+          ]}
+          onChange={(v) => set("representacion", v)}
+        />
+
+        <div className="sm:col-span-2">
+          <Accordion type="single" collapsible>
+            <AccordionItem value="domicilio_fiscal" className="border border-border px-4">
+              <AccordionTrigger className="py-3 hover:no-underline">
+                <div className="text-left">
+                  <h3 className="text-base font-bold tracking-tight text-card-foreground">
+                    Domicilio fiscal
+                  </h3>
+                  <p className="mt-1 text-sm font-normal text-muted-foreground">
+                    Para facturación y contratos
+                  </p>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="pt-2">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Campo
+                    id="domicilio_fiscal_pais"
+                    etiqueta="País"
+                    valor={texto(f["domicilio_fiscal_pais"])}
+                    onChange={(v) => set("domicilio_fiscal_pais", v)}
+                  />
+                  <Campo
+                    id="domicilio_fiscal_provincia"
+                    etiqueta="Provincia"
+                    valor={texto(f["domicilio_fiscal_provincia"])}
+                    onChange={(v) => set("domicilio_fiscal_provincia", v)}
+                  />
+                  <Campo
+                    id="domicilio_fiscal_localidad"
+                    etiqueta="Localidad"
+                    valor={texto(f["domicilio_fiscal_localidad"])}
+                    onChange={(v) => set("domicilio_fiscal_localidad", v)}
+                  />
+                  <Campo
+                    id="domicilio_fiscal_cp"
+                    etiqueta="Código postal"
+                    valor={texto(f["domicilio_fiscal_cp"])}
+                    onChange={(v) => set("domicilio_fiscal_cp", v)}
+                  />
+                  <div className="sm:col-span-2">
+                    <Campo
+                      id="domicilio_fiscal_direccion"
+                      etiqueta="Dirección"
+                      valor={texto(f["domicilio_fiscal_direccion"])}
+                      onChange={(v) => set("domicilio_fiscal_direccion", v)}
+                    />
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
       </Seccion>
 
       <Seccion

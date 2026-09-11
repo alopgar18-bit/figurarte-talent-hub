@@ -277,9 +277,19 @@ export function FichaCandidato({
         <p className="text-sm text-muted-foreground">
           Es posible que la ficha se haya eliminado o que el enlace no sea correcto.
         </p>
-        <Link to="/panel/candidatos" className="text-sm text-primary underline underline-offset-4">
-          ← Volver al listado
-        </Link>
+        {volverAProyectoId ? (
+          <Link
+            to="/panel/proyectos/$id"
+            params={{ id: volverAProyectoId }}
+            className="text-sm text-primary underline underline-offset-4"
+          >
+            ← Volver al proyecto
+          </Link>
+        ) : (
+          <Link to="/panel/candidatos" className="text-sm text-primary underline underline-offset-4">
+            ← Volver al listado
+          </Link>
+        )}
       </div>
     );
   }

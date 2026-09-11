@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CabeceraPublica } from "@/components/publico/CabeceraPublica";
+import { cargarProgramasTv, type ProgramaTV } from "@/lib/programas-tv";
 
 type BriefPublico = {
   categoria?: string;

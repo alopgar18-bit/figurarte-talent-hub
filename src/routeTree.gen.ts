@@ -16,6 +16,7 @@ import { Route as CandidatosRouteImport } from './routes/candidatos'
 import { Route as PanelRouteRouteImport } from './routes/panel/route'
 import { Route as PortalRouteRouteImport } from './routes/portal/route'
 import { Route as PrivacidadRouteImport } from './routes/privacidad'
+import { Route as ProgramasTvRouteImport } from './routes/programas-tv'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as RegistroClienteRouteImport } from './routes/registro-cliente'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
@@ -74,6 +75,11 @@ const PortalRouteRoute = PortalRouteRouteImport.update({
 const PrivacidadRoute = PrivacidadRouteImport.update({
   id: '/privacidad',
   path: '/privacidad',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgramasTvRoute = ProgramasTvRouteImport.update({
+  id: '/programas-tv',
+  path: '/programas-tv',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegistroRoute = RegistroRouteImport.update({
@@ -205,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/aviso-legal': typeof AvisoLegalRoute
   '/candidatos': typeof CandidatosRoute
   '/privacidad': typeof PrivacidadRoute
+  '/programas-tv': typeof ProgramasTvRoute
   '/registro': typeof RegistroRoute
   '/registro-cliente': typeof RegistroClienteRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -235,6 +242,7 @@ export interface FileRoutesByTo {
   '/aviso-legal': typeof AvisoLegalRoute
   '/candidatos': typeof CandidatosRoute
   '/privacidad': typeof PrivacidadRoute
+  '/programas-tv': typeof ProgramasTvRoute
   '/registro': typeof RegistroRoute
   '/registro-cliente': typeof RegistroClienteRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -269,6 +277,7 @@ export interface FileRoutesById {
   '/aviso-legal': typeof AvisoLegalRoute
   '/candidatos': typeof CandidatosRoute
   '/privacidad': typeof PrivacidadRoute
+  '/programas-tv': typeof ProgramasTvRoute
   '/registro': typeof RegistroRoute
   '/registro-cliente': typeof RegistroClienteRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -304,6 +313,7 @@ export interface FileRouteTypes {
     | '/aviso-legal'
     | '/candidatos'
     | '/privacidad'
+    | '/programas-tv'
     | '/registro'
     | '/registro-cliente'
     | '/auth/callback'
@@ -334,6 +344,7 @@ export interface FileRouteTypes {
     | '/aviso-legal'
     | '/candidatos'
     | '/privacidad'
+    | '/programas-tv'
     | '/registro'
     | '/registro-cliente'
     | '/auth/callback'
@@ -367,6 +378,7 @@ export interface FileRouteTypes {
     | '/aviso-legal'
     | '/candidatos'
     | '/privacidad'
+    | '/programas-tv'
     | '/registro'
     | '/registro-cliente'
     | '/auth/callback'
@@ -401,6 +413,7 @@ export interface RootRouteChildren {
   AvisoLegalRoute: typeof AvisoLegalRoute
   CandidatosRoute: typeof CandidatosRoute
   PrivacidadRoute: typeof PrivacidadRoute
+  ProgramasTvRoute: typeof ProgramasTvRoute
   RegistroRoute: typeof RegistroRoute
   RegistroClienteRoute: typeof RegistroClienteRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
@@ -459,6 +472,13 @@ declare module '@tanstack/react-router' {
       path: '/privacidad'
       fullPath: '/privacidad'
       preLoaderRoute: typeof PrivacidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/programas-tv': {
+      id: '/programas-tv'
+      path: '/programas-tv'
+      fullPath: '/programas-tv'
+      preLoaderRoute: typeof ProgramasTvRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/registro': {
@@ -704,6 +724,7 @@ const rootRouteChildren: RootRouteChildren = {
   AvisoLegalRoute: AvisoLegalRoute,
   CandidatosRoute: CandidatosRoute,
   PrivacidadRoute: PrivacidadRoute,
+  ProgramasTvRoute: ProgramasTvRoute,
   RegistroRoute: RegistroRoute,
   RegistroClienteRoute: RegistroClienteRoute,
   AuthCallbackRoute: AuthCallbackRoute,

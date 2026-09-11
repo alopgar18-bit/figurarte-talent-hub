@@ -598,6 +598,7 @@ export type Database = {
           campos_personalizados_activados: string[]
           cliente_id: string | null
           creado_en: string
+          criterios_busqueda: Json
           estado: Database["public"]["Enums"]["estado_proyecto"]
           id: string
           nombre: string
@@ -609,6 +610,7 @@ export type Database = {
           campos_personalizados_activados?: string[]
           cliente_id?: string | null
           creado_en?: string
+          criterios_busqueda?: Json
           estado?: Database["public"]["Enums"]["estado_proyecto"]
           id?: string
           nombre: string
@@ -620,6 +622,7 @@ export type Database = {
           campos_personalizados_activados?: string[]
           cliente_id?: string | null
           creado_en?: string
+          criterios_busqueda?: Json
           estado?: Database["public"]["Enums"]["estado_proyecto"]
           id?: string
           nombre?: string

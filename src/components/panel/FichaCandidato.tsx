@@ -338,6 +338,30 @@ export function FichaCandidato({
     }
   }
 
+  /** Solo admin: publica o retira al candidato de la vista pública. */
+  async function cambiarDisponiblePublico(valor: boolean) {
+    if (!candidato) return;
+    setGuardandoPublico(true);
+    const anterior = candidato.disponible_publico;
+    setCandidato({ ...candidato, disponible_publico: valor });
+    const { error } = await supabase
+      .from("candidatos")
+      .update({ disponible_publico: valor })
+      .eq("id", candidato.id);
+    setGuardandoPublico(false);
+    if (error) {
+      setCandidato({ ...candidato, disponible_publico: anterior });
+      toast.error(
+        "No se pudo cambiar la publicación. Solo un administrador puede hacerlo.",
+      );
+    } else {
+      toast.success(
+        valor ? "Publicado en candidatos disponibles" : "Retirado de la vista pública",
+      );
+    }
+  }
+
+
   async function guardarCatalogo() {
     if (!candidato) return;
     setGuardandoCatalogo(true);

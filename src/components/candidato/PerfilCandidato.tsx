@@ -1543,41 +1543,13 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
             onChange={setOtrasResidenciasActivo}
           />
           {otrasResidenciasActivo && (
-            <>
-              {otrasResidencias.map((r, i) => (
-                <div key={i} className="flex flex-col gap-2 sm:flex-row">
-                  <Input
-                    className="sm:flex-1"
-                    placeholder="Indica la localidad y condiciones"
-                    value={r}
-                    onChange={(ev) =>
-                      set(
-                        "otras_residencias",
-                        otrasResidencias.map((x, j) => (j === i ? ev.target.value : x)),
-                      )
-                    }
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="sm:w-auto"
-                    onClick={() =>
-                      set("otras_residencias", otrasResidencias.filter((_, j) => j !== i))
-                    }
-                  >
-                    Quitar
-                  </Button>
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full sm:w-auto"
-                onClick={() => set("otras_residencias", [...otrasResidencias, ""])}
-              >
-                + Añadir otra residencia posible
-              </Button>
-            </>
+            <MultiSelectChips
+              etiqueta="Provincias donde podrías residir"
+              buscador
+              opciones={PROVINCIAS_ES}
+              seleccionados={otrasResidencias}
+              onChange={(lista) => set("otras_residencias", lista)}
+            />
           )}
         </div>
       </Seccion></>}

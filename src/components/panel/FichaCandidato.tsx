@@ -28,6 +28,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { TALLAS_CALZADO } from "@/lib/catalogos";
+
+const SIN_TALLA = "__sin_talla__";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 

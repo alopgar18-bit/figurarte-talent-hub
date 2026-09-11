@@ -19,6 +19,18 @@ function EnlaceCandidatos({ clase }: { clase: string }) {
   );
 }
 
+/** Enlace a la página pública de programas de TV con inscripción abierta. */
+function EnlaceProgramasTv({ clase }: { clase: string }) {
+  return (
+    <Link
+      to="/programas-tv"
+      className={`${clase} text-muted-foreground transition-colors hover:text-foreground`}
+    >
+      Programas TV
+    </Link>
+  );
+}
+
 /**
  * Cabecera pública común a toda la parte abierta del sitio (Home, registro,
  * casting, acceso y páginas legales). El panel y el portal tienen la suya.
@@ -48,6 +60,7 @@ export function CabeceraPublica({ ancho = "max-w-6xl" }: { ancho?: string }) {
             </Link>
           ))}
           <EnlaceCandidatos clase="hidden px-3 py-2 sm:inline-block" />
+          <EnlaceProgramasTv clase="hidden px-3 py-2 lg:inline-block" />
           <Link
             to="/auth"
             className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
@@ -72,6 +85,7 @@ export function CabeceraPublica({ ancho = "max-w-6xl" }: { ancho?: string }) {
           </Link>
         ))}
         <EnlaceCandidatos clase="whitespace-nowrap px-3 py-1.5 sm:hidden" />
+        <EnlaceProgramasTv clase="whitespace-nowrap px-3 py-1.5 lg:hidden" />
       </nav>
     </header>
   );

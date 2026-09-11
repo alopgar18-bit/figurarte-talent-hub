@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CabeceraPublica } from "@/components/publico/CabeceraPublica";
+import { cargarProgramasTv, type ProgramaTV } from "@/lib/programas-tv";
 
 type BriefPublico = {
   categoria?: string;
@@ -50,34 +51,23 @@ function formatFechaCierre(iso?: string): string | null {
   });
 }
 
-type ProgramaTV = {
-  id: string;
-  nombre: string;
-  imagen_url: string | null;
-  link_formulario: string;
-};
-
 
 export const Route = createFileRoute("/")({
   loader: async (): Promise<{
     castings: CastingAbierto[];
     programas: ProgramaTV[];
   }> => {
-    const [{ data }, { data: programas }] = await Promise.all([
+    const [{ data }, programas] = await Promise.all([
       supabase
         .from("proyectos_casting")
         .select("id, nombre, slug_publico, brief_publico")
         .eq("publicado", true)
         .order("creado_en", { ascending: false }),
-      supabase
-        .from("programas_tv")
-        .select("id, nombre, imagen_url, link_formulario")
-        .eq("activo", true)
-        .order("orden", { ascending: true }),
+      cargarProgramasTv(),
     ]);
     return {
       castings: (data as CastingAbierto[] | null) ?? [],
-      programas: (programas as ProgramaTV[] | null) ?? [],
+      programas,
     };
   },
   head: () => ({
@@ -347,6 +337,13 @@ function Home() {
             <p className="mt-4 max-w-2xl text-muted-foreground">
               Apúntate como público o participante en los programas que gestionamos.
             </p>
+            <Link
+              to="/programas-tv"
+              className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-primary underline underline-offset-4"
+            >
+              Ver todos los programas
+              <ArrowRight className="h-4 w-4" />
+            </Link>
             <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {programas.map((programa) => (
                 <a

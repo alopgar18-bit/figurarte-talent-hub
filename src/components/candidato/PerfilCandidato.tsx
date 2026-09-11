@@ -347,6 +347,165 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         <Campo id="dni" etiqueta="DNI" valor={texto(f["dni"])} onChange={(v) => set("dni", v)} />
       </Seccion>
 
+      <Seccion
+        titulo="Formación e idiomas"
+        descripcion="Tu formación y los idiomas que hablas, con su nivel."
+        onGuardar={() => {
+          const otro = otroIdioma.trim();
+          const listaIdiomas = otro
+            ? [...idiomasDetalle, { idioma: otro, nivel: "No especificado" }]
+            : idiomasDetalle;
+          void guardar("formacion", ["acentos"], {
+            estudios: estudios.filter((e) => e.estudio.trim() !== "" || e.anios.trim() !== ""),
+            idiomas_detalle: listaIdiomas,
+          });
+        }}
+        guardando={guardando === "formacion"}
+      >
+        <div className="space-y-3 sm:col-span-2">
+          <Label>Estudios</Label>
+          {estudios.length === 0 && (
+            <p className="text-sm text-muted-foreground">Todavía no has añadido ningún estudio.</p>
+          )}
+          {estudios.map((e, i) => (
+            <div key={i} className="flex flex-col gap-2 sm:flex-row">
+              <Input
+                className="sm:flex-1"
+                placeholder="Estudio"
+                value={e.estudio}
+                onChange={(ev) =>
+                  set(
+                    "estudios",
+                    estudios.map((x, j) => (j === i ? { ...x, estudio: ev.target.value } : x)),
+                  )
+                }
+              />
+              <Input
+                className="sm:w-40"
+                placeholder="Años cursados"
+                value={e.anios}
+                onChange={(ev) =>
+                  set(
+                    "estudios",
+                    estudios.map((x, j) => (j === i ? { ...x, anios: ev.target.value } : x)),
+                  )
+                }
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="sm:w-auto"
+                onClick={() => set("estudios", estudios.filter((_, j) => j !== i))}
+              >
+                Quitar
+              </Button>
+            </div>
+          ))}
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={() => set("estudios", [...estudios, { estudio: "", anios: "" }])}
+          >
+            + Añadir estudio
+          </Button>
+        </div>
+
+        <div className="space-y-3 sm:col-span-2">
+          <Label htmlFor="buscar_idioma">Idiomas</Label>
+          <Input
+            id="buscar_idioma"
+            placeholder="Buscar idioma..."
+            value={busquedaIdioma}
+            onChange={(ev) => setBusquedaIdioma(ev.target.value)}
+          />
+          <div className="flex flex-wrap gap-2">
+            {IDIOMAS_LISTA.filter((i) =>
+              i.toLowerCase().includes(busquedaIdioma.trim().toLowerCase()),
+            ).map((idioma) => {
+              const activo = idiomasDetalle.some((x) => x.idioma === idioma);
+              return (
+                <button
+                  key={idioma}
+                  type="button"
+                  onClick={() =>
+                    set(
+                      "idiomas_detalle",
+                      activo
+                        ? idiomasDetalle.filter((x) => x.idioma !== idioma)
+                        : [...idiomasDetalle, { idioma, nivel: "Avanzado" }],
+                    )
+                  }
+                  className={`border px-3 py-1 text-sm transition-colors ${
+                    activo
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-background hover:bg-muted/60"
+                  }`}
+                >
+                  {idioma}
+                </button>
+              );
+            })}
+          </div>
+
+          {idiomasDetalle.length > 0 && (
+            <div className="space-y-2">
+              {idiomasDetalle.map((x, i) => (
+                <div key={x.idioma + i} className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <span className="text-sm sm:w-40">{x.idioma}</span>
+                  <div className="sm:w-56">
+                    <Select
+                      value={x.nivel}
+                      onValueChange={(v) =>
+                        set(
+                          "idiomas_detalle",
+                          idiomasDetalle.map((y, j) => (j === i ? { ...y, nivel: v } : y)),
+                        )
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Nivel" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {NIVELES_IDIOMA.map((n) => (
+                          <SelectItem key={n} value={n}>
+                            {n}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      set("idiomas_detalle", idiomasDetalle.filter((_, j) => j !== i))
+                    }
+                  >
+                    Quitar
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="otro_idioma">Otro idioma no listado</Label>
+          <Input
+            id="otro_idioma"
+            value={otroIdioma}
+            onChange={(ev) => setOtroIdioma(ev.target.value)}
+          />
+        </div>
+        <Campo
+          id="acentos"
+          etiqueta="¿Dominas algún acento? ¿Cuáles?"
+          valor={texto(f["acentos"])}
+          onChange={(v) => set("acentos", v)}
+        />
+      </Seccion>
+
       {menor && (
         <Seccion
           titulo="Tutor legal"

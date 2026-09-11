@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AvisoLegalRouteImport } from './routes/aviso-legal'
 import { Route as CandidatoRouteRouteImport } from './routes/candidato/route'
+import { Route as CandidatosRouteImport } from './routes/candidatos'
 import { Route as PanelRouteRouteImport } from './routes/panel/route'
 import { Route as PortalRouteRouteImport } from './routes/portal/route'
 import { Route as PrivacidadRouteImport } from './routes/privacidad'
@@ -53,6 +54,11 @@ const AvisoLegalRoute = AvisoLegalRouteImport.update({
 const CandidatoRouteRoute = CandidatoRouteRouteImport.update({
   id: '/candidato',
   path: '/candidato',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CandidatosRoute = CandidatosRouteImport.update({
+  id: '/candidatos',
+  path: '/candidatos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PanelRouteRoute = PanelRouteRouteImport.update({
@@ -197,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/panel': typeof PanelRouteRouteWithChildren
   '/portal': typeof PortalRouteRouteWithChildren
   '/aviso-legal': typeof AvisoLegalRoute
+  '/candidatos': typeof CandidatosRoute
   '/privacidad': typeof PrivacidadRoute
   '/registro': typeof RegistroRoute
   '/registro-cliente': typeof RegistroClienteRoute
@@ -226,6 +233,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/aviso-legal': typeof AvisoLegalRoute
+  '/candidatos': typeof CandidatosRoute
   '/privacidad': typeof PrivacidadRoute
   '/registro': typeof RegistroRoute
   '/registro-cliente': typeof RegistroClienteRoute
@@ -259,6 +267,7 @@ export interface FileRoutesById {
   '/panel': typeof PanelRouteRouteWithChildren
   '/portal': typeof PortalRouteRouteWithChildren
   '/aviso-legal': typeof AvisoLegalRoute
+  '/candidatos': typeof CandidatosRoute
   '/privacidad': typeof PrivacidadRoute
   '/registro': typeof RegistroRoute
   '/registro-cliente': typeof RegistroClienteRoute
@@ -293,6 +302,7 @@ export interface FileRouteTypes {
     | '/panel'
     | '/portal'
     | '/aviso-legal'
+    | '/candidatos'
     | '/privacidad'
     | '/registro'
     | '/registro-cliente'
@@ -322,6 +332,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/aviso-legal'
+    | '/candidatos'
     | '/privacidad'
     | '/registro'
     | '/registro-cliente'
@@ -354,6 +365,7 @@ export interface FileRouteTypes {
     | '/panel'
     | '/portal'
     | '/aviso-legal'
+    | '/candidatos'
     | '/privacidad'
     | '/registro'
     | '/registro-cliente'
@@ -387,6 +399,7 @@ export interface RootRouteChildren {
   PanelRouteRoute: typeof PanelRouteRouteWithChildren
   PortalRouteRoute: typeof PortalRouteRouteWithChildren
   AvisoLegalRoute: typeof AvisoLegalRoute
+  CandidatosRoute: typeof CandidatosRoute
   PrivacidadRoute: typeof PrivacidadRoute
   RegistroRoute: typeof RegistroRoute
   RegistroClienteRoute: typeof RegistroClienteRoute
@@ -418,6 +431,13 @@ declare module '@tanstack/react-router' {
       path: '/candidato'
       fullPath: '/candidato'
       preLoaderRoute: typeof CandidatoRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/candidatos': {
+      id: '/candidatos'
+      path: '/candidatos'
+      fullPath: '/candidatos'
+      preLoaderRoute: typeof CandidatosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/panel': {
@@ -682,6 +702,7 @@ const rootRouteChildren: RootRouteChildren = {
   PanelRouteRoute: PanelRouteRouteWithChildren,
   PortalRouteRoute: PortalRouteRouteWithChildren,
   AvisoLegalRoute: AvisoLegalRoute,
+  CandidatosRoute: CandidatosRoute,
   PrivacidadRoute: PrivacidadRoute,
   RegistroRoute: RegistroRoute,
   RegistroClienteRoute: RegistroClienteRoute,

@@ -7,6 +7,18 @@ const ENLACES = [
   { hash: "contacto", etiqueta: "Contacto", oculto: "md" },
 ] as const;
 
+/** Enlace a la vista pública de candidatos disponibles. */
+function EnlaceCandidatos({ clase }: { clase: string }) {
+  return (
+    <Link
+      to="/candidatos"
+      className={`${clase} text-muted-foreground transition-colors hover:text-foreground`}
+    >
+      Candidatos
+    </Link>
+  );
+}
+
 /**
  * Cabecera pública común a toda la parte abierta del sitio (Home, registro,
  * casting, acceso y páginas legales). El panel y el portal tienen la suya.

@@ -220,6 +220,28 @@ function Medida({ etiqueta, valor }: { etiqueta: string; valor: string | null })
   );
 }
 
+function GrupoChips({ titulo, valores }: { titulo: string; valores: string[] }) {
+  const limpios = valores.filter((v) => typeof v === "string" && v.trim() !== "");
+  if (limpios.length === 0) return null;
+  return (
+    <div>
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+        {titulo}
+      </p>
+      <ul className="mt-1.5 flex flex-wrap gap-1.5">
+        {limpios.map((v) => (
+          <li
+            key={v}
+            className="border border-border bg-muted/40 px-2 py-0.5 text-xs font-medium text-foreground"
+          >
+            {v}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function Diapositiva({
   candidato,
   pagina,

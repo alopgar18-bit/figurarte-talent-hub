@@ -187,6 +187,15 @@ function arrayObjetos(v: unknown): Record<string, unknown>[] {
     : [];
 }
 
+/** Campos con catálogo cerrado, editables también desde el panel. */
+const CAMPOS_CATALOGO: { clave: string; etiqueta: string; opciones: string[] }[] = [
+  { clave: "genero", etiqueta: "Género", opciones: GENEROS },
+  { clave: "provincia", etiqueta: "Provincia", opciones: PROVINCIAS_ES },
+  { clave: "nacionalidad", etiqueta: "Nacionalidad", opciones: PAISES },
+  { clave: "color_cabello", etiqueta: "Color de cabello", opciones: COLORES_CABELLO },
+  { clave: "color_ojos", etiqueta: "Color de ojos", opciones: COLORES_OJOS },
+];
+
 export const CAMPOS_VESTUARIO = [
   { clave: "talla_camisa", etiqueta: "Talla camisa", tipo: "texto" },
   { clave: "anchura_pecho", etiqueta: "Anchura pecho (cm)", tipo: "numero" },
@@ -243,6 +252,9 @@ export function FichaCandidato({
   const [borrando, setBorrando] = useState(false);
   const [vestuario, setVestuario] = useState<Record<string, string>>({});
   const [guardandoVestuario, setGuardandoVestuario] = useState(false);
+  const [catalogo, setCatalogo] = useState<Record<string, string>>({});
+  const [acentosSel, setAcentosSel] = useState<string[]>([]);
+  const [guardandoCatalogo, setGuardandoCatalogo] = useState(false);
 
   async function confirmarBorrado() {
     setBorrando(true);
@@ -291,6 +303,13 @@ export function FichaCandidato({
             typeof v === "string" ? v : typeof v === "number" ? String(v) : "";
         }
         setVestuario(inicial);
+        const inicialCatalogo: Record<string, string> = {};
+        for (const { clave } of CAMPOS_CATALOGO) {
+          const v = ficha[clave];
+          inicialCatalogo[clave] = typeof v === "string" ? v : "";
+        }
+        setCatalogo(inicialCatalogo);
+        setAcentosSel(desdeTextoLista(ficha["acentos"]));
         setCastings((resultado.castings as CastingAsociado[] | null) ?? []);
       }
       setCargando(false);
@@ -316,6 +335,25 @@ export function FichaCandidato({
     } else {
       toast.success(valor ? "Marcado como disponible" : "Marcado como no disponible");
     }
+  }
+
+  async function guardarCatalogo() {
+    if (!candidato) return;
+    setGuardandoCatalogo(true);
+    const valores: Record<string, string | null> = { acentos: aTextoLista(acentosSel) };
+    for (const { clave } of CAMPOS_CATALOGO) valores[clave] = catalogo[clave] || null;
+    const { error } = await supabase
+      .from("candidatos")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .update(valores as any)
+      .eq("id", candidato.id);
+    setGuardandoCatalogo(false);
+    if (error) {
+      toast.error("No se pudieron guardar los datos de perfil.");
+      return;
+    }
+    setCandidato({ ...candidato, ...valores });
+    toast.success("Datos de perfil guardados");
   }
 
   async function guardarVestuario() {
@@ -473,6 +511,66 @@ export function FichaCandidato({
           <Dato icono={Phone} etiqueta="Teléfono" valor={candidato.telefono} />
           <Dato icono={MapPin} etiqueta="Ciudad" valor={candidato.ciudad} />
           <Dato icono={MapPin} etiqueta="Provincia" valor={candidato.provincia} />
+        </CardContent>
+      </Card>
+
+      {/* Datos de perfil con catálogo */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Datos de perfil (catálogo)</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            {CAMPOS_CATALOGO.map(({ clave, etiqueta, opciones }) => (
+              <div key={clave} className="space-y-1.5">
+                <Label htmlFor={`cat-${clave}`} className="text-xs text-muted-foreground">
+                  {etiqueta}
+                </Label>
+                <Select
+                  value={catalogo[clave] ? catalogo[clave] : SIN_TALLA}
+                  onValueChange={(v) =>
+                    setCatalogo((s) => ({ ...s, [clave]: v === SIN_TALLA ? "" : v }))
+                  }
+                >
+                  <SelectTrigger id={`cat-${clave}`} aria-label={etiqueta}>
+                    <SelectValue placeholder="—" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={SIN_TALLA}>Sin especificar</SelectItem>
+                    {conValorActual(opciones, catalogo[clave]).map((o) => (
+                      <SelectItem key={o} value={o}>
+                        {o}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ))}
+          </div>
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground">Acentos</p>
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
+              {[...new Set([...ACENTOS, ...acentosSel])].map((a) => (
+                <label key={a} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    className="size-4 accent-[var(--primary)]"
+                    checked={acentosSel.includes(a)}
+                    onChange={() =>
+                      setAcentosSel((s) =>
+                        s.includes(a) ? s.filter((x) => x !== a) : [...s, a],
+                      )
+                    }
+                  />
+                  {a}
+                </label>
+              ))}
+            </div>
+          </div>
+          <Button onClick={guardarCatalogo} disabled={guardandoCatalogo}>
+            {guardandoCatalogo && <Loader2 className="h-4 w-4 animate-spin" />}
+            Guardar datos de perfil
+          </Button>
         </CardContent>
       </Card>
 

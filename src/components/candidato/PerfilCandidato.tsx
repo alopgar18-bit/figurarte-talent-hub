@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { Check, Circle, CircleAlert } from "lucide-react";
 import { darConsentimientoRgpd, TEXTO_CESION } from "@/lib/rgpd.functions";
 import { obtenerMisDatos, eliminarMisDatos } from "@/lib/derechos-rgpd.functions";
 import { toast } from "sonner";
@@ -31,6 +32,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { VideoPresentacion } from "@/components/candidato/VideoPresentacion";
+import { Progress } from "@/components/ui/progress";
+import {
+  obtenerMisProcesos,
+  type ProcesoCandidato,
+} from "@/lib/procesos-candidato.functions";
 
 
 type Ficha = Record<string, unknown> & {
@@ -400,6 +406,39 @@ const CAMPOS_IDENTIDAD_FISCAL = [
   "domicilio_fiscal_cp",
   "domicilio_fiscal_direccion",
 ];
+
+const SECCIONES = [
+  { id: "basicos", etiqueta: "Datos básicos" },
+  { id: "identidad", etiqueta: "Identidad" },
+  { id: "fisico", etiqueta: "Físico" },
+  { id: "habilidades", etiqueta: "Habilidades y perfil" },
+  { id: "formacion", etiqueta: "Idiomas y formación" },
+  { id: "documentacion", etiqueta: "Carnés y documentación" },
+  { id: "redes", etiqueta: "Redes y enlaces" },
+  { id: "video", etiqueta: "Vídeo de presentación" },
+  { id: "rgpd", etiqueta: "Consentimiento RGPD" },
+  { id: "procesos", etiqueta: "Mis procesos de casting" },
+] as const;
+
+type SeccionId = (typeof SECCIONES)[number]["id"];
+
+function tieneDato(valor: unknown) {
+  if (Array.isArray(valor)) return valor.length > 0;
+  if (typeof valor === "string") return valor.trim() !== "";
+  if (typeof valor === "number") return true;
+  return valor === true;
+}
+
+const CAMPOS_COMPLETADO: Record<Exclude<SeccionId, "rgpd" | "procesos">, string[]> = {
+  basicos: ["nombre", "apellidos", "telefono", "ciudad", "provincia"],
+  identidad: ["genero", "fecha_nacimiento", "dni", "nacionalidad"],
+  fisico: ["altura_cm", "peso_kg", "color_piel", "color_cabello", "color_ojos", "talla_camisa", "talla_pantalon", "talla_chaqueta", "talla_zapato"],
+  habilidades: ["profesion", "habilidad_especial", "habilidades", "tipo_perfil", "canta", "baila", "hace_deporte"],
+  formacion: ["estudios", "idiomas", "idiomas_detalle", "acentos"],
+  documentacion: ["pasaporte", "numero_seguridad_social", "carnes_conducir", "tiene_carnet_conducir", "tiene_titulo_patron_barco"],
+  redes: ["video_book_url", "instagram_url", "tiktok_url", "web_url", "enlaces", "otras_residencias"],
+  video: ["video_youtube_url"],
+};
 
 export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   const [ficha, setFicha] = useState<Ficha | null>(null);

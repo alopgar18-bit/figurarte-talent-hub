@@ -270,12 +270,14 @@ export function ListadoCandidatos() {
       return true;
     };
     return candidatos.filter((c) => {
-      if (categoria !== "todas" && c.categoria !== categoria) return false;
-      if (disponibilidad === "disponibles" && !c.disponible) return false;
-      if (disponibilidad === "no_disponibles" && c.disponible) return false;
+      if (categorias.length > 0 && !categorias.includes(c.categoria)) return false;
+      if (disponibleSi && !disponibleNo && !c.disponible) return false;
+      if (disponibleNo && !disponibleSi && c.disponible) return false;
       if (q && !`${c.nombre} ${c.codigo}`.toLowerCase().includes(q)) return false;
-      if (provincia !== "todas" && c.provincia !== provincia) return false;
-      if (genero !== "todos" && c["genero"] !== genero) return false;
+      if (provinciasSel.length > 0 && (!c.provincia || !provinciasSel.includes(c.provincia)))
+        return false;
+      if (generosSel.length > 0 && !generosSel.includes(String(c["genero"] ?? "")))
+        return false;
       if (
         qIdiomas &&
         !String(c["idiomas"] ?? "")

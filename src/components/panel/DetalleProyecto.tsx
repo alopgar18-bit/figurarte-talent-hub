@@ -162,6 +162,28 @@ export function DetalleProyecto({ id }: { id: string }) {
   const [dialogoDossier, setDialogoDossier] = useState(false);
   const asignar = useServerFn(asignarCandidatosAProyecto);
   const anotarAccesoStaff = useServerFn(registrarAccesoStaff);
+  const firmarFotos = useServerFn(firmarFotosStaff);
+
+  /** Las fotos se guardan como rutas privadas: hay que firmarlas para poder verlas. */
+  async function conFotosFirmadas(lista: Candidato[]): Promise<Candidato[]> {
+    const rutas = lista
+      .map((c) => c.fotos?.[0])
+      .filter(
+        (f): f is string =>
+          !!f && !/^https?:\/\//i.test(f) && !f.startsWith("placeholder://"),
+      );
+    if (rutas.length === 0) return lista;
+    try {
+      const mapa = await firmarFotos({ data: { rutas } });
+      return lista.map((c) => {
+        const primera = c.fotos?.[0];
+        if (!primera || !mapa[primera]) return c;
+        return { ...c, fotos: [mapa[primera], ...c.fotos.slice(1)] };
+      });
+    } catch {
+      return lista;
+    }
+  }
 
   const [seleccionDossier, setSeleccionDossier] = useState<Record<string, boolean>>({});
   const [caducidadDossier, setCaducidadDossier] = useState("");

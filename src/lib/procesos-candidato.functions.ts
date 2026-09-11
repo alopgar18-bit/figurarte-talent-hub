@@ -1,10 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { z } from "zod";
+import type { EstadoProyectoCandidato } from "@/lib/comunicaciones.functions";
 
 export type ProcesoCandidato = {
+  proyecto_id: string;
   proyecto: string;
   categoria: string;
-  estado: "preseleccionado" | "enviado" | "contratado";
+  estado: EstadoProyectoCandidato;
   origen: "manual" | "web_directa";
   fecha: string;
 };

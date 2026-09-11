@@ -232,6 +232,8 @@ function antiguedad(valor: unknown): string {
 
 function valorCelda(c: Candidato, col: ColumnaId) {
   switch (col) {
+    case "foto":
+      return "";
     case "categoria":
       return ETIQUETA_CATEGORIA[c.categoria] ?? c.categoria;
     case "altura_cm":

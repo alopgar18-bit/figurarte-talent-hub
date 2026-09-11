@@ -42,10 +42,13 @@ export const resolverEnlaceCaptacion = createServerFn({ method: "GET" })
     const fila = (filas ?? [])[0];
     if (!fila) return { estado: "no_encontrado" };
 
+    const canal = CANALES.find((c) => c === fila.canal);
+    if (!canal) return { estado: "no_encontrado" };
+
     return {
       estado: "ok",
       convocatoria_id: fila.convocatoria_id,
       categoria: fila.categoria,
-      canal: fila.canal,
+      canal,
     };
   });

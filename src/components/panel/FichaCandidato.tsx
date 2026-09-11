@@ -477,19 +477,42 @@ export function FichaCandidato({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            {CAMPOS_VESTUARIO.map(({ clave, etiqueta }) => (
+            {CAMPOS_VESTUARIO.map(({ clave, etiqueta, tipo }) => (
               <div key={clave} className="space-y-1.5">
                 <Label htmlFor={`v-${clave}`} className="text-xs text-muted-foreground">
                   {etiqueta}
                 </Label>
-                <Input
-                  id={`v-${clave}`}
-                  value={vestuario[clave] ?? ""}
-                  onChange={(e) =>
-                    setVestuario((s) => ({ ...s, [clave]: e.target.value }))
-                  }
-                  placeholder="—"
-                />
+                {tipo === "catalogo" ? (
+                  <Select
+                    value={vestuario[clave] ? vestuario[clave] : SIN_TALLA}
+                    onValueChange={(v) =>
+                      setVestuario((s) => ({ ...s, [clave]: v === SIN_TALLA ? "" : v }))
+                    }
+                  >
+                    <SelectTrigger id={`v-${clave}`} aria-label={etiqueta}>
+                      <SelectValue placeholder="—" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={SIN_TALLA}>Sin especificar</SelectItem>
+                      {TALLAS_CALZADO.map((t) => (
+                        <SelectItem key={t} value={t}>
+                          {t}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input
+                    id={`v-${clave}`}
+                    type={tipo === "numero" ? "number" : "text"}
+                    inputMode={tipo === "numero" ? "numeric" : undefined}
+                    value={vestuario[clave] ?? ""}
+                    onChange={(e) =>
+                      setVestuario((s) => ({ ...s, [clave]: e.target.value }))
+                    }
+                    placeholder="—"
+                  />
+                )}
               </div>
             ))}
           </div>

@@ -57,4 +57,5 @@ export const LIMITES = {
   dossier: { max: 20, ventanaMs: 10 * MINUTO },
   video: { max: 5, ventanaMs: HORA },
   subidaFoto: { max: 20, ventanaMs: HORA },
+  captacion: { max: 30, ventanaMs: 10 * MINUTO },
 } as const;

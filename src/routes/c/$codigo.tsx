@@ -1,32 +1,19 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { supabase } from "@/integrations/supabase/client";
-
-const CANALES = [
-  { campo: "instagram", valor: "instagram" },
-  { campo: "whatsapp", valor: "whatsapp" },
-  { campo: "web", valor: "web" },
-] as const;
+import { resolverEnlaceCaptacion } from "@/lib/captacion.functions";
 
 export const Route = createFileRoute("/c/$codigo")({
   loader: async ({ params }) => {
-    const codigo = params.codigo;
-    const { data } = await supabase
-      .from("convocatorias_rrss")
-      .select("id,categoria,enlaces_por_canal");
+    const resultado = await resolverEnlaceCaptacion({ data: { codigo: params.codigo } });
 
-    for (const fila of data ?? []) {
-      const enlaces = (fila.enlaces_por_canal ?? {}) as Record<string, string | null>;
-      const encontrado = CANALES.find((c) => enlaces[c.campo] === codigo);
-      if (encontrado) {
-        throw redirect({
-          to: "/registro",
-          search: {
-            categoria: fila.categoria,
-            convocatoria: fila.id,
-            canal: encontrado.valor,
-          },
-        });
-      }
+    if (resultado.estado === "ok") {
+      throw redirect({
+        to: "/registro",
+        search: {
+          categoria: resultado.categoria,
+          convocatoria: resultado.convocatoria_id,
+          canal: resultado.canal,
+        },
+      });
     }
     return { valido: false };
   },

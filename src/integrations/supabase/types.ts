@@ -840,6 +840,14 @@ export type Database = {
           proyecto_id: string
         }[]
       }
+      fn_resolver_enlace_captacion: {
+        Args: { _codigo: string }
+        Returns: {
+          canal: string
+          categoria: Database["public"]["Enums"]["categoria_candidato"]
+          convocatoria_id: string
+        }[]
+      }
       mi_cliente_id: { Args: never; Returns: string }
       obtener_rol: {
         Args: { _user_id: string }

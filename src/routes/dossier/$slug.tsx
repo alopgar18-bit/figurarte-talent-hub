@@ -258,6 +258,16 @@ function Diapositiva({
     candidato.peso_kg != null ? `${candidato.peso_kg} kg` : null,
   ].filter(Boolean) as string[];
 
+  const rasgos = (
+    [
+      ["Complexión", candidato.complexion],
+      ["Tipo de pelo", candidato.tipo_pelo],
+      ["Origen / etnia", candidato.origen_etnia],
+    ] as const
+  ).filter(([, v]) => v && v.trim() !== "") as [string, string][];
+
+  const idiomas = candidato.idiomas_detalle.filter((i) => i && (i.idioma ?? "").trim() !== "");
+
   const fotos = candidato.fotos.slice(0, 3);
 
   return (

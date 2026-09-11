@@ -1100,11 +1100,11 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
             onChange={(ev) => setOtroIdioma(ev.target.value)}
           />
         </div>
-        <Campo
-          id="acentos"
+        <MultiSelectChips
           etiqueta="¿Dominas algún acento? ¿Cuáles?"
-          valor={texto(f["acentos"])}
-          onChange={(v) => set("acentos", v)}
+          opciones={ACENTOS}
+          seleccionados={desdeTextoLista(f["acentos"])}
+          onChange={(lista) => set("acentos", aTextoLista(lista))}
         />
       </Seccion>}
 

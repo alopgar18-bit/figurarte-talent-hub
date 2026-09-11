@@ -131,6 +131,21 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   const [dialogoBorrado, setDialogoBorrado] = useState(false);
   const [confirmacion, setConfirmacion] = useState("");
   const [borrando, setBorrando] = useState(false);
+  const [busquedaIdioma, setBusquedaIdioma] = useState("");
+  const [otroIdioma, setOtroIdioma] = useState("");
+
+  const estudios: Estudio[] = Array.isArray(f["estudios"])
+    ? (f["estudios"] as unknown[]).map((e) => {
+        const o = (e ?? {}) as Record<string, unknown>;
+        return { estudio: texto(o["estudio"]), anios: texto(o["anios"]) };
+      })
+    : [];
+  const idiomasDetalle: IdiomaDetalle[] = Array.isArray(f["idiomas_detalle"])
+    ? (f["idiomas_detalle"] as unknown[]).map((e) => {
+        const o = (e ?? {}) as Record<string, unknown>;
+        return { idioma: texto(o["idioma"]), nivel: texto(o["nivel"]) || "Avanzado" };
+      })
+    : [];
 
   async function descargar() {
     setDescargando(true);

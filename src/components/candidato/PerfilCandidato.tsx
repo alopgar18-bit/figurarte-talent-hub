@@ -126,6 +126,7 @@ function Interruptor({
 
 type Estudio = { estudio: string; anios: string };
 type IdiomaDetalle = { idioma: string; nivel: string };
+type Enlace = { url: string; descripcion: string };
 
 const IDIOMAS_LISTA = [
   "Alemán",

@@ -169,7 +169,6 @@ const IDIOMAS_LISTA = [
 const NIVELES_IDIOMA = ["Básico", "Intermedio", "Avanzado", "Nativo o bilingüe"];
 const SIN_VALOR = "__sin_valor__";
 const TALLAS_CHAQUETA = ["S", "M", "L"];
-const TALLAS_CHAQUETA = ["S", "M", "L"];
 const TIPOS_PELO = ["Liso", "Ondulado", "Rizado", "Afro"];
 const COMPLEXIONES = [
   {

@@ -25,27 +25,18 @@ export const obtenerMisProcesos = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("proyecto_candidatos")
-      .select("estado, origen, creado_en, proyectos_casting(nombre, brief_publico)")
+      .select("estado, origen, creado_en, proyectos_casting(nombre)")
       .eq("candidato_id", candidato.id)
       .order("creado_en", { ascending: false });
 
     if (error) throw new Error("No se pudieron cargar tus procesos de casting.");
 
     return (data ?? []).map((fila) => {
-      const proyecto = fila.proyectos_casting as {
-        nombre: string;
-        brief_publico: unknown;
-      } | null;
-      const brief =
-        proyecto?.brief_publico && typeof proyecto.brief_publico === "object"
-          ? (proyecto.brief_publico as Record<string, unknown>)
-          : null;
-      const categoriaProyecto =
-        typeof brief?.["categoria"] === "string" ? brief["categoria"] : candidato.categoria;
+      const proyecto = fila.proyectos_casting as { nombre: string } | null;
 
       return {
         proyecto: proyecto?.nombre ?? "Proceso de casting",
-        categoria: categoriaProyecto,
+        categoria: candidato.categoria,
         estado: fila.estado,
         origen: fila.origen,
         fecha: fila.creado_en,

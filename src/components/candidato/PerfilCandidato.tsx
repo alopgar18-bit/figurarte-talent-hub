@@ -745,8 +745,6 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
             "telefono",
             "ciudad",
             "provincia",
-            "altura_cm",
-            "peso_kg",
           ])
         }
         guardando={guardando === "basicos"}
@@ -756,20 +754,6 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         <Campo id="telefono" etiqueta="Teléfono" valor={texto(f["telefono"])} onChange={(v) => set("telefono", v)} />
         <Campo id="ciudad" etiqueta="Ciudad" valor={texto(f["ciudad"])} onChange={(v) => set("ciudad", v)} />
         <Campo id="provincia" etiqueta="Provincia" valor={texto(f["provincia"])} onChange={(v) => set("provincia", v)} />
-        <Campo
-          id="altura"
-          etiqueta="Altura (cm)"
-          tipo="number"
-          valor={typeof f["altura_cm"] === "string" ? f["altura_cm"] : numero(f["altura_cm"])}
-          onChange={(v) => set("altura_cm", v)}
-        />
-        <Campo
-          id="peso"
-          etiqueta="Peso (kg)"
-          tipo="number"
-          valor={typeof f["peso_kg"] === "string" ? f["peso_kg"] : numero(f["peso_kg"])}
-          onChange={(v) => set("peso_kg", v)}
-        />
       </Seccion>
 
       <Seccion
@@ -799,7 +783,7 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         <Campo id="dni" etiqueta="DNI" valor={texto(f["dni"])} onChange={(v) => set("dni", v)} />
       </Seccion>}
 
-      {seccionActiva === "documentacion" && <Seccion
+      {seccionActiva === "identidad" && <Seccion
         titulo="Identidad y datos fiscales"
         descripcion="Documentación y datos que usamos para contratos y facturación. Solo los ve el equipo de FigurArte."
         onGuardar={() => guardar("identidad_fiscal", CAMPOS_IDENTIDAD_FISCAL)}
@@ -1072,6 +1056,27 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
       )}
 
       {seccionActiva === "fisico" && <><Seccion
+        titulo="Altura y peso"
+        onGuardar={() => guardar("medidas_basicas", ["altura_cm", "peso_kg"])}
+        guardando={guardando === "medidas_basicas"}
+      >
+        <Campo
+          id="altura"
+          etiqueta="Altura (cm)"
+          tipo="number"
+          valor={typeof f["altura_cm"] === "string" ? f["altura_cm"] : numero(f["altura_cm"])}
+          onChange={(v) => set("altura_cm", v)}
+        />
+        <Campo
+          id="peso"
+          etiqueta="Peso (kg)"
+          tipo="number"
+          valor={typeof f["peso_kg"] === "string" ? f["peso_kg"] : numero(f["peso_kg"])}
+          onChange={(v) => set("peso_kg", v)}
+        />
+      </Seccion>
+
+      <Seccion
         titulo="Físico"
         onGuardar={() =>
           guardar("fisico", [

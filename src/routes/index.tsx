@@ -313,6 +313,69 @@ function Home() {
         </div>
       </section>
 
+      {/* Candidatos disponibles */}
+      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+        <p className="text-sm font-semibold uppercase tracking-widest text-primary">
+          Base de datos
+        </p>
+        <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
+          Candidatos disponibles
+        </h2>
+        <p className="mt-4 max-w-2xl text-muted-foreground">
+          Perfiles verificados por nuestro equipo, filtrables por categoría, género y
+          franja de edad.
+        </p>
+        <Link
+          to="/candidatos"
+          className="mt-6 inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+        >
+          Ver candidatos
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </section>
+
+      {/* Programas de TV */}
+      {programas.length > 0 && (
+        <section className="border-y border-border bg-muted/40">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+            <p className="text-sm font-semibold uppercase tracking-widest text-primary">
+              Participa
+            </p>
+            <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
+              Programas de TV
+            </h2>
+            <p className="mt-4 max-w-2xl text-muted-foreground">
+              Apúntate como público o participante en los programas que gestionamos.
+            </p>
+            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {programas.map((programa) => (
+                <a
+                  key={programa.id}
+                  href={programa.link_formulario}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex flex-col overflow-hidden border border-border bg-card transition-colors hover:border-primary"
+                >
+                  {programa.imagen_url && (
+                    <img
+                      src={programa.imagen_url}
+                      alt={programa.nombre}
+                      loading="lazy"
+                      className="aspect-video w-full object-cover"
+                    />
+                  )}
+                  <span className="flex items-center justify-between gap-3 p-4 text-base font-semibold">
+                    {programa.nombre}
+                    <ArrowRight className="h-4 w-4 shrink-0 text-primary" />
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+
       {/* Sobre nosotros */}
       <section id="nosotros" className="bg-brand-charcoal text-brand-cream">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">

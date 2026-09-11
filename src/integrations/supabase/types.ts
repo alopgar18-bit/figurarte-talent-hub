@@ -476,6 +476,51 @@ export type Database = {
         }
         Relationships: []
       }
+      comunicaciones: {
+        Row: {
+          canal: string
+          candidato_id: string | null
+          creado_en: string
+          enviado_en: string
+          id: string
+          proyecto_id: string | null
+          tipo: string
+        }
+        Insert: {
+          canal?: string
+          candidato_id?: string | null
+          creado_en?: string
+          enviado_en?: string
+          id?: string
+          proyecto_id?: string | null
+          tipo: string
+        }
+        Update: {
+          canal?: string
+          candidato_id?: string | null
+          creado_en?: string
+          enviado_en?: string
+          id?: string
+          proyecto_id?: string | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comunicaciones_candidato_id_fkey"
+            columns: ["candidato_id"]
+            isOneToOne: false
+            referencedRelation: "candidatos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comunicaciones_proyecto_id_fkey"
+            columns: ["proyecto_id"]
+            isOneToOne: false
+            referencedRelation: "proyectos_casting"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       convocatorias_rrss: {
         Row: {
           categoria: Database["public"]["Enums"]["categoria_candidato"]
@@ -871,7 +916,12 @@ export type Database = {
       categoria_candidato: "actor" | "modelo" | "figurante" | "casting_plus"
       estado_acceso_invitado: "activo" | "caducado"
       estado_proyecto: "borrador" | "en_curso" | "cerrado"
-      estado_proyecto_candidato: "preseleccionado" | "enviado" | "contratado"
+      estado_proyecto_candidato:
+        | "preseleccionado"
+        | "enviado"
+        | "contratado"
+        | "descartado"
+        | "rechazado_por_candidato"
       estado_solicitud_proyecto: "pendiente" | "revisada" | "convertida"
       origen_proyecto_candidato: "manual" | "web_directa"
       rol_usuario:
@@ -1017,7 +1067,13 @@ export const Constants = {
       categoria_candidato: ["actor", "modelo", "figurante", "casting_plus"],
       estado_acceso_invitado: ["activo", "caducado"],
       estado_proyecto: ["borrador", "en_curso", "cerrado"],
-      estado_proyecto_candidato: ["preseleccionado", "enviado", "contratado"],
+      estado_proyecto_candidato: [
+        "preseleccionado",
+        "enviado",
+        "contratado",
+        "descartado",
+        "rechazado_por_candidato",
+      ],
       estado_solicitud_proyecto: ["pendiente", "revisada", "convertida"],
       origen_proyecto_candidato: ["manual", "web_directa"],
       rol_usuario: [

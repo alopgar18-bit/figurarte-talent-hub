@@ -1,0 +1,1 @@
+ALTER TABLE public.proyectos_casting ADD COLUMN IF NOT EXISTS criterios_busqueda jsonb NOT NULL DEFAULT '{}'::jsonb;

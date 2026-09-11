@@ -245,6 +245,75 @@ export const PAISES = [
   "Otro",
 ];
 
+/** Idiomas del autoservicio del candidato. */
+export const IDIOMAS = [
+  "Alemán",
+  "Árabe",
+  "Bengalí",
+  "Catalán",
+  "Chino cantonés",
+  "Chino mandarín",
+  "Español",
+  "Euskera",
+  "Francés",
+  "Gallego",
+  "Hindi",
+  "Inglés",
+  "Italiano",
+  "Japonés",
+  "Portugués",
+  "Ruso",
+];
+
+/** Habilidades (mismos valores que los chips del autoservicio). */
+export const HABILIDADES = [
+  "Baile / Danza",
+  "Canto",
+  "Circo",
+  "Malabares",
+  "Mago",
+  "Doblador/a",
+  "Locutor/a",
+  "Instrumento de cuerda",
+  "Instrumento de viento",
+  "Instrumento de percusión",
+  "Electrófonos",
+  "Artes marciales",
+  "Deportes",
+  "Especialista / stunt",
+  "Esgrima",
+  "Equitación",
+  "Culturismo",
+  "Tengo un gemelo/a",
+  "Drag queen",
+  "Drag king",
+];
+
+/** Tipos de perfil (mismos valores que los chips del autoservicio). */
+export const TIPOS_PERFIL = [
+  "Actor / actriz",
+  "Ficción",
+  "Publicidad",
+  "Doblaje",
+  "Teatro aficionado",
+  "Modelo",
+  "Bailarín/a",
+  "Cantante pop",
+  "Cantante rock",
+  "Cantante rap / trap",
+  "Cantante jazz",
+  "Ópera / zarzuela",
+  "Influencer",
+  "YouTuber",
+  "Tiktoker",
+  "Presentador/a",
+  "Periodista",
+  "Tertuliano/a",
+  "Colaborador/a",
+  "Especialista",
+  "Casting de calle",
+];
+
 /** Añade un valor ya guardado que no esté en el catálogo, para no perderlo. */
 export function conValorActual(opciones: string[], valor: unknown): string[] {
   const v = typeof valor === "string" ? valor.trim() : "";

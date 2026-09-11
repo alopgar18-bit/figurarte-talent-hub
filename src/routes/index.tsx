@@ -180,7 +180,7 @@ const accesos = [
 ];
 
 function Home() {
-  const { castings } = Route.useLoaderData();
+  const { castings, programas } = Route.useLoaderData();
 
   return (
     <main className="min-h-screen bg-background text-foreground">

@@ -246,6 +246,7 @@ export function FichaCandidato({
   const [cargando, setCargando] = useState(true);
   const [noEncontrado, setNoEncontrado] = useState(false);
   const [guardandoDisponible, setGuardandoDisponible] = useState(false);
+  const [guardandoPublico, setGuardandoPublico] = useState(false);
   const navigate = useNavigate();
   const borrarCandidato = useServerFn(eliminarCandidatoStaff);
   const [dialogoBorrado, setDialogoBorrado] = useState(false);

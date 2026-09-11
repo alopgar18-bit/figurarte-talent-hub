@@ -523,6 +523,18 @@ export function DetalleProyecto({ id }: { id: string }) {
     [asociaciones],
   );
 
+  const criteriosDefinidos = hayCriterios(criterios);
+
+  /** Candidatos de la base que cumplen los criterios y no están ya en el proyecto. */
+  const recomendados = useMemo(() => {
+    if (!criteriosDefinidos) return [];
+    const yaEstan = new Set(asociaciones.map((a) => a.candidato_id));
+    return baseCandidatos
+      .filter((c) => !yaEstan.has(String(c["id"])))
+      .filter((c) => cumpleCriterios(c, criterios))
+      .slice(0, 60);
+  }, [baseCandidatos, asociaciones, criterios, criteriosDefinidos]);
+
   const camposAplicables = useMemo(() => {
     const cat = brief.categoria;
     return campos.filter((c) => !c.categoria_aplicable || c.categoria_aplicable === cat);

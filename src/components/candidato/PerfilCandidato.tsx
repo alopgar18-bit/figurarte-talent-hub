@@ -118,6 +118,85 @@ function Interruptor({
   );
 }
 
+type Estudio = { estudio: string; anios: string };
+type IdiomaDetalle = { idioma: string; nivel: string };
+
+const IDIOMAS_LISTA = [
+  "Alemán",
+  "Árabe",
+  "Bengalí",
+  "Catalán",
+  "Chino cantonés",
+  "Chino mandarín",
+  "Español",
+  "Euskera",
+  "Francés",
+  "Gallego",
+  "Hindi",
+  "Inglés",
+  "Italiano",
+  "Japonés",
+  "Portugués",
+  "Ruso",
+];
+const NIVELES_IDIOMA = ["Básico", "Intermedio", "Avanzado", "Nativo o bilingüe"];
+const SIN_VALOR = "__sin_valor__";
+const TALLAS_CAMISA = ["XS", "S", "M", "L", "XL"];
+const TALLAS_PANTALON = ["36", "38", "40", "42", "44"];
+const TALLAS_CHAQUETA = ["S", "M", "L"];
+const TIPOS_PELO = ["Liso", "Ondulado", "Rizado", "Afro"];
+const COMPLEXIONES = [
+  {
+    valor: "ectomorfo",
+    titulo: "Ectomorfo",
+    descripcion: "Extremidades largas, apariencia joven, le cuesta ganar masa muscular",
+  },
+  {
+    valor: "mesomorfo",
+    titulo: "Mesomorfo",
+    descripcion: "Cuerpo moldeable y atlético, gana y pierde masa con facilidad",
+  },
+  {
+    valor: "endomorfo",
+    titulo: "Endomorfo",
+    descripcion: "Estructura más grande, metabolismo lento, gana musculatura con facilidad",
+  },
+];
+
+function SelectCampo({
+  etiqueta,
+  valor,
+  opciones,
+  onChange,
+}: {
+  etiqueta: string;
+  valor: string;
+  opciones: string[];
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label>{etiqueta}</Label>
+      <Select
+        value={valor === "" ? SIN_VALOR : valor}
+        onValueChange={(v) => onChange(v === SIN_VALOR ? "" : v)}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="No especificado" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={SIN_VALOR}>No especificado</SelectItem>
+          {opciones.map((o) => (
+            <SelectItem key={o} value={o}>
+              {o}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
 export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   const [ficha, setFicha] = useState<Ficha | null>(null);
   const [cargando, setCargando] = useState(true);

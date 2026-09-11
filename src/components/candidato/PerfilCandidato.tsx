@@ -491,7 +491,7 @@ function tieneDato(valor: unknown) {
 const CAMPOS_COMPLETADO: Record<Exclude<SeccionId, "rgpd" | "procesos">, string[]> = {
   basicos: ["nombre", "apellidos", "telefono", "ciudad", "provincia"],
   identidad: ["genero", "fecha_nacimiento", "dni", "nacionalidad"],
-  fisico: ["altura_cm", "peso_kg", "color_piel", "color_cabello", "color_ojos", "talla_camisa", "talla_pantalon", "talla_chaqueta", "talla_zapato"],
+  fisico: ["altura_cm", "peso_kg", "color_piel", "color_cabello", "color_ojos", "talla_camisa", "talla_pantalon", "talla_chaqueta", "talla_calzado"],
   habilidades: ["profesion", "habilidad_especial", "habilidades", "tipo_perfil", "canta", "baila", "hace_deporte"],
   formacion: ["estudios", "idiomas", "idiomas_detalle", "acentos"],
   documentacion: ["pasaporte", "numero_seguridad_social", "carnes_conducir", "tiene_carnet_conducir", "tiene_titulo_patron_barco"],

@@ -190,7 +190,7 @@ export const obtenerDossierPublico = createServerFn({ method: "GET" })
         tipo_pelo: c.tipo_pelo ?? null,
         origen_etnia: c.origen_etnia ?? null,
         talla_chaqueta: c.talla_chaqueta ?? null,
-        talla_zapato: c.talla_zapato ?? null,
+        
         campos: valores[c.id] ?? [],
       }));
 

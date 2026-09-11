@@ -47,6 +47,7 @@ export function CabeceraPublica({ ancho = "max-w-6xl" }: { ancho?: string }) {
               {enlace.etiqueta}
             </Link>
           ))}
+          <EnlaceCandidatos clase="hidden px-3 py-2 sm:inline-block" />
           <Link
             to="/auth"
             className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"

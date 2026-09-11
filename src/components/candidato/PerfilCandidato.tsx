@@ -556,24 +556,23 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         descripcion="Tallas, complexión y otros rasgos que nos piden los clientes."
         onGuardar={() => {
           const activa = f["capacidad_diversa"] === true;
-          if (!activa) {
-            set("capacidad_diversa_tipo", null);
-            set("capacidad_diversa_obs", null);
-          }
-          void guardar("fisico_ampliado", [
-            "talla_camisa",
-            "talla_pantalon",
-            "talla_chaqueta",
-            "talla_zapato",
-            "tipo_pelo",
-            "origen_etnia",
-            "complexion",
-            "albino",
-            "barbudo",
-            "capacidad_diversa",
-            "capacidad_diversa_tipo",
-            "capacidad_diversa_obs",
-          ]);
+          void guardar(
+            "fisico_ampliado",
+            [
+              "talla_camisa",
+              "talla_pantalon",
+              "talla_chaqueta",
+              "talla_zapato",
+              "tipo_pelo",
+              "origen_etnia",
+              "complexion",
+              "albino",
+              "barbudo",
+              "capacidad_diversa",
+              ...(activa ? ["capacidad_diversa_tipo", "capacidad_diversa_obs"] : []),
+            ],
+            activa ? undefined : { capacidad_diversa_tipo: null, capacidad_diversa_obs: null },
+          );
         }}
         guardando={guardando === "fisico_ampliado"}
       >

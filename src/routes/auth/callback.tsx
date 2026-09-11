@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/auth/callback")({
   validateSearch: (search: Record<string, unknown>) => ({
     proyecto_id: typeof search["proyecto_id"] === "string" ? search["proyecto_id"] : undefined,
+    destino: search["destino"] === "solicitar" ? ("solicitar" as const) : undefined,
   }),
   head: () => ({
     meta: [
@@ -41,7 +42,7 @@ function CallbackPage() {
   const navegar = useNavigate();
   const resolver = useServerFn(resolverAcceso);
   const inscribir = useServerFn(inscribirEnCasting);
-  const { proyecto_id: proyectoId } = Route.useSearch();
+  const { proyecto_id: proyectoId, destino } = Route.useSearch();
   const [estado, setEstado] = useState<"cargando" | "listo" | "sin_sesion" | "error">(
     "cargando",
   );
@@ -90,7 +91,10 @@ function CallbackPage() {
             return;
           }
           if (resultado.rol === "cliente") {
-            void navegar({ to: "/portal", replace: true });
+            void navegar({
+              to: destino === "solicitar" ? "/portal/solicitar" : "/portal",
+              replace: true,
+            });
             return;
           }
         }
@@ -116,7 +120,7 @@ function CallbackPage() {
       cancelado = true;
       sub.subscription.unsubscribe();
     };
-  }, [resolver, inscribir, proyectoId]);
+  }, [resolver, inscribir, proyectoId, destino, navegar]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-12">

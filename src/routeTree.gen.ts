@@ -16,6 +16,7 @@ import { Route as PanelRouteRouteImport } from './routes/panel/route'
 import { Route as PortalRouteRouteImport } from './routes/portal/route'
 import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as RegistroRouteImport } from './routes/registro'
+import { Route as RegistroClienteRouteImport } from './routes/registro-cliente'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as CCodigoRouteImport } from './routes/c/$codigo'
@@ -72,6 +73,11 @@ const PrivacidadRoute = PrivacidadRouteImport.update({
 const RegistroRoute = RegistroRouteImport.update({
   id: '/registro',
   path: '/registro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegistroClienteRoute = RegistroClienteRouteImport.update({
+  id: '/registro-cliente',
+  path: '/registro-cliente',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthIndexRoute = AuthIndexRouteImport.update({
@@ -193,6 +199,7 @@ export interface FileRoutesByFullPath {
   '/aviso-legal': typeof AvisoLegalRoute
   '/privacidad': typeof PrivacidadRoute
   '/registro': typeof RegistroRoute
+  '/registro-cliente': typeof RegistroClienteRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/c/$codigo': typeof CCodigoRoute
   '/casting/$slug': typeof CastingSlugRoute
@@ -221,6 +228,7 @@ export interface FileRoutesByTo {
   '/aviso-legal': typeof AvisoLegalRoute
   '/privacidad': typeof PrivacidadRoute
   '/registro': typeof RegistroRoute
+  '/registro-cliente': typeof RegistroClienteRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/c/$codigo': typeof CCodigoRoute
   '/casting/$slug': typeof CastingSlugRoute
@@ -253,6 +261,7 @@ export interface FileRoutesById {
   '/aviso-legal': typeof AvisoLegalRoute
   '/privacidad': typeof PrivacidadRoute
   '/registro': typeof RegistroRoute
+  '/registro-cliente': typeof RegistroClienteRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/c/$codigo': typeof CCodigoRoute
   '/casting/$slug': typeof CastingSlugRoute
@@ -286,6 +295,7 @@ export interface FileRouteTypes {
     | '/aviso-legal'
     | '/privacidad'
     | '/registro'
+    | '/registro-cliente'
     | '/auth/callback'
     | '/c/$codigo'
     | '/casting/$slug'
@@ -314,6 +324,7 @@ export interface FileRouteTypes {
     | '/aviso-legal'
     | '/privacidad'
     | '/registro'
+    | '/registro-cliente'
     | '/auth/callback'
     | '/c/$codigo'
     | '/casting/$slug'
@@ -345,6 +356,7 @@ export interface FileRouteTypes {
     | '/aviso-legal'
     | '/privacidad'
     | '/registro'
+    | '/registro-cliente'
     | '/auth/callback'
     | '/c/$codigo'
     | '/casting/$slug'
@@ -377,6 +389,7 @@ export interface RootRouteChildren {
   AvisoLegalRoute: typeof AvisoLegalRoute
   PrivacidadRoute: typeof PrivacidadRoute
   RegistroRoute: typeof RegistroRoute
+  RegistroClienteRoute: typeof RegistroClienteRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   CCodigoRoute: typeof CCodigoRoute
   CastingSlugRoute: typeof CastingSlugRoute
@@ -433,6 +446,13 @@ declare module '@tanstack/react-router' {
       path: '/registro'
       fullPath: '/registro'
       preLoaderRoute: typeof RegistroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registro-cliente': {
+      id: '/registro-cliente'
+      path: '/registro-cliente'
+      fullPath: '/registro-cliente'
+      preLoaderRoute: typeof RegistroClienteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/': {
@@ -664,6 +684,7 @@ const rootRouteChildren: RootRouteChildren = {
   AvisoLegalRoute: AvisoLegalRoute,
   PrivacidadRoute: PrivacidadRoute,
   RegistroRoute: RegistroRoute,
+  RegistroClienteRoute: RegistroClienteRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   CCodigoRoute: CCodigoRoute,
   CastingSlugRoute: CastingSlugRoute,

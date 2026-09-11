@@ -329,12 +329,19 @@ function Home() {
             nuestro equipo lo revisa para empezar la captación.
           </p>
           <Link
-            to="/auth"
+            to="/registro-cliente"
             className="mt-8 inline-flex items-center gap-2 rounded-md bg-primary px-6 py-3 font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Solicitar un proyecto
             <ArrowRight className="h-5 w-5" />
           </Link>
+          <p className="mt-3 text-sm text-muted-foreground">
+            ¿Ya eres cliente?{" "}
+            <Link to="/auth" className="font-semibold text-primary underline underline-offset-4">
+              Entra en tu área
+            </Link>{" "}
+            y crea el proyecto desde allí.
+          </p>
         </div>
       </section>
 

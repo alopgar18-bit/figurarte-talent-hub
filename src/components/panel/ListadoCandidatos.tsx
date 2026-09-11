@@ -88,6 +88,29 @@ const ETIQUETA_CATEGORIA: Record<string, string> = {
   casting_plus: "Casting Plus",
 };
 
+const GENEROS_BASE = ["Hombre", "Mujer", "Otro"];
+
+const RANGOS_VACIOS = {
+  edadMin: "",
+  edadMax: "",
+  alturaMin: "",
+  alturaMax: "",
+  pesoMin: "",
+  pesoMax: "",
+};
+
+/** Filtros que sobreviven a la navegación listado → ficha → listado. */
+const filtrosGuardados = {
+  categorias: [] as string[],
+  disponibleSi: false,
+  disponibleNo: false,
+  busqueda: "",
+  provinciasSel: [] as string[],
+  generosSel: [] as string[],
+  idiomas: "",
+  rangos: { ...RANGOS_VACIOS },
+};
+
 const COLOR_CATEGORIA: Record<string, string> = {
   actor: "bg-primary/15 text-primary border-primary/30",
   modelo: "bg-[oklch(0.35_0.15_270_/_0.15)] text-[oklch(0.42_0.17_270)] border-[oklch(0.42_0.17_270_/_0.3)]",
@@ -196,22 +219,27 @@ export function ListadoCandidatos() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [categorias, setCategorias] = useState<string[]>([]);
-  const [disponibleSi, setDisponibleSi] = useState(false);
-  const [disponibleNo, setDisponibleNo] = useState(false);
-  const [busqueda, setBusqueda] = useState("");
+  const [categorias, setCategorias] = useState<string[]>(filtrosGuardados.categorias);
+  const [disponibleSi, setDisponibleSi] = useState(filtrosGuardados.disponibleSi);
+  const [disponibleNo, setDisponibleNo] = useState(filtrosGuardados.disponibleNo);
+  const [busqueda, setBusqueda] = useState(filtrosGuardados.busqueda);
   const [avanzados, setAvanzados] = useState(false);
-  const [provinciasSel, setProvinciasSel] = useState<string[]>([]);
-  const [generosSel, setGenerosSel] = useState<string[]>([]);
-  const [idiomas, setIdiomas] = useState("");
-  const [rangos, setRangos] = useState({
-    edadMin: "",
-    edadMax: "",
-    alturaMin: "",
-    alturaMax: "",
-    pesoMin: "",
-    pesoMax: "",
-  });
+  const [provinciasSel, setProvinciasSel] = useState<string[]>(filtrosGuardados.provinciasSel);
+  const [generosSel, setGenerosSel] = useState<string[]>(filtrosGuardados.generosSel);
+  const [idiomas, setIdiomas] = useState(filtrosGuardados.idiomas);
+  const [rangos, setRangos] = useState(filtrosGuardados.rangos);
+
+  // Al desmontar (navegar a la ficha), los filtros quedan guardados y se restauran al volver.
+  useEffect(() => {
+    filtrosGuardados.categorias = categorias;
+    filtrosGuardados.disponibleSi = disponibleSi;
+    filtrosGuardados.disponibleNo = disponibleNo;
+    filtrosGuardados.busqueda = busqueda;
+    filtrosGuardados.provinciasSel = provinciasSel;
+    filtrosGuardados.generosSel = generosSel;
+    filtrosGuardados.idiomas = idiomas;
+    filtrosGuardados.rangos = rangos;
+  }, [categorias, disponibleSi, disponibleNo, busqueda, provinciasSel, generosSel, idiomas, rangos]);
 
   const [visibles, setVisibles] = useState<ColumnaId[]>(
     COLUMNAS.filter((c) => c.pordefecto).map((c) => c.id),
@@ -248,7 +276,7 @@ export function ListadoCandidatos() {
   }, [candidatos]);
 
   const generos = useMemo(() => {
-    const set = new Set<string>();
+    const set = new Set<string>(GENEROS_BASE);
     for (const c of candidatos) {
       const g = c["genero"];
       if (typeof g === "string" && g.trim()) set.add(g.trim());

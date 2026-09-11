@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import { asignarCandidatosAProyecto } from "@/lib/rgpd.functions";
 import { registrarAccesoStaff } from "@/lib/registro-accesos.functions";
+import { firmarFotosStaff } from "@/lib/fotos.functions";
 
 
 type Brief = {
@@ -161,6 +162,28 @@ export function DetalleProyecto({ id }: { id: string }) {
   const [dialogoDossier, setDialogoDossier] = useState(false);
   const asignar = useServerFn(asignarCandidatosAProyecto);
   const anotarAccesoStaff = useServerFn(registrarAccesoStaff);
+  const firmarFotos = useServerFn(firmarFotosStaff);
+
+  /** Las fotos se guardan como rutas privadas: hay que firmarlas para poder verlas. */
+  async function conFotosFirmadas(lista: Candidato[]): Promise<Candidato[]> {
+    const rutas = lista
+      .map((c) => c.fotos?.[0])
+      .filter(
+        (f): f is string =>
+          !!f && !/^https?:\/\//i.test(f) && !f.startsWith("placeholder://"),
+      );
+    if (rutas.length === 0) return lista;
+    try {
+      const mapa = await firmarFotos({ data: { rutas } });
+      return lista.map((c) => {
+        const primera = c.fotos?.[0];
+        if (!primera || !mapa[primera]) return c;
+        return { ...c, fotos: [mapa[primera], ...c.fotos.slice(1)] };
+      });
+    } catch {
+      return lista;
+    }
+  }
 
   const [seleccionDossier, setSeleccionDossier] = useState<Record<string, boolean>>({});
   const [caducidadDossier, setCaducidadDossier] = useState("");
@@ -255,8 +278,9 @@ export function DetalleProyecto({ id }: { id: string }) {
         .from("candidatos")
         .select("id,codigo,nombre,categoria,altura_cm,peso_kg,edad,provincia,fotos")
         .in("id", ids);
+      const firmados = await conFotosFirmadas((cands ?? []) as Candidato[]);
       const mapa: Record<string, Candidato> = {};
-      for (const c of (cands ?? []) as Candidato[]) mapa[c.id] = c;
+      for (const c of firmados) mapa[c.id] = c;
       setCandidatos(mapa);
     } else {
       setCandidatos({});
@@ -396,7 +420,7 @@ export function DetalleProyecto({ id }: { id: string }) {
       .select("id,codigo,nombre,categoria,altura_cm,peso_kg,edad,provincia,fotos")
       .or(`nombre.ilike.${patron},codigo.ilike.${patron}`)
       .limit(20);
-    setResultados((data ?? []) as Candidato[]);
+    setResultados(await conFotosFirmadas((data ?? []) as Candidato[]));
     setBuscando(false);
   }
 
@@ -752,6 +776,7 @@ export function DetalleProyecto({ id }: { id: string }) {
                   <Link
                     to="/panel/candidatos/$id"
                     params={{ id: a.candidato_id }}
+                    search={{ desde: id }}
                     className="flex items-start gap-3 transition-opacity hover:opacity-80"
                   >
                     {c.fotos?.[0] ? (

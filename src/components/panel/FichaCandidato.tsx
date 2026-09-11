@@ -147,7 +147,13 @@ function Dato({
   );
 }
 
-export function FichaCandidato({ id }: { id: string }) {
+export function FichaCandidato({
+  id,
+  volverAProyectoId,
+}: {
+  id: string;
+  volverAProyectoId?: string | undefined;
+}) {
   const obtenerFicha = useServerFn(obtenerFichaCandidatoStaff);
   const [candidato, setCandidato] = useState<CandidatoCompleto | null>(null);
   const [castings, setCastings] = useState<CastingAsociado[]>([]);
@@ -271,9 +277,19 @@ export function FichaCandidato({ id }: { id: string }) {
         <p className="text-sm text-muted-foreground">
           Es posible que la ficha se haya eliminado o que el enlace no sea correcto.
         </p>
-        <Link to="/panel/candidatos" className="text-sm text-primary underline underline-offset-4">
-          ← Volver al listado
-        </Link>
+        {volverAProyectoId ? (
+          <Link
+            to="/panel/proyectos/$id"
+            params={{ id: volverAProyectoId }}
+            className="text-sm text-primary underline underline-offset-4"
+          >
+            ← Volver al proyecto
+          </Link>
+        ) : (
+          <Link to="/panel/candidatos" className="text-sm text-primary underline underline-offset-4">
+            ← Volver al listado
+          </Link>
+        )}
       </div>
     );
   }
@@ -286,12 +302,22 @@ export function FichaCandidato({ id }: { id: string }) {
 
   return (
     <div className="space-y-6">
-      <Link
-        to="/panel/candidatos"
-        className="inline-block text-sm text-muted-foreground underline underline-offset-4"
-      >
-        ← Volver al listado
-      </Link>
+      {volverAProyectoId ? (
+        <Link
+          to="/panel/proyectos/$id"
+          params={{ id: volverAProyectoId }}
+          className="inline-block text-sm text-muted-foreground underline underline-offset-4"
+        >
+          ← Volver al proyecto
+        </Link>
+      ) : (
+        <Link
+          to="/panel/candidatos"
+          className="inline-block text-sm text-muted-foreground underline underline-offset-4"
+        >
+          ← Volver al listado
+        </Link>
+      )}
 
       {/* Cabecera */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

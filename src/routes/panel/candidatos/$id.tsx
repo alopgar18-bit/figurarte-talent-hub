@@ -1,7 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 import { FichaCandidato } from "@/components/panel/FichaCandidato";
 
+const busquedaSchema = z.object({
+  /** Id del proyecto desde el que se abrió la ficha, para poder volver a él. */
+  desde: z.string().uuid().optional(),
+});
+
 export const Route = createFileRoute("/panel/candidatos/$id")({
+  validateSearch: (search: Record<string, unknown>) => busquedaSchema.parse(search),
   head: () => ({
     meta: [
       { title: "Ficha de candidato | Panel FigurArte" },
@@ -18,5 +25,6 @@ export const Route = createFileRoute("/panel/candidatos/$id")({
 
 function FichaCandidatoRoute() {
   const { id } = Route.useParams();
-  return <FichaCandidato id={id} />;
+  const { desde } = Route.useSearch();
+  return <FichaCandidato id={id} volverAProyectoId={desde} />;
 }

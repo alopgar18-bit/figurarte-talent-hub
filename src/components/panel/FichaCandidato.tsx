@@ -152,7 +152,7 @@ export function FichaCandidato({
   volverAProyectoId,
 }: {
   id: string;
-  volverAProyectoId?: string;
+  volverAProyectoId?: string | undefined;
 }) {
   const obtenerFicha = useServerFn(obtenerFichaCandidatoStaff);
   const [candidato, setCandidato] = useState<CandidatoCompleto | null>(null);

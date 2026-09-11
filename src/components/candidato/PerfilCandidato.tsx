@@ -452,6 +452,11 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
       }
       setFicha(data as unknown as Ficha);
       setF(data as unknown as Record<string, unknown>);
+      setOtrasResidenciasActivo(
+        listaTextos((data as unknown as Record<string, unknown>)["otras_residencias"]).some(
+          (x) => x.trim() !== "",
+        ),
+      );
       setCargando(false);
     })();
     return () => {

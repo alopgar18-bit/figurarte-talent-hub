@@ -3,8 +3,18 @@ import { z } from "zod";
 
 const schema = z.object({ codigo: z.string().min(3).max(40) });
 
+type CategoriaCandidato = "actor" | "modelo" | "figurante" | "casting_plus";
+type CanalCaptacion = "instagram" | "whatsapp" | "web";
+
+const CANALES: readonly CanalCaptacion[] = ["instagram", "whatsapp", "web"];
+
 export type EnlaceCaptacion =
-  | { estado: "ok"; convocatoria_id: string; categoria: string; canal: string }
+  | {
+      estado: "ok";
+      convocatoria_id: string;
+      categoria: CategoriaCandidato;
+      canal: CanalCaptacion;
+    }
   | { estado: "no_encontrado" }
   | { estado: "limite" };
 

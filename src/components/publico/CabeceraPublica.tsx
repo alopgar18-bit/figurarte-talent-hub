@@ -71,6 +71,7 @@ export function CabeceraPublica({ ancho = "max-w-6xl" }: { ancho?: string }) {
             {enlace.etiqueta}
           </Link>
         ))}
+        <EnlaceCandidatos clase="whitespace-nowrap px-3 py-1.5 sm:hidden" />
       </nav>
     </header>
   );

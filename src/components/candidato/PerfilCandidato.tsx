@@ -368,10 +368,12 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   const [busquedaIdioma, setBusquedaIdioma] = useState("");
   const [otroIdioma, setOtroIdioma] = useState("");
   const [busquedaHabilidad, setBusquedaHabilidad] = useState("");
+  const [otrasResidenciasActivo, setOtrasResidenciasActivo] = useState(false);
 
   const habilidadesSel = listaTextos(f["habilidades"]);
   const tipoPerfilSel = listaTextos(f["tipo_perfil"]);
   const carnesSel = listaTextos(f["carnes_conducir"]);
+  const otrasResidencias = listaTextos(f["otras_residencias"]);
 
   const estudios: Estudio[] = Array.isArray(f["estudios"])
     ? (f["estudios"] as unknown[]).map((e) => {
@@ -383,6 +385,12 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
     ? (f["idiomas_detalle"] as unknown[]).map((e) => {
         const o = (e ?? {}) as Record<string, unknown>;
         return { idioma: texto(o["idioma"]), nivel: texto(o["nivel"]) || "Avanzado" };
+      })
+    : [];
+  const enlaces: Enlace[] = Array.isArray(f["enlaces"])
+    ? (f["enlaces"] as unknown[]).map((e) => {
+        const o = (e ?? {}) as Record<string, unknown>;
+        return { url: texto(o["url"]), descripcion: texto(o["descripcion"]) };
       })
     : [];
 

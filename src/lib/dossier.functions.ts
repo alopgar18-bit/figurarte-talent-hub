@@ -11,9 +11,9 @@ export type CandidatoDossier = {
   peso_kg: number | null;
   fotos: string[];
   talla_camisa: string | null;
-  anchura_pecho: string | null;
+  anchura_pecho: number | null;
   talla_pantalon: string | null;
-  anchura_cintura: string | null;
+  anchura_cintura: number | null;
   talla_calzado: string | null;
   tipo_perfil: string[];
   habilidades: string[];

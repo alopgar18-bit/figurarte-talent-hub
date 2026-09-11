@@ -420,7 +420,7 @@ export function DetalleProyecto({ id }: { id: string }) {
       .select("id,codigo,nombre,categoria,altura_cm,peso_kg,edad,provincia,fotos")
       .or(`nombre.ilike.${patron},codigo.ilike.${patron}`)
       .limit(20);
-    setResultados((data ?? []) as Candidato[]);
+    setResultados(await conFotosFirmadas((data ?? []) as Candidato[]));
     setBuscando(false);
   }
 

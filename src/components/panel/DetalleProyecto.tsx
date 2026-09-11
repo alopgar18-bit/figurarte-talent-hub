@@ -776,6 +776,7 @@ export function DetalleProyecto({ id }: { id: string }) {
                   <Link
                     to="/panel/candidatos/$id"
                     params={{ id: a.candidato_id }}
+                    search={{ desde: id }}
                     className="flex items-start gap-3 transition-opacity hover:opacity-80"
                   >
                     {c.fotos?.[0] ? (

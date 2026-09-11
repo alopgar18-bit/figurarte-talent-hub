@@ -10,6 +10,13 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -111,6 +118,85 @@ function Interruptor({
   );
 }
 
+type Estudio = { estudio: string; anios: string };
+type IdiomaDetalle = { idioma: string; nivel: string };
+
+const IDIOMAS_LISTA = [
+  "Alemán",
+  "Árabe",
+  "Bengalí",
+  "Catalán",
+  "Chino cantonés",
+  "Chino mandarín",
+  "Español",
+  "Euskera",
+  "Francés",
+  "Gallego",
+  "Hindi",
+  "Inglés",
+  "Italiano",
+  "Japonés",
+  "Portugués",
+  "Ruso",
+];
+const NIVELES_IDIOMA = ["Básico", "Intermedio", "Avanzado", "Nativo o bilingüe"];
+const SIN_VALOR = "__sin_valor__";
+const TALLAS_CAMISA = ["XS", "S", "M", "L", "XL"];
+const TALLAS_PANTALON = ["36", "38", "40", "42", "44"];
+const TALLAS_CHAQUETA = ["S", "M", "L"];
+const TIPOS_PELO = ["Liso", "Ondulado", "Rizado", "Afro"];
+const COMPLEXIONES = [
+  {
+    valor: "ectomorfo",
+    titulo: "Ectomorfo",
+    descripcion: "Extremidades largas, apariencia joven, le cuesta ganar masa muscular",
+  },
+  {
+    valor: "mesomorfo",
+    titulo: "Mesomorfo",
+    descripcion: "Cuerpo moldeable y atlético, gana y pierde masa con facilidad",
+  },
+  {
+    valor: "endomorfo",
+    titulo: "Endomorfo",
+    descripcion: "Estructura más grande, metabolismo lento, gana musculatura con facilidad",
+  },
+];
+
+function SelectCampo({
+  etiqueta,
+  valor,
+  opciones,
+  onChange,
+}: {
+  etiqueta: string;
+  valor: string;
+  opciones: string[];
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label>{etiqueta}</Label>
+      <Select
+        value={valor === "" ? SIN_VALOR : valor}
+        onValueChange={(v) => onChange(v === SIN_VALOR ? "" : v)}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="No especificado" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={SIN_VALOR}>No especificado</SelectItem>
+          {opciones.map((o) => (
+            <SelectItem key={o} value={o}>
+              {o}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
 export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   const [ficha, setFicha] = useState<Ficha | null>(null);
   const [cargando, setCargando] = useState(true);
@@ -124,6 +210,21 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   const [dialogoBorrado, setDialogoBorrado] = useState(false);
   const [confirmacion, setConfirmacion] = useState("");
   const [borrando, setBorrando] = useState(false);
+  const [busquedaIdioma, setBusquedaIdioma] = useState("");
+  const [otroIdioma, setOtroIdioma] = useState("");
+
+  const estudios: Estudio[] = Array.isArray(f["estudios"])
+    ? (f["estudios"] as unknown[]).map((e) => {
+        const o = (e ?? {}) as Record<string, unknown>;
+        return { estudio: texto(o["estudio"]), anios: texto(o["anios"]) };
+      })
+    : [];
+  const idiomasDetalle: IdiomaDetalle[] = Array.isArray(f["idiomas_detalle"])
+    ? (f["idiomas_detalle"] as unknown[]).map((e) => {
+        const o = (e ?? {}) as Record<string, unknown>;
+        return { idioma: texto(o["idioma"]), nivel: texto(o["nivel"]) || "Avanzado" };
+      })
+    : [];
 
   async function descargar() {
     setDescargando(true);
@@ -217,7 +318,11 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
     setF((prev) => ({ ...prev, [campo]: valor }));
   }
 
-  async function guardar(seccion: string, campos: string[]) {
+  async function guardar(
+    seccion: string,
+    campos: string[],
+    extra?: Record<string, unknown>,
+  ) {
     setGuardando(seccion);
     const payload: Record<string, unknown> = {};
     for (const c of campos) {
@@ -225,6 +330,7 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
       if (typeof v === "string") payload[c] = v.trim() === "" ? null : v.trim();
       else payload[c] = v ?? null;
     }
+    if (extra) Object.assign(payload, extra);
     if (typeof payload["altura_cm"] === "string")
       payload["altura_cm"] = Number(payload["altura_cm"]) || null;
     if (typeof payload["peso_kg"] === "string")
@@ -340,6 +446,165 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         <Campo id="dni" etiqueta="DNI" valor={texto(f["dni"])} onChange={(v) => set("dni", v)} />
       </Seccion>
 
+      <Seccion
+        titulo="Formación e idiomas"
+        descripcion="Tu formación y los idiomas que hablas, con su nivel."
+        onGuardar={() => {
+          const otro = otroIdioma.trim();
+          const listaIdiomas = otro
+            ? [...idiomasDetalle, { idioma: otro, nivel: "No especificado" }]
+            : idiomasDetalle;
+          void guardar("formacion", ["acentos"], {
+            estudios: estudios.filter((e) => e.estudio.trim() !== "" || e.anios.trim() !== ""),
+            idiomas_detalle: listaIdiomas,
+          });
+        }}
+        guardando={guardando === "formacion"}
+      >
+        <div className="space-y-3 sm:col-span-2">
+          <Label>Estudios</Label>
+          {estudios.length === 0 && (
+            <p className="text-sm text-muted-foreground">Todavía no has añadido ningún estudio.</p>
+          )}
+          {estudios.map((e, i) => (
+            <div key={i} className="flex flex-col gap-2 sm:flex-row">
+              <Input
+                className="sm:flex-1"
+                placeholder="Estudio"
+                value={e.estudio}
+                onChange={(ev) =>
+                  set(
+                    "estudios",
+                    estudios.map((x, j) => (j === i ? { ...x, estudio: ev.target.value } : x)),
+                  )
+                }
+              />
+              <Input
+                className="sm:w-40"
+                placeholder="Años cursados"
+                value={e.anios}
+                onChange={(ev) =>
+                  set(
+                    "estudios",
+                    estudios.map((x, j) => (j === i ? { ...x, anios: ev.target.value } : x)),
+                  )
+                }
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="sm:w-auto"
+                onClick={() => set("estudios", estudios.filter((_, j) => j !== i))}
+              >
+                Quitar
+              </Button>
+            </div>
+          ))}
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={() => set("estudios", [...estudios, { estudio: "", anios: "" }])}
+          >
+            + Añadir estudio
+          </Button>
+        </div>
+
+        <div className="space-y-3 sm:col-span-2">
+          <Label htmlFor="buscar_idioma">Idiomas</Label>
+          <Input
+            id="buscar_idioma"
+            placeholder="Buscar idioma..."
+            value={busquedaIdioma}
+            onChange={(ev) => setBusquedaIdioma(ev.target.value)}
+          />
+          <div className="flex flex-wrap gap-2">
+            {IDIOMAS_LISTA.filter((i) =>
+              i.toLowerCase().includes(busquedaIdioma.trim().toLowerCase()),
+            ).map((idioma) => {
+              const activo = idiomasDetalle.some((x) => x.idioma === idioma);
+              return (
+                <button
+                  key={idioma}
+                  type="button"
+                  onClick={() =>
+                    set(
+                      "idiomas_detalle",
+                      activo
+                        ? idiomasDetalle.filter((x) => x.idioma !== idioma)
+                        : [...idiomasDetalle, { idioma, nivel: "Avanzado" }],
+                    )
+                  }
+                  className={`border px-3 py-1 text-sm transition-colors ${
+                    activo
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-background hover:bg-muted/60"
+                  }`}
+                >
+                  {idioma}
+                </button>
+              );
+            })}
+          </div>
+
+          {idiomasDetalle.length > 0 && (
+            <div className="space-y-2">
+              {idiomasDetalle.map((x, i) => (
+                <div key={x.idioma + i} className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <span className="text-sm sm:w-40">{x.idioma}</span>
+                  <div className="sm:w-56">
+                    <Select
+                      value={x.nivel}
+                      onValueChange={(v) =>
+                        set(
+                          "idiomas_detalle",
+                          idiomasDetalle.map((y, j) => (j === i ? { ...y, nivel: v } : y)),
+                        )
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Nivel" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {NIVELES_IDIOMA.map((n) => (
+                          <SelectItem key={n} value={n}>
+                            {n}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      set("idiomas_detalle", idiomasDetalle.filter((_, j) => j !== i))
+                    }
+                  >
+                    Quitar
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="otro_idioma">Otro idioma no listado</Label>
+          <Input
+            id="otro_idioma"
+            value={otroIdioma}
+            onChange={(ev) => setOtroIdioma(ev.target.value)}
+          />
+        </div>
+        <Campo
+          id="acentos"
+          etiqueta="¿Dominas algún acento? ¿Cuáles?"
+          valor={texto(f["acentos"])}
+          onChange={(v) => set("acentos", v)}
+        />
+      </Seccion>
+
       {menor && (
         <Seccion
           titulo="Tutor legal"
@@ -383,6 +648,122 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         <Interruptor etiqueta="Tatuajes" valor={f["tiene_tatuajes"] === true} onChange={(v) => set("tiene_tatuajes", v)} />
         <Interruptor etiqueta="Cicatrices" valor={f["tiene_cicatrices"] === true} onChange={(v) => set("tiene_cicatrices", v)} />
         <Interruptor etiqueta="Ortodoncia" valor={f["tiene_ortodoncia"] === true} onChange={(v) => set("tiene_ortodoncia", v)} />
+      </Seccion>
+
+      <Seccion
+        titulo="Físico ampliado"
+        descripcion="Tallas, complexión y otros rasgos que nos piden los clientes."
+        onGuardar={() => {
+          const activa = f["capacidad_diversa"] === true;
+          void guardar(
+            "fisico_ampliado",
+            [
+              "talla_camisa",
+              "talla_pantalon",
+              "talla_chaqueta",
+              "talla_zapato",
+              "tipo_pelo",
+              "origen_etnia",
+              "complexion",
+              "albino",
+              "barbudo",
+              "capacidad_diversa",
+              ...(activa ? ["capacidad_diversa_tipo", "capacidad_diversa_obs"] : []),
+            ],
+            activa ? undefined : { capacidad_diversa_tipo: null, capacidad_diversa_obs: null },
+          );
+        }}
+        guardando={guardando === "fisico_ampliado"}
+      >
+        <SelectCampo
+          etiqueta="Talla de camisa"
+          valor={texto(f["talla_camisa"])}
+          opciones={TALLAS_CAMISA}
+          onChange={(v) => set("talla_camisa", v)}
+        />
+        <SelectCampo
+          etiqueta="Talla de pantalón"
+          valor={texto(f["talla_pantalon"])}
+          opciones={TALLAS_PANTALON}
+          onChange={(v) => set("talla_pantalon", v)}
+        />
+        <SelectCampo
+          etiqueta="Talla de chaqueta"
+          valor={texto(f["talla_chaqueta"])}
+          opciones={TALLAS_CHAQUETA}
+          onChange={(v) => set("talla_chaqueta", v)}
+        />
+        <Campo
+          id="talla_zapato"
+          etiqueta="Talla de zapato"
+          valor={texto(f["talla_zapato"])}
+          onChange={(v) => set("talla_zapato", v)}
+        />
+        <SelectCampo
+          etiqueta="Tipo de pelo"
+          valor={texto(f["tipo_pelo"])}
+          opciones={TIPOS_PELO}
+          onChange={(v) => set("tipo_pelo", v)}
+        />
+        <Campo
+          id="origen_etnia"
+          etiqueta="Origen / etnia"
+          valor={texto(f["origen_etnia"])}
+          onChange={(v) => set("origen_etnia", v)}
+        />
+
+        <div className="space-y-2 sm:col-span-2">
+          <Label>Complexión</Label>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {COMPLEXIONES.map((c) => {
+              const activa = texto(f["complexion"]) === c.valor;
+              return (
+                <button
+                  key={c.valor}
+                  type="button"
+                  onClick={() => set("complexion", activa ? null : c.valor)}
+                  className={`border p-3 text-left transition-colors ${
+                    activa
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-background hover:bg-muted/60"
+                  }`}
+                >
+                  <span className="block text-sm font-bold tracking-tight">{c.titulo}</span>
+                  <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
+                    {c.descripcion}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <Interruptor etiqueta="Albino" valor={f["albino"] === true} onChange={(v) => set("albino", v)} />
+        <Interruptor etiqueta="Barbudo" valor={f["barbudo"] === true} onChange={(v) => set("barbudo", v)} />
+        <Interruptor
+          etiqueta="Capacidad diversa"
+          valor={f["capacidad_diversa"] === true}
+          onChange={(v) => set("capacidad_diversa", v)}
+        />
+
+        {f["capacidad_diversa"] === true && (
+          <>
+            <Campo
+              id="capacidad_diversa_tipo"
+              etiqueta="Tipo de capacidad diversa"
+              valor={texto(f["capacidad_diversa_tipo"])}
+              onChange={(v) => set("capacidad_diversa_tipo", v)}
+            />
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="capacidad_diversa_obs">Observaciones</Label>
+              <Textarea
+                id="capacidad_diversa_obs"
+                value={texto(f["capacidad_diversa_obs"])}
+                onChange={(e) => set("capacidad_diversa_obs", e.target.value)}
+              />
+            </div>
+          </>
+        )}
       </Seccion>
 
       <Seccion

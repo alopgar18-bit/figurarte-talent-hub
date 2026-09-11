@@ -375,6 +375,8 @@ export function Administracion({ rol, email }: { rol: string; email: string }) {
         </div>
       </section>
 
+      <ProgramasTv esAdmin={esAdmin} />
+
       <RegistroAccesos />
 
 

@@ -236,10 +236,13 @@ function Dato({
 export function FichaCandidato({
   id,
   volverAProyectoId,
+  rol,
 }: {
   id: string;
   volverAProyectoId?: string | undefined;
+  rol?: string | undefined;
 }) {
+  const esAdmin = rol === "admin_figurarte" || rol === "superadmin";
   const obtenerFicha = useServerFn(obtenerFichaCandidatoStaff);
   const [candidato, setCandidato] = useState<CandidatoCompleto | null>(null);
   const [castings, setCastings] = useState<CastingAsociado[]>([]);

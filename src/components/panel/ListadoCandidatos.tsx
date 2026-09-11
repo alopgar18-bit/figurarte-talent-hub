@@ -99,6 +99,67 @@ function hoy() {
   return new Date().toISOString().slice(0, 10);
 }
 
+/** Filtro desplegable con selección múltiple (casillas). */
+function MultiSelect({
+  etiqueta,
+  opciones,
+  seleccionados,
+  alCambiar,
+}: {
+  etiqueta: string;
+  opciones: { valor: string; etiqueta: string }[];
+  seleccionados: string[];
+  alCambiar: (valores: string[]) => void;
+}) {
+  function alternar(valor: string) {
+    alCambiar(
+      seleccionados.includes(valor)
+        ? seleccionados.filter((v) => v !== valor)
+        : [...seleccionados, valor],
+    );
+  }
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" className="justify-between">
+          {etiqueta}
+          {seleccionados.length > 0 && (
+            <Badge variant="secondary" className="ml-1">
+              {seleccionados.length}
+            </Badge>
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        <DropdownMenuLabel>{etiqueta}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {opciones.map((o) => (
+          <DropdownMenuCheckboxItem
+            key={o.valor}
+            checked={seleccionados.includes(o.valor)}
+            onCheckedChange={() => alternar(o.valor)}
+            onSelect={(e) => e.preventDefault()}
+          >
+            {o.etiqueta}
+          </DropdownMenuCheckboxItem>
+        ))}
+        {seleccionados.length > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuCheckboxItem
+              checked={false}
+              onCheckedChange={() => alCambiar([])}
+              onSelect={(e) => e.preventDefault()}
+            >
+              Limpiar selección
+            </DropdownMenuCheckboxItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 /** Tiempo transcurrido desde el alta, para vigilar la retención de datos. */
 function antiguedad(valor: unknown): string {
   if (typeof valor !== "string") return "—";
@@ -135,12 +196,13 @@ export function ListadoCandidatos() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [categoria, setCategoria] = useState("todas");
-  const [disponibilidad, setDisponibilidad] = useState("todos");
+  const [categorias, setCategorias] = useState<string[]>([]);
+  const [disponibleSi, setDisponibleSi] = useState(false);
+  const [disponibleNo, setDisponibleNo] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [avanzados, setAvanzados] = useState(false);
-  const [provincia, setProvincia] = useState("todas");
-  const [genero, setGenero] = useState("todos");
+  const [provinciasSel, setProvinciasSel] = useState<string[]>([]);
+  const [generosSel, setGenerosSel] = useState<string[]>([]);
   const [idiomas, setIdiomas] = useState("");
   const [rangos, setRangos] = useState({
     edadMin: "",
@@ -208,12 +270,14 @@ export function ListadoCandidatos() {
       return true;
     };
     return candidatos.filter((c) => {
-      if (categoria !== "todas" && c.categoria !== categoria) return false;
-      if (disponibilidad === "disponibles" && !c.disponible) return false;
-      if (disponibilidad === "no_disponibles" && c.disponible) return false;
+      if (categorias.length > 0 && !categorias.includes(c.categoria)) return false;
+      if (disponibleSi && !disponibleNo && !c.disponible) return false;
+      if (disponibleNo && !disponibleSi && c.disponible) return false;
       if (q && !`${c.nombre} ${c.codigo}`.toLowerCase().includes(q)) return false;
-      if (provincia !== "todas" && c.provincia !== provincia) return false;
-      if (genero !== "todos" && c["genero"] !== genero) return false;
+      if (provinciasSel.length > 0 && (!c.provincia || !provinciasSel.includes(c.provincia)))
+        return false;
+      if (generosSel.length > 0 && !generosSel.includes(String(c["genero"] ?? "")))
+        return false;
       if (
         qIdiomas &&
         !String(c["idiomas"] ?? "")
@@ -228,11 +292,12 @@ export function ListadoCandidatos() {
     });
   }, [
     candidatos,
-    categoria,
-    disponibilidad,
+    categorias,
+    disponibleSi,
+    disponibleNo,
     busqueda,
-    provincia,
-    genero,
+    provinciasSel,
+    generosSel,
     idiomas,
     rangos,
   ]);
@@ -330,29 +395,30 @@ export function ListadoCandidatos() {
             aria-label="Buscar candidatos"
           />
         </div>
-        <Select value={categoria} onValueChange={setCategoria}>
-          <SelectTrigger className="w-[170px]" aria-label="Categoría">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todas">Todas las categorías</SelectItem>
-            {Object.entries(ETIQUETA_CATEGORIA).map(([v, l]) => (
-              <SelectItem key={v} value={v}>
-                {l}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={disponibilidad} onValueChange={setDisponibilidad}>
-          <SelectTrigger className="w-[170px]" aria-label="Disponibilidad">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos</SelectItem>
-            <SelectItem value="disponibles">Disponibles</SelectItem>
-            <SelectItem value="no_disponibles">No disponibles</SelectItem>
-          </SelectContent>
-        </Select>
+        <MultiSelect
+          etiqueta="Categoría"
+          opciones={Object.entries(ETIQUETA_CATEGORIA).map(([valor, etiqueta]) => ({
+            valor,
+            etiqueta,
+          }))}
+          seleccionados={categorias}
+          alCambiar={setCategorias}
+        />
+        <MultiSelect
+          etiqueta="Disponibilidad"
+          opciones={[
+            { valor: "si", etiqueta: "Disponibles" },
+            { valor: "no", etiqueta: "No disponibles" },
+          ]}
+          seleccionados={[
+            ...(disponibleSi ? ["si"] : []),
+            ...(disponibleNo ? ["no"] : []),
+          ]}
+          alCambiar={(valores) => {
+            setDisponibleSi(valores.includes("si"));
+            setDisponibleNo(valores.includes("no"));
+          }}
+        />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline">
@@ -395,35 +461,21 @@ export function ListadoCandidatos() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-1.5">
               <Label>Provincia</Label>
-              <Select value={provincia} onValueChange={setProvincia}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todas">Todas</SelectItem>
-                  {provincias.map((p) => (
-                    <SelectItem key={p} value={p}>
-                      {p}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <MultiSelect
+                etiqueta="Provincia"
+                opciones={provincias.map((p) => ({ valor: p, etiqueta: p }))}
+                seleccionados={provinciasSel}
+                alCambiar={setProvinciasSel}
+              />
             </div>
             <div className="space-y-1.5">
               <Label>Género</Label>
-              <Select value={genero} onValueChange={setGenero}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
-                  {generos.map((g) => (
-                    <SelectItem key={g} value={g}>
-                      {g}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <MultiSelect
+                etiqueta="Género"
+                opciones={generos.map((g) => ({ valor: g, etiqueta: g }))}
+                seleccionados={generosSel}
+                alCambiar={setGenerosSel}
+              />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="f-idiomas">Idiomas</Label>
@@ -475,8 +527,8 @@ export function ListadoCandidatos() {
             variant="ghost"
             size="sm"
             onClick={() => {
-              setProvincia("todas");
-              setGenero("todos");
+              setProvinciasSel([]);
+              setGenerosSel([]);
               setIdiomas("");
               setRangos({
                 edadMin: "",

@@ -337,6 +337,13 @@ function Home() {
             <p className="mt-4 max-w-2xl text-muted-foreground">
               Apúntate como público o participante en los programas que gestionamos.
             </p>
+            <Link
+              to="/programas-tv"
+              className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-primary underline underline-offset-4"
+            >
+              Ver todos los programas
+              <ArrowRight className="h-4 w-4" />
+            </Link>
             <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {programas.map((programa) => (
                 <a

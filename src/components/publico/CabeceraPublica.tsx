@@ -19,6 +19,18 @@ function EnlaceCandidatos({ clase }: { clase: string }) {
   );
 }
 
+/** Enlace a la página pública de programas de TV con inscripción abierta. */
+function EnlaceProgramasTv({ clase }: { clase: string }) {
+  return (
+    <Link
+      to="/programas-tv"
+      className={`${clase} text-muted-foreground transition-colors hover:text-foreground`}
+    >
+      Programas TV
+    </Link>
+  );
+}
+
 /**
  * Cabecera pública común a toda la parte abierta del sitio (Home, registro,
  * casting, acceso y páginas legales). El panel y el portal tienen la suya.

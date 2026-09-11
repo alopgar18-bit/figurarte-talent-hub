@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Check, Circle, CircleAlert } from "lucide-react";
 import { darConsentimientoRgpd, TEXTO_CESION } from "@/lib/rgpd.functions";
@@ -644,13 +644,9 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   }
 
   const menor = esMenor(texto(f["fecha_nacimiento"]));
-  const completadas = useMemo(
-    () =>
-      Object.entries(CAMPOS_COMPLETADO).filter(([, campos]) =>
-        campos.some((campo) => tieneDato(f[campo])),
-      ).length,
-    [f],
-  );
+  const completadas = Object.entries(CAMPOS_COMPLETADO).filter(([, campos]) =>
+    campos.some((campo) => tieneDato(f[campo])),
+  ).length;
   const porcentaje = (completadas / 8) * 100;
 
   function irASeccion(id: SeccionId) {
@@ -675,7 +671,7 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
       <div className="lg:hidden">
         <Label htmlFor="seccion-candidato" className="sr-only">Seleccionar sección</Label>
         <Select value={seccionActiva} onValueChange={(v) => irASeccion(v as SeccionId)}>
-          <SelectTrigger id="seccion-candidato" className="w-full bg-card">
+          <SelectTrigger id="seccion-candidato" className={`w-full bg-card ${ficha["consentimiento_rgpd"] !== true && seccionActiva === "rgpd" ? "border-destructive text-destructive" : ""}`}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -685,7 +681,7 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
                 : seccion.id === "procesos"
                   ? procesos.length > 0
                   : CAMPOS_COMPLETADO[seccion.id].some((campo) => tieneDato(f[campo]));
-              return <SelectItem key={seccion.id} value={seccion.id}>{completa ? "✓ " : "○ "}{seccion.etiqueta}</SelectItem>;
+              return <SelectItem key={seccion.id} value={seccion.id}>{seccion.id === "rgpd" && !completa ? "⚠ " : completa ? "✓ " : "○ "}{seccion.etiqueta}</SelectItem>;
             })}
           </SelectContent>
         </Select>

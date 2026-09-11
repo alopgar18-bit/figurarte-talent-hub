@@ -42,7 +42,7 @@ function CallbackPage() {
   const navegar = useNavigate();
   const resolver = useServerFn(resolverAcceso);
   const inscribir = useServerFn(inscribirEnCasting);
-  const { proyecto_id: proyectoId } = Route.useSearch();
+  const { proyecto_id: proyectoId, destino } = Route.useSearch();
   const [estado, setEstado] = useState<"cargando" | "listo" | "sin_sesion" | "error">(
     "cargando",
   );

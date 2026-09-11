@@ -21,6 +21,13 @@
 - Activar "Prevent use of leaked passwords" en Supabase.
 - Rellenar los placeholders legales.
 
+## Rediseño del área de candidato
+- [ ] Navegación por diez apartados con menú lateral y selector móvil.
+- [ ] Cabecera fija con identidad y progreso real de los ocho apartados editables.
+- [ ] Consentimiento RGPD destacado y apertura inicial cuando esté pendiente.
+- [ ] Vista privada de procesos de casting sin datos de clientes ni información interna.
+- [ ] Verificación responsive, navegación y datos reales del candidato demo.
+
 ## Revisión de experiencia de usuario (hecho)
 - Cabecera pública común (CabeceraPublica + PieLegal) en Home, /auth, /registro, /casting/$slug, /aviso-legal y /privacidad; nav visible también en móvil.
 - "Salir" de panel, portal y área de candidato navega a "/".

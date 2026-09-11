@@ -302,12 +302,22 @@ export function FichaCandidato({
 
   return (
     <div className="space-y-6">
-      <Link
-        to="/panel/candidatos"
-        className="inline-block text-sm text-muted-foreground underline underline-offset-4"
-      >
-        ← Volver al listado
-      </Link>
+      {volverAProyectoId ? (
+        <Link
+          to="/panel/proyectos/$id"
+          params={{ id: volverAProyectoId }}
+          className="inline-block text-sm text-muted-foreground underline underline-offset-4"
+        >
+          ← Volver al proyecto
+        </Link>
+      ) : (
+        <Link
+          to="/panel/candidatos"
+          className="inline-block text-sm text-muted-foreground underline underline-offset-4"
+        >
+          ← Volver al listado
+        </Link>
+      )}
 
       {/* Cabecera */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

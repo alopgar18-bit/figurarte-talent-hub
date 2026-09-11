@@ -605,6 +605,17 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
       </Seccion>
 
       <Seccion
+        titulo="Contacto adicional"
+        descripcion="Otro teléfono u otro correo donde localizarte."
+        onGuardar={() => guardar("contacto_adicional", ["telefono_2", "email_2"])}
+        guardando={guardando === "contacto_adicional"}
+      >
+        <Campo id="telefono_2" etiqueta="Teléfono secundario" valor={texto(f["telefono_2"])} onChange={(v) => set("telefono_2", v)} />
+        <Campo id="email_2" etiqueta="Email secundario" tipo="email" valor={texto(f["email_2"])} onChange={(v) => set("email_2", v)} />
+      </Seccion>
+
+
+      <Seccion
         titulo="Identidad"
         onGuardar={() => guardar("identidad", ["genero", "fecha_nacimiento", "dni"])}
         guardando={guardando === "identidad"}

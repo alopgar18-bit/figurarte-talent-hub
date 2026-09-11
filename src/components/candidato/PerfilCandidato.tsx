@@ -393,6 +393,123 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
       </Seccion>
 
       <Seccion
+        titulo="Físico ampliado"
+        descripcion="Tallas, complexión y otros rasgos que nos piden los clientes."
+        onGuardar={() => {
+          const activa = f["capacidad_diversa"] === true;
+          if (!activa) {
+            set("capacidad_diversa_tipo", null);
+            set("capacidad_diversa_obs", null);
+          }
+          void guardar("fisico_ampliado", [
+            "talla_camisa",
+            "talla_pantalon",
+            "talla_chaqueta",
+            "talla_zapato",
+            "tipo_pelo",
+            "origen_etnia",
+            "complexion",
+            "albino",
+            "barbudo",
+            "capacidad_diversa",
+            "capacidad_diversa_tipo",
+            "capacidad_diversa_obs",
+          ]);
+        }}
+        guardando={guardando === "fisico_ampliado"}
+      >
+        <SelectCampo
+          etiqueta="Talla de camisa"
+          valor={texto(f["talla_camisa"])}
+          opciones={TALLAS_CAMISA}
+          onChange={(v) => set("talla_camisa", v)}
+        />
+        <SelectCampo
+          etiqueta="Talla de pantalón"
+          valor={texto(f["talla_pantalon"])}
+          opciones={TALLAS_PANTALON}
+          onChange={(v) => set("talla_pantalon", v)}
+        />
+        <SelectCampo
+          etiqueta="Talla de chaqueta"
+          valor={texto(f["talla_chaqueta"])}
+          opciones={TALLAS_CHAQUETA}
+          onChange={(v) => set("talla_chaqueta", v)}
+        />
+        <Campo
+          id="talla_zapato"
+          etiqueta="Talla de zapato"
+          valor={texto(f["talla_zapato"])}
+          onChange={(v) => set("talla_zapato", v)}
+        />
+        <SelectCampo
+          etiqueta="Tipo de pelo"
+          valor={texto(f["tipo_pelo"])}
+          opciones={TIPOS_PELO}
+          onChange={(v) => set("tipo_pelo", v)}
+        />
+        <Campo
+          id="origen_etnia"
+          etiqueta="Origen / etnia"
+          valor={texto(f["origen_etnia"])}
+          onChange={(v) => set("origen_etnia", v)}
+        />
+
+        <div className="space-y-2 sm:col-span-2">
+          <Label>Complexión</Label>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {COMPLEXIONES.map((c) => {
+              const activa = texto(f["complexion"]) === c.valor;
+              return (
+                <button
+                  key={c.valor}
+                  type="button"
+                  onClick={() => set("complexion", activa ? null : c.valor)}
+                  className={`border p-3 text-left transition-colors ${
+                    activa
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-background hover:bg-muted/60"
+                  }`}
+                >
+                  <span className="block text-sm font-bold tracking-tight">{c.titulo}</span>
+                  <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
+                    {c.descripcion}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <Interruptor etiqueta="Albino" valor={f["albino"] === true} onChange={(v) => set("albino", v)} />
+        <Interruptor etiqueta="Barbudo" valor={f["barbudo"] === true} onChange={(v) => set("barbudo", v)} />
+        <Interruptor
+          etiqueta="Capacidad diversa"
+          valor={f["capacidad_diversa"] === true}
+          onChange={(v) => set("capacidad_diversa", v)}
+        />
+
+        {f["capacidad_diversa"] === true && (
+          <>
+            <Campo
+              id="capacidad_diversa_tipo"
+              etiqueta="Tipo de capacidad diversa"
+              valor={texto(f["capacidad_diversa_tipo"])}
+              onChange={(v) => set("capacidad_diversa_tipo", v)}
+            />
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="capacidad_diversa_obs">Observaciones</Label>
+              <Textarea
+                id="capacidad_diversa_obs"
+                value={texto(f["capacidad_diversa_obs"])}
+                onChange={(e) => set("capacidad_diversa_obs", e.target.value)}
+              />
+            </div>
+          </>
+        )}
+      </Seccion>
+
+      <Seccion
         titulo="Habilidades"
         onGuardar={() =>
           guardar("habilidades", [

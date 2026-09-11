@@ -1077,12 +1077,149 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
 
       <Seccion
         titulo="Redes"
-        onGuardar={() => guardar("redes", ["video_book_url", "tiktok_url", "instagram_url"])}
+        onGuardar={() =>
+          guardar("redes", [
+            "video_book_url",
+            "tiktok_url",
+            "instagram_url",
+            "facebook_url",
+            "twitter_url",
+            "linkedin_url",
+            "youtube_url",
+            "twitch_url",
+            "web_url",
+          ])
+        }
         guardando={guardando === "redes"}
       >
         <Campo id="video_book_url" etiqueta="Enlace a tu video book" valor={texto(f["video_book_url"])} onChange={(v) => set("video_book_url", v)} ancho />
         <Campo id="tiktok_url" etiqueta="TikTok" valor={texto(f["tiktok_url"])} onChange={(v) => set("tiktok_url", v)} />
         <Campo id="instagram_url" etiqueta="Instagram" valor={texto(f["instagram_url"])} onChange={(v) => set("instagram_url", v)} />
+        <Campo id="facebook_url" etiqueta="Facebook" valor={texto(f["facebook_url"])} onChange={(v) => set("facebook_url", v)} />
+        <Campo id="twitter_url" etiqueta="X (Twitter)" valor={texto(f["twitter_url"])} onChange={(v) => set("twitter_url", v)} />
+        <Campo id="linkedin_url" etiqueta="LinkedIn" valor={texto(f["linkedin_url"])} onChange={(v) => set("linkedin_url", v)} />
+        <Campo id="youtube_url" etiqueta="Canal de YouTube" valor={texto(f["youtube_url"])} onChange={(v) => set("youtube_url", v)} />
+        <Campo id="twitch_url" etiqueta="Twitch" valor={texto(f["twitch_url"])} onChange={(v) => set("twitch_url", v)} />
+        <Campo id="web_url" etiqueta="Web personal" valor={texto(f["web_url"])} onChange={(v) => set("web_url", v)} ancho />
+      </Seccion>
+
+      <Seccion
+        titulo="Enlaces adicionales"
+        descripcion="Enlaces a fotos, book, CV o vídeos adicionales de interés."
+        onGuardar={() =>
+          void guardar("enlaces", [], {
+            enlaces: enlaces.filter(
+              (e) => e.url.trim() !== "" || e.descripcion.trim() !== "",
+            ),
+          })
+        }
+        guardando={guardando === "enlaces"}
+      >
+        <div className="space-y-3 sm:col-span-2">
+          {enlaces.length === 0 && (
+            <p className="text-sm text-muted-foreground">Todavía no has añadido ningún enlace.</p>
+          )}
+          {enlaces.map((e, i) => (
+            <div key={i} className="flex flex-col gap-2 sm:flex-row">
+              <Input
+                className="sm:flex-1"
+                placeholder="https://..."
+                value={e.url}
+                onChange={(ev) =>
+                  set(
+                    "enlaces",
+                    enlaces.map((x, j) => (j === i ? { ...x, url: ev.target.value } : x)),
+                  )
+                }
+              />
+              <Input
+                className="sm:flex-1"
+                placeholder="Breve descripción"
+                value={e.descripcion}
+                onChange={(ev) =>
+                  set(
+                    "enlaces",
+                    enlaces.map((x, j) => (j === i ? { ...x, descripcion: ev.target.value } : x)),
+                  )
+                }
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="sm:w-auto"
+                onClick={() => set("enlaces", enlaces.filter((_, j) => j !== i))}
+              >
+                Quitar
+              </Button>
+            </div>
+          ))}
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={() => set("enlaces", [...enlaces, { url: "", descripcion: "" }])}
+          >
+            + Añadir enlace
+          </Button>
+        </div>
+      </Seccion>
+
+      <Seccion
+        titulo="Disponibilidad para otras residencias"
+        descripcion="¿Podrías residir temporalmente en otra localidad si el proyecto lo requiere?"
+        onGuardar={() =>
+          void guardar("residencias", [], {
+            otras_residencias: otrasResidenciasActivo
+              ? otrasResidencias.filter((x) => x.trim() !== "")
+              : [],
+          })
+        }
+        guardando={guardando === "residencias"}
+      >
+        <div className="space-y-3 sm:col-span-2">
+          <Interruptor
+            etiqueta="¿Tienes disponibilidad para otras residencias?"
+            valor={otrasResidenciasActivo}
+            onChange={setOtrasResidenciasActivo}
+          />
+          {otrasResidenciasActivo && (
+            <>
+              {otrasResidencias.map((r, i) => (
+                <div key={i} className="flex flex-col gap-2 sm:flex-row">
+                  <Input
+                    className="sm:flex-1"
+                    placeholder="Indica la localidad y condiciones"
+                    value={r}
+                    onChange={(ev) =>
+                      set(
+                        "otras_residencias",
+                        otrasResidencias.map((x, j) => (j === i ? ev.target.value : x)),
+                      )
+                    }
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="sm:w-auto"
+                    onClick={() =>
+                      set("otras_residencias", otrasResidencias.filter((_, j) => j !== i))
+                    }
+                  >
+                    Quitar
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={() => set("otras_residencias", [...otrasResidencias, ""])}
+              >
+                + Añadir otra residencia posible
+              </Button>
+            </>
+          )}
+        </div>
       </Seccion>
 
       <VideoPresentacion

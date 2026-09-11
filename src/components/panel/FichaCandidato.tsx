@@ -126,7 +126,7 @@ const CAMPOS_PERFIL: {
   { clave: "color_cabello", etiqueta: "Color de cabello" },
   { clave: "color_ojos", etiqueta: "Color de ojos" },
   { clave: "talla_chaqueta", etiqueta: "Talla chaqueta" },
-  { clave: "talla_zapato", etiqueta: "Talla zapato" },
+  
   { clave: "tipo_pelo", etiqueta: "Tipo de pelo" },
   { clave: "complexion", etiqueta: "Complexión" },
   { clave: "origen_etnia", etiqueta: "Origen / etnia" },

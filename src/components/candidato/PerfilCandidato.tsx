@@ -865,12 +865,19 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
           valor={texto(f["numero_seguridad_social"])}
           onChange={(v) => set("numero_seguridad_social", v)}
         />
-        <Campo id="nacionalidad" etiqueta="Nacionalidad" valor={texto(f["nacionalidad"])} onChange={(v) => set("nacionalidad", v)} />
-        <Campo
-          id="nacionalidad_multiple"
+        <SelectCampo
+          etiqueta="Nacionalidad"
+          valor={texto(f["nacionalidad"])}
+          opciones={conValorActual(PAISES, f["nacionalidad"])}
+          onChange={(v) => set("nacionalidad", v)}
+        />
+        <MultiSelectChips
           etiqueta="Otras nacionalidades"
-          valor={texto(f["nacionalidad_multiple"])}
-          onChange={(v) => set("nacionalidad_multiple", v)}
+          descripcion="Selecciona todos los países de los que tengas nacionalidad."
+          buscador
+          opciones={PAISES}
+          seleccionados={desdeTextoLista(f["nacionalidad_multiple"])}
+          onChange={(lista) => set("nacionalidad_multiple", aTextoLista(lista))}
         />
         <Campo
           id="lugar_nacimiento"

@@ -35,6 +35,7 @@ import { VideoPresentacion } from "@/components/candidato/VideoPresentacion";
 import { Progress } from "@/components/ui/progress";
 import {
   obtenerMisProcesos,
+  rechazarPreseleccion,
   type ProcesoCandidato,
 } from "@/lib/procesos-candidato.functions";
 import {
@@ -521,6 +522,27 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
   const [procesos, setProcesos] = useState<ProcesoCandidato[]>([]);
   const [cargandoProcesos, setCargandoProcesos] = useState(true);
   const [errorProcesos, setErrorProcesos] = useState(false);
+  const [rechazando, setRechazando] = useState<string | null>(null);
+  const rechazar = useServerFn(rechazarPreseleccion);
+
+  async function rechazarProceso(proyectoId: string) {
+    setRechazando(proyectoId);
+    try {
+      await rechazar({ data: { proyectoId } });
+      setProcesos((prev) =>
+        prev.map((p) =>
+          p.proyecto_id === proyectoId
+            ? { ...p, estado: "rechazado_por_candidato" as const }
+            : p,
+        ),
+      );
+      toast.success("Hemos registrado que rechazas este proceso.");
+    } catch {
+      toast.error("No hemos podido registrar tu rechazo. Inténtalo de nuevo.");
+    } finally {
+      setRechazando(null);
+    }
+  }
 
   const habilidadesSel = listaTextos(f["habilidades"]);
   const tipoPerfilSel = listaTextos(f["tipo_perfil"]);
@@ -1601,12 +1623,27 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
                       <h3 className="truncate font-bold">{proceso.proyecto}</h3>
                       <p className="mt-1 text-sm text-muted-foreground">{proceso.categoria.replaceAll("_", " ")}</p>
                     </div>
-                    <span className="shrink-0 border border-primary/30 bg-primary/10 px-2 py-1 text-xs font-semibold capitalize text-primary">{proceso.estado}</span>
+                    <span className="shrink-0 border border-primary/30 bg-primary/10 px-2 py-1 text-xs font-semibold capitalize text-primary">{proceso.estado.replaceAll("_", " ")}</span>
                   </div>
                   <div className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
                     <p>{proceso.origen === "web_directa" ? "Te apuntaste tú" : "Te añadió el equipo"}</p>
                     <time className="text-muted-foreground sm:text-right" dateTime={proceso.fecha}>{new Intl.DateTimeFormat("es-ES", { dateStyle: "long" }).format(new Date(proceso.fecha))}</time>
                   </div>
+                  {proceso.estado === "preseleccionado" && (
+                    <div className="mt-4 flex flex-wrap items-center gap-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={rechazando === proceso.proyecto_id}
+                        onClick={() => rechazarProceso(proceso.proyecto_id)}
+                      >
+                        {rechazando === proceso.proyecto_id ? "Rechazando…" : "Rechazar"}
+                      </Button>
+                      <span className="text-xs text-muted-foreground">
+                        Si no te interesa este proceso, avísanos y lo retiramos.
+                      </span>
+                    </div>
+                  )}
                 </article>
               ))}
             </div>

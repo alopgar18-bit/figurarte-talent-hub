@@ -31,6 +31,10 @@ import { registrarAccesoStaff } from "@/lib/registro-accesos.functions";
 import { firmarFotosStaff } from "@/lib/fotos.functions";
 import { MultiSelect } from "@/components/panel/MultiSelect";
 import {
+  cambiarEstadoProyectoCandidato,
+  type EstadoProyectoCandidato,
+} from "@/lib/comunicaciones.functions";
+import {
   cumpleCriterios,
   hayCriterios,
   type CriteriosBusqueda,
@@ -114,6 +118,8 @@ const ESTADOS_CANDIDATO = [
   { valor: "preseleccionado", etiqueta: "Preseleccionado" },
   { valor: "enviado", etiqueta: "Enviado" },
   { valor: "contratado", etiqueta: "Contratado" },
+  { valor: "descartado", etiqueta: "Descartado" },
+  { valor: "rechazado_por_candidato", etiqueta: "Rechazado por el candidato" },
 ];
 
 const CATEGORIAS = [
@@ -169,6 +175,7 @@ export function DetalleProyecto({ id }: { id: string }) {
   const [guardandoBrief, setGuardandoBrief] = useState(false);
   const [publicando, setPublicando] = useState(false);
 
+  const cambiarEstado = useServerFn(cambiarEstadoProyectoCandidato);
   const [criterios, setCriterios] = useState<CriteriosBusqueda>({});
   const [guardandoCriterios, setGuardandoCriterios] = useState(false);
   const [baseCandidatos, setBaseCandidatos] = useState<Record<string, unknown>[]>([]);
@@ -499,19 +506,29 @@ export function DetalleProyecto({ id }: { id: string }) {
   }
 
   async function cambiarEstadoCandidato(candidatoId: string, estado: string) {
-    const { error: errUpd } = await supabase
-      .from("proyecto_candidatos")
-      .update({ estado: estado as "preseleccionado" | "enviado" | "contratado" })
-
-      .eq("proyecto_id", id)
-      .eq("candidato_id", candidatoId);
-    if (errUpd) {
+    try {
+      const res = await cambiarEstado({
+        data: {
+          proyectoId: id,
+          candidatoId,
+          estado: estado as EstadoProyectoCandidato,
+        },
+      });
+      setAsociaciones((prev) =>
+        prev.map((a) => (a.candidato_id === candidatoId ? { ...a, estado } : a)),
+      );
+      if (estado === "descartado" || estado === "contratado") {
+        if (res.emailEnviado) {
+          toast.success("Estado guardado y candidato avisado por email.");
+        } else {
+          toast.warning(
+            "Estado guardado, pero no se pudo enviar el email al candidato.",
+          );
+        }
+      }
+    } catch {
       toast.error("No se pudo cambiar el estado.");
-      return;
     }
-    setAsociaciones((prev) =>
-      prev.map((a) => (a.candidato_id === candidatoId ? { ...a, estado } : a)),
-    );
   }
 
   const manuales = useMemo(

@@ -82,7 +82,12 @@ const ETIQUETA_ORIGEN: Record<string, string> = {
   web_directa: "Web directa",
 };
 
-const CAMPOS_PERFIL: { clave: string; etiqueta: string; tipo?: "bool" | "fecha" }[] = [
+const CAMPOS_PERFIL: {
+  clave: string;
+  etiqueta: string;
+  tipo?: "bool" | "fecha" | "etiqueta";
+  etiquetas?: Record<string, string>;
+}[] = [
   { clave: "genero", etiqueta: "Género" },
   { clave: "fecha_nacimiento", etiqueta: "Fecha de nacimiento", tipo: "fecha" },
   { clave: "dni", etiqueta: "DNI" },
@@ -90,9 +95,46 @@ const CAMPOS_PERFIL: { clave: string; etiqueta: string; tipo?: "bool" | "fecha" 
   { clave: "tutor_apellidos", etiqueta: "Tutor/a (apellidos)" },
   { clave: "tutor_dni", etiqueta: "Tutor/a (DNI)" },
   { clave: "pais_origen", etiqueta: "País de origen" },
+  { clave: "pasaporte", etiqueta: "Pasaporte" },
+  { clave: "numero_seguridad_social", etiqueta: "Nº Seguridad Social" },
+  { clave: "nacionalidad", etiqueta: "Nacionalidad" },
+  { clave: "nacionalidad_multiple", etiqueta: "Otras nacionalidades" },
+  { clave: "lugar_nacimiento", etiqueta: "Lugar de nacimiento" },
+  {
+    clave: "representacion",
+    etiqueta: "Representación",
+    tipo: "etiqueta",
+    etiquetas: {
+      sin_representacion: "Sin representación",
+      con_representacion: "Con representación / agencia",
+    },
+  },
+  { clave: "domicilio_fiscal_pais", etiqueta: "Domicilio fiscal (país)" },
+  { clave: "domicilio_fiscal_provincia", etiqueta: "Domicilio fiscal (provincia)" },
+  { clave: "domicilio_fiscal_localidad", etiqueta: "Domicilio fiscal (localidad)" },
+  { clave: "domicilio_fiscal_cp", etiqueta: "Domicilio fiscal (CP)" },
+  { clave: "domicilio_fiscal_direccion", etiqueta: "Domicilio fiscal (dirección)" },
+  { clave: "telefono_2", etiqueta: "Teléfono secundario" },
+  { clave: "email_2", etiqueta: "Email secundario" },
+  { clave: "web_url", etiqueta: "Web personal" },
+  { clave: "facebook_url", etiqueta: "Facebook" },
+  { clave: "twitter_url", etiqueta: "X (Twitter)" },
+  { clave: "linkedin_url", etiqueta: "LinkedIn" },
+  { clave: "youtube_url", etiqueta: "Canal de YouTube" },
+  { clave: "twitch_url", etiqueta: "Twitch" },
   { clave: "color_piel", etiqueta: "Color de piel" },
   { clave: "color_cabello", etiqueta: "Color de cabello" },
   { clave: "color_ojos", etiqueta: "Color de ojos" },
+  { clave: "talla_chaqueta", etiqueta: "Talla chaqueta" },
+  { clave: "talla_zapato", etiqueta: "Talla zapato" },
+  { clave: "tipo_pelo", etiqueta: "Tipo de pelo" },
+  { clave: "complexion", etiqueta: "Complexión" },
+  { clave: "origen_etnia", etiqueta: "Origen / etnia" },
+  { clave: "albino", etiqueta: "Albino", tipo: "bool" },
+  { clave: "barbudo", etiqueta: "Barbudo", tipo: "bool" },
+  { clave: "capacidad_diversa", etiqueta: "Capacidad diversa", tipo: "bool" },
+  { clave: "capacidad_diversa_tipo", etiqueta: "Tipo de capacidad diversa" },
+  { clave: "capacidad_diversa_obs", etiqueta: "Observaciones (capacidad diversa)" },
   { clave: "tiene_tatuajes", etiqueta: "Tatuajes", tipo: "bool" },
   { clave: "tiene_cicatrices", etiqueta: "Cicatrices", tipo: "bool" },
   { clave: "tiene_ortodoncia", etiqueta: "Ortodoncia", tipo: "bool" },
@@ -106,10 +148,28 @@ const CAMPOS_PERFIL: { clave: string; etiqueta: string; tipo?: "bool" | "fecha" 
   { clave: "habilidad_especial", etiqueta: "Habilidad especial" },
   { clave: "profesion", etiqueta: "Profesión" },
   { clave: "idiomas", etiqueta: "Idiomas" },
+  { clave: "acentos", etiqueta: "Acentos" },
   { clave: "video_book_url", etiqueta: "Vídeo book" },
   { clave: "tiktok_url", etiqueta: "TikTok" },
   { clave: "instagram_url", etiqueta: "Instagram" },
 ];
+
+const CAMPOS_BADGES: { clave: string; etiqueta: string }[] = [
+  { clave: "habilidades", etiqueta: "Habilidades y especialidades" },
+  { clave: "tipo_perfil", etiqueta: "Tipo de perfil" },
+  { clave: "carnes_conducir", etiqueta: "Carnés de conducir" },
+  { clave: "otras_residencias", etiqueta: "Disponibilidad para otras residencias" },
+];
+
+function arrayTexto(v: unknown): string[] {
+  return Array.isArray(v) ? v.filter((x): x is string => typeof x === "string" && x.trim() !== "") : [];
+}
+
+function arrayObjetos(v: unknown): Record<string, unknown>[] {
+  return Array.isArray(v)
+    ? v.filter((x): x is Record<string, unknown> => typeof x === "object" && x !== null && !Array.isArray(x))
+    : [];
+}
 
 export const CAMPOS_VESTUARIO = [
   { clave: "talla_camisa", etiqueta: "Talla camisa" },
@@ -299,6 +359,15 @@ export function FichaCandidato({
     const v = candidato[clave];
     return v !== null && v !== undefined && v !== "";
   });
+  const badgesConValor = CAMPOS_BADGES.map((campo) => ({
+    ...campo,
+    valores: arrayTexto(candidato[campo.clave]),
+  })).filter((campo) => campo.valores.length > 0);
+  const estudios = arrayObjetos(candidato["estudios"]);
+  const idiomasDetalle = arrayObjetos(candidato["idiomas_detalle"]);
+  const enlaces = arrayObjetos(candidato["enlaces"]);
+  const haySeccionesListas =
+    badgesConValor.length > 0 || estudios.length > 0 || idiomasDetalle.length > 0 || enlaces.length > 0;
 
   return (
     <div className="space-y-6">
@@ -500,13 +569,15 @@ export function FichaCandidato({
         <CardContent>
           {camposPerfilConValor.length > 0 ? (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {camposPerfilConValor.map(({ clave, etiqueta, tipo }) => {
+              {camposPerfilConValor.map(({ clave, etiqueta, tipo, etiquetas }) => {
                 const bruto = candidato[clave];
                 let valor: string;
                 if (tipo === "bool") {
                   valor = bruto ? "Sí" : "No";
                 } else if (tipo === "fecha") {
                   valor = formateaFecha(String(bruto));
+                } else if (tipo === "etiqueta") {
+                  valor = etiquetas?.[String(bruto)] ?? String(bruto);
                 } else {
                   valor = String(bruto);
                 }
@@ -518,6 +589,74 @@ export function FichaCandidato({
               Este candidato aún no ha completado su perfil ampliado.
             </p>
           )}
+
+          {haySeccionesListas ? (
+            <div className="mt-6 space-y-4 border-t pt-6">
+              {badgesConValor.map(({ clave, etiqueta, valores }) => (
+                <div key={clave} className="space-y-1.5">
+                  <p className="text-xs text-muted-foreground">{etiqueta}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {valores.map((valor, i) => (
+                      <Badge key={`${valor}-${i}`} variant="outline">
+                        {valor}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              {estudios.length > 0 ? (
+                <div className="space-y-1.5">
+                  <p className="text-xs text-muted-foreground">Formación</p>
+                  <ul className="space-y-0.5 text-sm font-medium">
+                    {estudios.map((e, i) => (
+                      <li key={i}>
+                        {String(e["estudio"] ?? "")}
+                        {e["anios"] ? ` — ${String(e["anios"])}` : ""}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              {idiomasDetalle.length > 0 ? (
+                <div className="space-y-1.5">
+                  <p className="text-xs text-muted-foreground">Idiomas (detalle)</p>
+                  <ul className="space-y-0.5 text-sm font-medium">
+                    {idiomasDetalle.map((l, i) => (
+                      <li key={i}>
+                        {String(l["idioma"] ?? "")}
+                        {l["nivel"] ? ` — ${String(l["nivel"])}` : ""}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              {enlaces.length > 0 ? (
+                <div className="space-y-1.5">
+                  <p className="text-xs text-muted-foreground">Enlaces adicionales</p>
+                  <ul className="space-y-0.5 text-sm">
+                    {enlaces.map((en, i) => (
+                      <li key={i} className="break-words">
+                        <a
+                          href={String(en["url"] ?? "")}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium text-primary underline underline-offset-4"
+                        >
+                          {String(en["url"] ?? "")}
+                        </a>
+                        {en["descripcion"] ? (
+                          <span className="text-muted-foreground"> — {String(en["descripcion"])}</span>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 

@@ -28,7 +28,9 @@ export const obtenerMisProcesos = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("proyecto_candidatos")
-      .select("estado, origen, creado_en, proyectos_casting(nombre, brief_publico)")
+      .select(
+        "proyecto_id, estado, origen, creado_en, proyectos_casting(nombre, brief_publico)",
+      )
       .eq("candidato_id", candidato.id)
       .order("creado_en", { ascending: false });
 
@@ -47,6 +49,7 @@ export const obtenerMisProcesos = createServerFn({ method: "GET" })
         typeof brief?.["categoria"] === "string" ? brief["categoria"] : candidato.categoria;
 
       return {
+        proyecto_id: fila.proyecto_id,
         proyecto: proyecto?.nombre ?? "Proceso de casting",
         categoria,
         estado: fila.estado,
@@ -54,4 +57,38 @@ export const obtenerMisProcesos = createServerFn({ method: "GET" })
         fecha: fila.creado_en,
       };
     });
+  });
+
+/**
+ * El candidato rechaza una preselección suya. Usa su propia sesión (RLS):
+ * la política `proyecto_candidatos_update_rechazo_propio` solo permite pasar
+ * de `preseleccionado` a `rechazado_por_candidato` en su propia fila.
+ */
+export const rechazarPreseleccion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { proyectoId: string }) =>
+    z.object({ proyectoId: z.string().uuid() }).parse(data),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    const { data: candidato, error: errorCandidato } = await context.supabase
+      .from("candidatos")
+      .select("id")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (errorCandidato) throw new Error("No se pudo comprobar tu ficha.");
+    if (!candidato) throw new Error("No hemos encontrado tu ficha.");
+
+    const { data: filas, error } = await context.supabase
+      .from("proyecto_candidatos")
+      .update({ estado: "rechazado_por_candidato" })
+      .eq("proyecto_id", data.proyectoId)
+      .eq("candidato_id", candidato.id)
+      .eq("estado", "preseleccionado")
+      .select("candidato_id");
+
+    if (error) throw new Error("No hemos podido registrar tu rechazo.");
+    if (!filas || filas.length === 0) {
+      throw new Error("Este proceso ya no está en preselección.");
+    }
+    return { ok: true };
   });

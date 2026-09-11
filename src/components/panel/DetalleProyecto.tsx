@@ -315,7 +315,7 @@ export function DetalleProyecto({ id }: { id: string }) {
       const { data, error: errProyecto } = await supabase
         .from("proyectos_casting")
         .select(
-          "id,nombre,estado,publicado,slug_publico,cliente_id,brief_publico,campos_personalizados_activados,creado_en",
+          "id,nombre,estado,publicado,slug_publico,cliente_id,brief_publico,criterios_busqueda,campos_personalizados_activados,creado_en",
         )
         .eq("id", id)
         .maybeSingle();
@@ -329,6 +329,7 @@ export function DetalleProyecto({ id }: { id: string }) {
       setProyecto(p);
       setNombre(p.nombre);
       setBrief((p.brief_publico ?? {}) as Brief);
+      setCriterios((p.criterios_busqueda ?? {}) as CriteriosBusqueda);
       let fallo: string | null = null;
       if (p.cliente_id) {
         const { data: cli, error: errCli } = await supabase

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/auth/callback")({
   validateSearch: (search: Record<string, unknown>) => ({
     proyecto_id: typeof search["proyecto_id"] === "string" ? search["proyecto_id"] : undefined,
+    destino: search["destino"] === "solicitar" ? ("solicitar" as const) : undefined,
   }),
   head: () => ({
     meta: [

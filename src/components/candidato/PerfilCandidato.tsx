@@ -24,6 +24,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { VideoPresentacion } from "@/components/candidato/VideoPresentacion";
 
 
@@ -162,6 +168,155 @@ const COMPLEXIONES = [
     descripcion: "Estructura más grande, metabolismo lento, gana musculatura con facilidad",
   },
 ];
+
+const GRUPOS_HABILIDADES: { titulo: string; opciones: string[] }[] = [
+  {
+    titulo: "Artes escénicas y circenses",
+    opciones: ["Baile / Danza", "Canto", "Circo", "Malabares", "Mago", "Doblador/a", "Locutor/a"],
+  },
+  {
+    titulo: "Música",
+    opciones: [
+      "Instrumento de cuerda",
+      "Instrumento de viento",
+      "Instrumento de percusión",
+      "Electrófonos",
+    ],
+  },
+  {
+    titulo: "Deporte y acción",
+    opciones: [
+      "Artes marciales",
+      "Deportes",
+      "Especialista / stunt",
+      "Esgrima",
+      "Equitación",
+      "Culturismo",
+    ],
+  },
+  {
+    titulo: "Rasgos y singularidades",
+    opciones: ["Tengo un gemelo/a", "Drag queen", "Drag king"],
+  },
+];
+
+const GRUPOS_TIPO_PERFIL: { titulo: string; opciones: string[] }[] = [
+  {
+    titulo: "Interpretación",
+    opciones: [
+      "Actor / actriz",
+      "Ficción",
+      "Publicidad",
+      "Doblaje",
+      "Teatro aficionado",
+      "Modelo",
+      "Bailarín/a",
+    ],
+  },
+  {
+    titulo: "Música",
+    opciones: [
+      "Cantante pop",
+      "Cantante rock",
+      "Cantante rap / trap",
+      "Cantante jazz",
+      "Ópera / zarzuela",
+    ],
+  },
+  {
+    titulo: "Medios y contenido digital",
+    opciones: [
+      "Influencer",
+      "YouTuber",
+      "Tiktoker",
+      "Presentador/a",
+      "Periodista",
+      "Tertuliano/a",
+      "Colaborador/a",
+    ],
+  },
+  { titulo: "Otros", opciones: ["Especialista", "Casting de calle"] },
+];
+
+const CARNES_OPCIONES = [
+  "AM",
+  "A1",
+  "A2",
+  "A",
+  "B",
+  "B+E",
+  "C1",
+  "C1+E",
+  "C",
+  "C+E",
+  "D1",
+  "D1+E",
+  "D",
+  "D+E",
+  "Licencia LVA",
+  "Licencia LCM",
+  "ADR",
+];
+
+function Chip({
+  activo,
+  onClick,
+  children,
+}: {
+  activo: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`border px-3 py-1 text-sm transition-colors ${
+        activo
+          ? "border-primary bg-primary text-primary-foreground"
+          : "border-border bg-background hover:bg-muted/60"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function GrupoChips({
+  titulo,
+  opciones,
+  seleccionados,
+  onAlternar,
+}: {
+  titulo: string;
+  opciones: string[];
+  seleccionados: string[];
+  onAlternar: (opcion: string) => void;
+}) {
+  if (opciones.length === 0) return null;
+  return (
+    <div className="space-y-2">
+      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        {titulo}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {opciones.map((o) => (
+          <Chip key={o} activo={seleccionados.includes(o)} onClick={() => onAlternar(o)}>
+            {o}
+          </Chip>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function alternar(lista: string[], valor: string) {
+  return lista.includes(valor) ? lista.filter((x) => x !== valor) : [...lista, valor];
+}
+
+function listaTextos(v: unknown): string[] {
+  return Array.isArray(v) ? (v as unknown[]).filter((x): x is string => typeof x === "string") : [];
+}
 
 function SelectCampo({
   etiqueta,

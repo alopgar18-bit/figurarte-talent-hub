@@ -315,9 +315,20 @@ export function FichaCandidato({
   async function guardarVestuario() {
     if (!candidato) return;
     setGuardandoVestuario(true);
-    const valores: Record<string, string | null> = {};
-    for (const { clave } of CAMPOS_VESTUARIO) {
-      valores[clave] = (vestuario[clave] ?? "").trim() || null;
+    const valores: Record<string, string | number | null> = {};
+    for (const { clave, tipo } of CAMPOS_VESTUARIO) {
+      const bruto = (vestuario[clave] ?? "").trim();
+      if (tipo === "numero") {
+        const n = Number(bruto.replace(",", "."));
+        if (bruto !== "" && (!Number.isFinite(n) || n <= 0 || n > 300)) {
+          setGuardandoVestuario(false);
+          toast.error("Las medidas de pecho y cintura deben ser un número en centímetros.");
+          return;
+        }
+        valores[clave] = bruto === "" ? null : Math.round(n);
+      } else {
+        valores[clave] = bruto || null;
+      }
     }
     const { error } = await supabase
       .from("candidatos")

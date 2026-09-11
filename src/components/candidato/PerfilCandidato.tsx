@@ -1167,8 +1167,18 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         guardando={guardando === "fisico"}
       >
         <Campo id="color_piel" etiqueta="Color de piel" valor={texto(f["color_piel"])} onChange={(v) => set("color_piel", v)} />
-        <Campo id="color_cabello" etiqueta="Color de cabello" valor={texto(f["color_cabello"])} onChange={(v) => set("color_cabello", v)} />
-        <Campo id="color_ojos" etiqueta="Color de ojos" valor={texto(f["color_ojos"])} onChange={(v) => set("color_ojos", v)} />
+        <SelectCampo
+          etiqueta="Color de cabello"
+          valor={texto(f["color_cabello"])}
+          opciones={conValorActual(COLORES_CABELLO, f["color_cabello"])}
+          onChange={(v) => set("color_cabello", v)}
+        />
+        <SelectCampo
+          etiqueta="Color de ojos"
+          valor={texto(f["color_ojos"])}
+          opciones={conValorActual(COLORES_OJOS, f["color_ojos"])}
+          onChange={(v) => set("color_ojos", v)}
+        />
         <Interruptor etiqueta="Tatuajes" valor={f["tiene_tatuajes"] === true} onChange={(v) => set("tiene_tatuajes", v)} />
         <Interruptor etiqueta="Cicatrices" valor={f["tiene_cicatrices"] === true} onChange={(v) => set("tiene_cicatrices", v)} />
         <Interruptor etiqueta="Ortodoncia" valor={f["tiene_ortodoncia"] === true} onChange={(v) => set("tiene_ortodoncia", v)} />

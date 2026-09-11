@@ -169,6 +169,11 @@ export function DetalleProyecto({ id }: { id: string }) {
   const [guardandoBrief, setGuardandoBrief] = useState(false);
   const [publicando, setPublicando] = useState(false);
 
+  const [criterios, setCriterios] = useState<CriteriosBusqueda>({});
+  const [guardandoCriterios, setGuardandoCriterios] = useState(false);
+  const [baseCandidatos, setBaseCandidatos] = useState<Record<string, unknown>[]>([]);
+  const [errorRecomendados, setErrorRecomendados] = useState<string | null>(null);
+
   const [dialogoAnadir, setDialogoAnadir] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [resultados, setResultados] = useState<Candidato[]>([]);

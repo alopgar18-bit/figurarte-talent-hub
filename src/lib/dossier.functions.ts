@@ -4,7 +4,6 @@ import { z } from "zod";
 export type CandidatoDossier = {
   id: string;
   codigo: string;
-  nombre: string;
   categoria: string;
   edad: number | null;
   provincia: string | null;
@@ -172,7 +171,7 @@ export const obtenerDossierPublico = createServerFn({ method: "GET" })
       .map((c) => ({
         id: c.id,
         codigo: c.codigo,
-        nombre: c.nombre,
+        
         categoria: c.categoria,
         edad: c.edad,
         provincia: c.provincia,

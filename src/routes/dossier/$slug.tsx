@@ -287,7 +287,7 @@ function Diapositiva({
             <img
               key={foto}
               src={foto}
-              alt={`Foto de ${candidato.nombre}`}
+              alt={`Foto del candidato ${candidato.codigo}`}
               className="aspect-[3/4] w-full border border-border object-cover"
             />
           ))
@@ -307,10 +307,10 @@ function Diapositiva({
         <span aria-hidden="true" className="w-px bg-border" />
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            {candidato.codigo}
+            Referencia
           </p>
           <h2 className="text-2xl font-black uppercase tracking-tight sm:text-3xl">
-            {candidato.nombre}
+            {candidato.codigo}
           </h2>
           {fisicos.length > 0 && (
             <p className="mt-1 text-sm text-muted-foreground">{fisicos.join(" · ")}</p>

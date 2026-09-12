@@ -350,7 +350,9 @@ export function ListadoCandidatos() {
     filtrosGuardados.ojosSel = ojosSel;
     filtrosGuardados.idiomas = idiomas;
     filtrosGuardados.rangos = rangos;
+    filtrosGuardados.condiciones = condiciones;
   }, [
+    condiciones,
     categorias,
     disponibleSi,
     disponibleNo,
@@ -514,6 +516,8 @@ export function ListadoCandidatos() {
       if (!enRango(c.edad, rangos.edadMin, rangos.edadMax)) return false;
       if (!enRango(c.altura_cm, rangos.alturaMin, rangos.alturaMax)) return false;
       if (!enRango(c["peso_kg"], rangos.pesoMin, rangos.pesoMax)) return false;
+      // Condiciones a medida: todas se combinan con Y.
+      if (condiciones.length > 0 && !cumpleTodas(c, c as Record<string, unknown>)) return false;
       return true;
     });
   }, [

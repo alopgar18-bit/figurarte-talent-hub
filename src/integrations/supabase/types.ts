@@ -984,6 +984,7 @@ export type Database = {
         | "contratado"
         | "descartado"
         | "rechazado_por_candidato"
+        | "pendiente_validacion"
       estado_solicitud_proyecto: "pendiente" | "revisada" | "convertida"
       origen_proyecto_candidato: "manual" | "web_directa"
       rol_usuario:
@@ -1135,6 +1136,7 @@ export const Constants = {
         "contratado",
         "descartado",
         "rechazado_por_candidato",
+        "pendiente_validacion",
       ],
       estado_solicitud_proyecto: ["pendiente", "revisada", "convertida"],
       origen_proyecto_candidato: ["manual", "web_directa"],

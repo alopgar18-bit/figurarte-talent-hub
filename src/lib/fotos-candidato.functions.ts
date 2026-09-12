@@ -22,19 +22,17 @@ const eliminarSchema = z.object({
   indice: z.number().int().min(0).max(199),
 });
 
-async function contextoStaff(context: { supabase: { rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }> }; userId: string }) {
-  const { data: esStaff, error } = await context.supabase.rpc("es_staff", {
-    _user_id: context.userId,
-  });
-  if (error || !esStaff) throw new Error("Forbidden");
-}
+
 
 /** Añade una foto ya subida (ruta privada) al array de fotos del candidato. */
 export const anadirFotoCandidatoStaff = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => anadirSchema.parse(data))
   .handler(async ({ data, context }): Promise<{ fotos: string[] }> => {
-    await contextoStaff(context);
+    const { data: esStaff, error: errorRol } = await context.supabase.rpc("es_staff", {
+      _user_id: context.userId,
+    });
+    if (errorRol || !esStaff) throw new Error("Forbidden");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { firmarFotosPrivadas } = await import("@/lib/fotos.server");
@@ -54,7 +52,8 @@ export const anadirFotoCandidatoStaff = createServerFn({ method: "POST" })
 
     const { error: errorUpdate } = await supabaseAdmin
       .from("candidatos")
-      .update({ fotos, fotos_recorte: recortes })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .update({ fotos, fotos_recorte: recortes as any })
       .eq("id", data.candidatoId);
     if (errorUpdate) throw new Error("No se pudo guardar la foto en la ficha.");
 
@@ -66,7 +65,10 @@ export const eliminarFotoCandidatoStaff = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => eliminarSchema.parse(data))
   .handler(async ({ data, context }): Promise<{ fotos: string[] }> => {
-    await contextoStaff(context);
+    const { data: esStaff, error: errorRol } = await context.supabase.rpc("es_staff", {
+      _user_id: context.userId,
+    });
+    if (errorRol || !esStaff) throw new Error("Forbidden");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { firmarFotosPrivadas } = await import("@/lib/fotos.server");
@@ -88,7 +90,8 @@ export const eliminarFotoCandidatoStaff = createServerFn({ method: "POST" })
 
     const { error: errorUpdate } = await supabaseAdmin
       .from("candidatos")
-      .update({ fotos, fotos_recorte: recortes })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .update({ fotos, fotos_recorte: recortes as any })
       .eq("id", data.candidatoId);
     if (errorUpdate) throw new Error("No se pudo quitar la foto de la ficha.");
 

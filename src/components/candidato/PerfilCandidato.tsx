@@ -40,9 +40,12 @@ import {
 } from "@/lib/procesos-candidato.functions";
 import {
   ACENTOS,
+  CARNES_OPCIONES,
   COLORES_CABELLO,
   COLORES_OJOS,
   GENEROS,
+  GRUPOS_HABILIDADES,
+  GRUPOS_TIPO_PERFIL,
   PAISES,
   PROVINCIAS_ES,
   TALLAS_CALZADO,
@@ -51,6 +54,7 @@ import {
   aTextoLista,
   conValorActual,
   desdeTextoLista,
+  provinciaPorCp,
 } from "@/lib/catalogos";
 
 

@@ -355,6 +355,7 @@ export function FichaCandidato({
           const v = ficha[clave];
           inicialCatalogo[clave] = typeof v === "string" ? v : "";
         }
+        inicialCatalogo["ciudad"] = typeof ficha.ciudad === "string" ? ficha.ciudad : "";
         setCatalogo(inicialCatalogo);
         setAcentosSel(desdeTextoLista(ficha["acentos"]));
         const inicialPerfil: Record<string, unknown> = {};

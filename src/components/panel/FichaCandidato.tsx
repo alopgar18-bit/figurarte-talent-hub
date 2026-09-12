@@ -467,6 +467,46 @@ export function FichaCandidato({
     toast.success("Medidas guardadas");
   }
 
+  /** Guarda todos los campos del perfil completo (texto, fechas, sí/no y listas). */
+  async function guardarPerfil() {
+    if (!candidato) return;
+    setGuardandoPerfil(true);
+    const valores: Record<string, unknown> = {};
+    for (const { clave, tipo } of CAMPOS_PERFIL) {
+      const v = perfil[clave];
+      if (tipo === "bool") valores[clave] = v === true;
+      else {
+        const t = typeof v === "string" ? v.trim() : "";
+        valores[clave] = t === "" ? null : t;
+      }
+    }
+    for (const { clave } of CAMPOS_BADGES) valores[clave] = arrayTexto(perfil[clave]);
+    const { error } = await supabase
+      .from("candidatos")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .update(valores as any)
+      .eq("id", candidato.id);
+    setGuardandoPerfil(false);
+    if (error) {
+      toast.error("No se pudo guardar el perfil completo.");
+      return;
+    }
+    setCandidato({ ...candidato, ...valores });
+    toast.success("Perfil completo guardado");
+  }
+
+  function alternarBadge(clave: string, valor: string) {
+    setPerfil((s) => {
+      const actual = arrayTexto(s[clave]);
+      return {
+        ...s,
+        [clave]: actual.includes(valor)
+          ? actual.filter((x) => x !== valor)
+          : [...actual, valor],
+      };
+    });
+  }
+
   if (cargando) {
     return (
       <div className="flex items-center gap-2 py-16 text-muted-foreground">

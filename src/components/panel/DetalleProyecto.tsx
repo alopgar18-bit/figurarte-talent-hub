@@ -185,7 +185,7 @@ function CandidatoCard({
       {onToggleSeleccion && (
         <label className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
           <Checkbox
-            checked={seleccion}
+            checked={seleccion ?? false}
             onCheckedChange={(v) => onToggleSeleccion(v === true)}
           />
           Seleccionar para comunicación

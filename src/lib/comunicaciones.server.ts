@@ -2,48 +2,49 @@ import { plantillaEmail, botonEmail } from "@/lib/email-layout";
 
 export type TipoAviso = "descartado" | "contratado";
 
+/** Sustituye las variables admitidas en asunto y cuerpo de una plantilla. */
+export function aplicarVariables(
+  texto: string,
+  vars: { nombre?: string; enlace?: string },
+): string {
+  return texto
+    .replaceAll("{nombre}", vars.nombre ?? "")
+    .replaceAll("{enlace}", vars.enlace ?? "");
+}
+
 /**
- * Envía al candidato el aviso de resultado del proceso.
- * Los fallos solo se registran: nunca rompen el cambio de estado.
+ * Envío genérico de un correo con la identidad de FigurArte.
+ * Los fallos solo se registran: nunca rompen la operación que lo dispara.
  */
-export async function enviarAvisoEstado(
-  tipo: TipoAviso,
-  nombre: string,
-  email: string | null,
-  baseUrl: string,
-): Promise<boolean> {
+export async function enviarEmailFigurarte(opts: {
+  email: string | null;
+  asunto: string;
+  cuerpo: string;
+  enlace?: string | null;
+  textoBoton?: string;
+}): Promise<boolean> {
   try {
-    if (!email) return false;
+    if (!opts.email) return false;
     const apiKey = process.env["RESEND_API_KEY"];
     if (!apiKey) {
       console.error("[email] RESEND_API_KEY no está configurado");
       return false;
     }
-    const enlace = `${baseUrl}/candidato`;
 
-    const asunto =
-      tipo === "contratado"
-        ? "¡Buenas noticias! Has sido seleccionado/a — FigurArte"
-        : "Sobre tu candidatura — FigurArte";
-
-    const cuerpo =
-      tipo === "contratado"
-        ? `Hola ${nombre}, tenemos buenas noticias: has sido seleccionado/a para uno de los procesos en los que participabas. En breve nos pondremos en contacto contigo con los detalles.`
-        : `Hola ${nombre}, gracias por participar. En esta ocasión no hemos seguido adelante con tu candidatura en uno de los procesos, pero tu perfil sigue activo para futuras oportunidades.`;
-
-    const text = `${cuerpo}
-
-Puedes consultar tus procesos en tu área de candidato: ${enlace}
-
-— FIGURARTE · Agencia de casting & producción`;
+    const parrafos = opts.cuerpo
+      .split(/\n{2,}/)
+      .map((p) => `<p style="margin:0 0 16px;">${p.replace(/\n/g, "<br>")}</p>`)
+      .join("");
 
     const html = plantillaEmail(
-      `
-      <p style="margin:0 0 16px;">${cuerpo}</p>
-      <p style="margin:0;">Puedes consultar tus procesos en tu área de candidato:</p>
-      ${botonEmail("Ver mis procesos", enlace)}
-    `.trim(),
+      opts.enlace
+        ? `${parrafos}${botonEmail(opts.textoBoton ?? "Ver más", opts.enlace)}`
+        : parrafos,
     );
+
+    const text = `${opts.cuerpo}${opts.enlace ? `\n\n${opts.enlace}` : ""}
+
+— FIGURARTE · Agencia de casting & producción`;
 
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -53,8 +54,8 @@ Puedes consultar tus procesos en tu área de candidato: ${enlace}
       },
       body: JSON.stringify({
         from: "FIGURARTE Casting & Producción <casting@figurarte.app>",
-        to: [email],
-        subject: asunto,
+        to: [opts.email],
+        subject: opts.asunto,
         html,
         text,
       }),
@@ -67,7 +68,7 @@ Puedes consultar tus procesos en tu área de candidato: ${enlace}
     }
     return true;
   } catch (err) {
-    console.error("[email] Error avisando del cambio de estado:", err);
+    console.error("[email] Error enviando el correo:", err);
     return false;
   }
 }

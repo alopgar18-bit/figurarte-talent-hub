@@ -31,6 +31,7 @@ const OPERATIVA: Enlace[] = [
   { titulo: "Candidatos", ruta: "/panel/candidatos", icono: Users },
   { titulo: "Proyectos / Casting", ruta: "/panel/proyectos", icono: Clapperboard },
   { titulo: "Captación RRSS", ruta: "/panel/captacion", icono: Megaphone },
+  { titulo: "Comunicaciones", ruta: "/panel/comunicaciones", icono: MessageSquare },
 ];
 
 const ADMINISTRACION: Enlace[] = [

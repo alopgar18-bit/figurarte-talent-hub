@@ -255,8 +255,9 @@ export function DetalleProyecto({ id }: { id: string }) {
   }
 
   async function generarDossier() {
+    const validos = new Set(asociacionesDossier.map((a) => a.candidato_id));
     const incluidos = Object.entries(seleccionDossier)
-      .filter(([, v]) => v)
+      .filter(([k, v]) => v && validos.has(k))
       .map(([k]) => k);
     if (incluidos.length === 0) {
       toast.error("Selecciona al menos un candidato.");

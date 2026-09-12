@@ -50,6 +50,7 @@ import {
   conValorActual,
   desdeTextoLista,
 } from "@/lib/catalogos";
+import { SelectorMunicipio } from "@/components/SelectorMunicipio";
 
 const SIN_TALLA = "__sin_talla__";
 import { Switch } from "@/components/ui/switch";

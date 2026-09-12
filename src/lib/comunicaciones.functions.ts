@@ -31,6 +31,7 @@ function origenPeticion() {
 export type ResultadoCambioEstado = {
   estado: EstadoProyectoCandidato;
   emailEnviado: boolean;
+  canal: "email" | "whatsapp" | null;
 };
 
 /**

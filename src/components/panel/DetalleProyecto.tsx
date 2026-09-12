@@ -190,6 +190,10 @@ export function DetalleProyecto({ id }: { id: string }) {
   const [resultados, setResultados] = useState<Candidato[]>([]);
   const [buscando, setBuscando] = useState(false);
 
+  /** Candidato web cuya ficha se está revisando antes de validar o rechazar. */
+  const [revisando, setRevisando] = useState<string | null>(null);
+  const [resolviendo, setResolviendo] = useState(false);
+
   const [dossier, setDossier] = useState<Dossier | null>(null);
   const [dialogoDossier, setDialogoDossier] = useState(false);
   const asignar = useServerFn(asignarCandidatosAProyecto);

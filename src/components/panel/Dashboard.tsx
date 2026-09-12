@@ -107,6 +107,31 @@ export function Dashboard() {
   const [seleccion, setSeleccion] = useState<Solicitud | null>(null);
   const [convirtiendo, setConvirtiendo] = useState(false);
 
+  const fnPorRevisar = useServerFn(listarCandidatosPorRevisar);
+  const fnPendientes = useServerFn(listarInscripcionesPendientes);
+  const fnDecidir = useServerFn(decidirVisibilidadPublica);
+  const [porRevisar, setPorRevisar] = useState<CandidatoPorRevisar[]>([]);
+  const [pendientes, setPendientes] = useState<InscripcionPendiente[]>([]);
+  const [decidiendo, setDecidiendo] = useState<string | null>(null);
+
+  async function cargarBandejas() {
+    const [rev, pen] = await Promise.allSettled([fnPorRevisar({}), fnPendientes({})]);
+    if (rev.status === "fulfilled") setPorRevisar(rev.value);
+    if (pen.status === "fulfilled") setPendientes(pen.value);
+  }
+
+  async function decidir(candidatoId: string, publicar: boolean) {
+    setDecidiendo(candidatoId);
+    try {
+      await fnDecidir({ data: { candidato_id: candidatoId, publicar } });
+      setPorRevisar((prev) => prev.filter((c) => c.id !== candidatoId));
+      toast.success(publicar ? "Publicado en la web" : "Marcado como no publicable");
+    } catch {
+      toast.error("No se pudo guardar la decisión. Solo un administrador puede hacerlo.");
+    }
+    setDecidiendo(null);
+  }
+
   async function cargar() {
     setCargando(true);
     const [sol, cli, pro, can, asg, reg] = await Promise.all([

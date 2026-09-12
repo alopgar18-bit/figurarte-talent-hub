@@ -155,7 +155,7 @@ export function ProgramasTv({ esAdmin }: { esAdmin: boolean }) {
             Tarjetas que se muestran en la Home pública y enlazan a formularios externos.
           </p>
         </div>
-        <Button size="sm" onClick={() => setDialogo(true)}>
+        <Button size="sm" onClick={abrirNuevo}>
           <Plus className="mr-1.5 h-4 w-4" />
           Añadir programa
         </Button>
@@ -195,6 +195,14 @@ export function ProgramasTv({ esAdmin }: { esAdmin: boolean }) {
                 <span className="text-xs text-muted-foreground">
                   {p.activo ? "Visible" : "Oculto"}
                 </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  aria-label={`Editar ${p.nombre}`}
+                  onClick={() => abrirEdicion(p)}
+                >
+                  Editar
+                </Button>
                 {esAdmin && (
                   <Button
                     variant="ghost"

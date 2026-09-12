@@ -181,6 +181,43 @@ const CAMPOS_BADGES: { clave: string; etiqueta: string }[] = [
   { clave: "otras_residencias", etiqueta: "Disponibilidad para otras residencias" },
 ];
 
+/** Opciones de cada campo de tipo lista, tomadas de los catálogos compartidos. */
+const OPCIONES_BADGES: Record<string, { titulo: string; opciones: string[] }[]> = {
+  habilidades: GRUPOS_HABILIDADES,
+  tipo_perfil: GRUPOS_TIPO_PERFIL,
+  carnes_conducir: [{ titulo: "Carnés y licencias", opciones: CARNES_OPCIONES }],
+  otras_residencias: [{ titulo: "Provincias", opciones: PROVINCIAS_ES }],
+};
+
+const OPCIONES_REPRESENTACION = [
+  { valor: "sin_representacion", etiqueta: "Sin representación" },
+  { valor: "con_representacion", etiqueta: "Con representación / agencia" },
+];
+
+function ChipStaff({
+  activo,
+  onClick,
+  children,
+}: {
+  activo: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`border px-3 py-1 text-sm transition-colors ${
+        activo
+          ? "border-primary bg-primary text-primary-foreground"
+          : "border-border bg-background hover:bg-muted/60"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
 function arrayTexto(v: unknown): string[] {
   return Array.isArray(v) ? v.filter((x): x is string => typeof x === "string" && x.trim() !== "") : [];
 }

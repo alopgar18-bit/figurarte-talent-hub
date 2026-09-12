@@ -843,43 +843,96 @@ export function FichaCandidato({
           <CardTitle className="text-base">Perfil completo</CardTitle>
         </CardHeader>
         <CardContent>
-          {camposPerfilConValor.length > 0 ? (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {camposPerfilConValor.map(({ clave, etiqueta, tipo, etiquetas }) => {
-                const bruto = candidato[clave];
-                let valor: string;
-                if (tipo === "bool") {
-                  valor = bruto ? "Sí" : "No";
-                } else if (tipo === "fecha") {
-                  valor = formateaFecha(String(bruto));
-                } else if (tipo === "etiqueta") {
-                  valor = etiquetas?.[String(bruto)] ?? String(bruto);
-                } else {
-                  valor = String(bruto);
-                }
-                return <Dato key={clave} etiqueta={etiqueta} valor={valor} />;
-              })}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              Este candidato aún no ha completado su perfil ampliado.
-            </p>
-          )}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {CAMPOS_PERFIL.map(({ clave, etiqueta, tipo }) => {
+              if (tipo === "bool") {
+                return (
+                  <div key={clave} className="flex items-center justify-between gap-3 border border-border p-3">
+                    <Label htmlFor={`perfil_${clave}`}>{etiqueta}</Label>
+                    <Switch
+                      id={`perfil_${clave}`}
+                      checked={perfil[clave] === true}
+                      onCheckedChange={(v) => setPerfil((s) => ({ ...s, [clave]: v }))}
+                    />
+                  </div>
+                );
+              }
+              if (clave === "representacion") {
+                return (
+                  <div key={clave} className="space-y-1.5">
+                    <Label>{etiqueta}</Label>
+                    <Select
+                      value={typeof perfil[clave] === "string" && perfil[clave] ? String(perfil[clave]) : undefined}
+                      onValueChange={(v) => setPerfil((s) => ({ ...s, [clave]: v }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sin especificar" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {OPCIONES_REPRESENTACION.map((o) => (
+                          <SelectItem key={o.valor} value={o.valor}>
+                            {o.etiqueta}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                );
+              }
+              return (
+                <div key={clave} className="space-y-1.5">
+                  <Label htmlFor={`perfil_${clave}`}>{etiqueta}</Label>
+                  <Input
+                    id={`perfil_${clave}`}
+                    type={tipo === "fecha" ? "date" : "text"}
+                    value={typeof perfil[clave] === "string" ? String(perfil[clave]) : ""}
+                    onChange={(e) => setPerfil((s) => ({ ...s, [clave]: e.target.value }))}
+                  />
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-6 space-y-5 border-t pt-6">
+            {CAMPOS_BADGES.map(({ clave, etiqueta }) => (
+              <div key={clave} className="space-y-2">
+                <p className="text-sm font-semibold">{etiqueta}</p>
+                {(OPCIONES_BADGES[clave] ?? []).map((grupo) => (
+                  <div key={grupo.titulo} className="space-y-1.5">
+                    <p className="text-xs text-muted-foreground">{grupo.titulo}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {grupo.opciones.map((opcion) => (
+                        <ChipStaff
+                          key={opcion}
+                          activo={arrayTexto(perfil[clave]).includes(opcion)}
+                          onClick={() => alternarBadge(clave, opcion)}
+                        >
+                          {opcion}
+                        </ChipStaff>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                {arrayTexto(perfil[clave])
+                  .filter((v) => !(OPCIONES_BADGES[clave] ?? []).some((g) => g.opciones.includes(v)))
+                  .map((v) => (
+                    <Badge key={v} variant="outline">
+                      {v}
+                    </Badge>
+                  ))}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 flex justify-end">
+            <Button onClick={() => void guardarPerfil()} disabled={guardandoPerfil}>
+              {guardandoPerfil ? "Guardando…" : "Guardar perfil completo"}
+            </Button>
+          </div>
 
           {haySeccionesListas ? (
             <div className="mt-6 space-y-4 border-t pt-6">
-              {badgesConValor.map(({ clave, etiqueta, valores }) => (
-                <div key={clave} className="space-y-1.5">
-                  <p className="text-xs text-muted-foreground">{etiqueta}</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {valores.map((valor, i) => (
-                      <Badge key={`${valor}-${i}`} variant="outline">
-                        {valor}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              ))}
+
 
               {estudios.length > 0 ? (
                 <div className="space-y-1.5">

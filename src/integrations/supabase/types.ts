@@ -483,27 +483,39 @@ export type Database = {
         Row: {
           canal: string
           candidato_id: string | null
+          cliente_id: string | null
+          contenido: string | null
           creado_en: string
+          destinatario_tipo: string
           enviado_en: string
           id: string
+          origen: string
           proyecto_id: string | null
           tipo: string
         }
         Insert: {
           canal?: string
           candidato_id?: string | null
+          cliente_id?: string | null
+          contenido?: string | null
           creado_en?: string
+          destinatario_tipo?: string
           enviado_en?: string
           id?: string
+          origen?: string
           proyecto_id?: string | null
           tipo: string
         }
         Update: {
           canal?: string
           candidato_id?: string | null
+          cliente_id?: string | null
+          contenido?: string | null
           creado_en?: string
+          destinatario_tipo?: string
           enviado_en?: string
           id?: string
+          origen?: string
           proyecto_id?: string | null
           tipo?: string
         }
@@ -513,6 +525,13 @@ export type Database = {
             columns: ["candidato_id"]
             isOneToOne: false
             referencedRelation: "candidatos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comunicaciones_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
             referencedColumns: ["id"]
           },
           {
@@ -625,6 +644,42 @@ export type Database = {
           id?: string
           nombre?: string
           usuario_id?: string
+        }
+        Relationships: []
+      }
+      plantillas_comunicacion: {
+        Row: {
+          activo: boolean
+          actualizado_en: string
+          asunto: string | null
+          canal: string
+          creado_en: string
+          cuerpo: string | null
+          evento: string
+          id: string
+          plantilla_wati: string | null
+        }
+        Insert: {
+          activo?: boolean
+          actualizado_en?: string
+          asunto?: string | null
+          canal: string
+          creado_en?: string
+          cuerpo?: string | null
+          evento: string
+          id?: string
+          plantilla_wati?: string | null
+        }
+        Update: {
+          activo?: boolean
+          actualizado_en?: string
+          asunto?: string | null
+          canal?: string
+          creado_en?: string
+          cuerpo?: string | null
+          evento?: string
+          id?: string
+          plantilla_wati?: string | null
         }
         Relationships: []
       }

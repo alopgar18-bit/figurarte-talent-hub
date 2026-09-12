@@ -540,6 +540,7 @@ export function ListadoCandidatos() {
     ojosSel,
     idiomas,
     rangos,
+    condiciones,
   ]);
 
   const idsFiltrados = filtrados.map((c) => c.id);

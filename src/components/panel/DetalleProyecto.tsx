@@ -30,6 +30,7 @@ import { asignarCandidatosAProyecto } from "@/lib/rgpd.functions";
 import { registrarAccesoStaff } from "@/lib/registro-accesos.functions";
 import { firmarFotosStaff } from "@/lib/fotos.functions";
 import { MultiSelect } from "@/components/panel/MultiSelect";
+import { FichaCandidato } from "@/components/panel/FichaCandidato";
 import {
   cambiarEstadoProyectoCandidato,
   type EstadoProyectoCandidato,
@@ -114,7 +115,11 @@ const ESTADOS_PROYECTO = [
   { valor: "cerrado", etiqueta: "Cerrado" },
 ];
 
+/** Estados que sí pueden salir en un dossier de cliente. */
+const ESTADOS_DOSSIER = ["preseleccionado", "enviado", "contratado"];
+
 const ESTADOS_CANDIDATO = [
+  { valor: "pendiente_validacion", etiqueta: "Pendiente de validar" },
   { valor: "preseleccionado", etiqueta: "Preseleccionado" },
   { valor: "enviado", etiqueta: "Enviado" },
   { valor: "contratado", etiqueta: "Contratado" },
@@ -186,6 +191,10 @@ export function DetalleProyecto({ id }: { id: string }) {
   const [resultados, setResultados] = useState<Candidato[]>([]);
   const [buscando, setBuscando] = useState(false);
 
+  /** Candidato web cuya ficha se está revisando antes de validar o rechazar. */
+  const [revisando, setRevisando] = useState<string | null>(null);
+  const [resolviendo, setResolviendo] = useState(false);
+
   const [dossier, setDossier] = useState<Dossier | null>(null);
   const [dialogoDossier, setDialogoDossier] = useState(false);
   const asignar = useServerFn(asignarCandidatosAProyecto);
@@ -229,7 +238,9 @@ export function DetalleProyecto({ id }: { id: string }) {
 
   function abrirDialogoDossier() {
     const marcados: Record<string, boolean> = {};
-    for (const a of asociaciones) marcados[a.candidato_id] = true;
+    // Nunca se ofrece en dossier a quien está pendiente de validar, descartado
+    // o ha rechazado la preselección.
+    for (const a of asociacionesDossier) marcados[a.candidato_id] = true;
     setSeleccionDossier(marcados);
     const en14 = new Date(Date.now() + 14 * 86400000);
     setCaducidadDossier(en14.toISOString().slice(0, 10));
@@ -249,8 +260,9 @@ export function DetalleProyecto({ id }: { id: string }) {
   }
 
   async function generarDossier() {
+    const validos = new Set(asociacionesDossier.map((a) => a.candidato_id));
     const incluidos = Object.entries(seleccionDossier)
-      .filter(([, v]) => v)
+      .filter(([k, v]) => v && validos.has(k))
       .map(([k]) => k);
     if (incluidos.length === 0) {
       toast.error("Selecciona al menos un candidato.");
@@ -531,12 +543,32 @@ export function DetalleProyecto({ id }: { id: string }) {
     }
   }
 
+  /** Primera revisión de una inscripción web: validar o rechazar. */
+  async function resolverInscripcion(
+    candidatoId: string,
+    estado: "preseleccionado" | "descartado",
+  ) {
+    setResolviendo(true);
+    await cambiarEstadoCandidato(candidatoId, estado);
+    setResolviendo(false);
+    setRevisando(null);
+    // Al rechazar, cambiarEstadoCandidato ya avisa del email al candidato.
+    if (estado === "preseleccionado") {
+      toast.success("Inscripción validada: ya puede entrar en el dossier.");
+    }
+  }
+
   const manuales = useMemo(
     () => asociaciones.filter((a) => a.origen === "manual"),
     [asociaciones],
   );
   const web = useMemo(
     () => asociaciones.filter((a) => a.origen === "web_directa"),
+    [asociaciones],
+  );
+  /** Solo estos candidatos pueden llegar a un dossier de cliente. */
+  const asociacionesDossier = useMemo(
+    () => asociaciones.filter((a) => ESTADOS_DOSSIER.includes(a.estado)),
     [asociaciones],
   );
 
@@ -1087,14 +1119,15 @@ export function DetalleProyecto({ id }: { id: string }) {
               <tbody>
                 {web.map((a) => {
                   const c = candidatos[a.candidato_id];
+                  const pendiente = a.estado === "pendiente_validacion";
                   return (
                     <tr key={a.candidato_id} className="border-b border-border last:border-0">
                       <td className="px-3 py-2">{c?.codigo ?? "—"}</td>
                       <td className="px-3 py-2">
                         <span className="flex items-center gap-2">
                           <span className="font-medium">{c?.nombre ?? "—"}</span>
-                          {a.estado === "preseleccionado" && (
-                            <Badge className="h-5 px-1.5 text-[10px]">nuevo</Badge>
+                          {pendiente && (
+                            <Badge className="h-5 px-1.5 text-[10px]">pendiente</Badge>
                           )}
                         </span>
                       </td>
@@ -1102,6 +1135,15 @@ export function DetalleProyecto({ id }: { id: string }) {
                         {new Date(a.creado_en).toLocaleDateString("es-ES")}
                       </td>
                       <td className="px-3 py-2">
+                        {pendiente ? (
+                          <Button
+                            size="sm"
+                            className="h-8 text-xs"
+                            onClick={() => setRevisando(a.candidato_id)}
+                          >
+                            Revisar ficha
+                          </Button>
+                        ) : (
                         <Select
                           value={a.estado}
                           onValueChange={(v) => cambiarEstadoCandidato(a.candidato_id, v)}
@@ -1117,6 +1159,7 @@ export function DetalleProyecto({ id }: { id: string }) {
                             ))}
                           </SelectContent>
                         </Select>
+                        )}
                       </td>
                     </tr>
                   );
@@ -1126,6 +1169,48 @@ export function DetalleProyecto({ id }: { id: string }) {
           </div>
         )}
       </Tarjeta>
+
+      <Dialog
+        open={revisando !== null}
+        onOpenChange={(abierto) => {
+          if (!abierto) setRevisando(null);
+        }}
+      >
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Revisar inscripción</DialogTitle>
+            <DialogDescription>
+              Revisa la ficha completa antes de preseleccionar a esta persona para el
+              casting.
+            </DialogDescription>
+          </DialogHeader>
+          {revisando && (
+            <div className="space-y-4">
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Button
+                  className="flex-1"
+                  disabled={resolviendo}
+                  onClick={() => resolverInscripcion(revisando, "preseleccionado")}
+                >
+                  {resolviendo && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Validar
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  disabled={resolviendo}
+                  onClick={() => resolverInscripcion(revisando, "descartado")}
+                >
+                  Rechazar
+                </Button>
+              </div>
+              <div className="border-t border-border pt-4">
+                <FichaCandidato id={revisando} volverAProyectoId={id} />
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={dialogoDossier} onOpenChange={setDialogoDossier}>
         <DialogContent className="sm:max-w-lg">
@@ -1137,12 +1222,13 @@ export function DetalleProyecto({ id }: { id: string }) {
           </DialogHeader>
           <div className="space-y-4">
             <div className="max-h-64 space-y-2 overflow-y-auto border border-border p-3">
-              {asociaciones.length === 0 && (
+              {asociacionesDossier.length === 0 && (
                 <p className="text-sm text-muted-foreground">
-                  Este proyecto todavía no tiene candidatos asociados.
+                  No hay candidatos validados para este dossier. Valida antes las
+                  inscripciones pendientes.
                 </p>
               )}
-              {asociaciones.map((a) => {
+              {asociacionesDossier.map((a) => {
                 const c = candidatos[a.candidato_id];
                 if (!c) return null;
                 return (
@@ -1181,7 +1267,7 @@ export function DetalleProyecto({ id }: { id: string }) {
             <Button
               className="w-full"
               onClick={generarDossier}
-              disabled={generandoDossier || asociaciones.length === 0}
+              disabled={generandoDossier || asociacionesDossier.length === 0}
             >
               {generandoDossier && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Generar y abrir dossier

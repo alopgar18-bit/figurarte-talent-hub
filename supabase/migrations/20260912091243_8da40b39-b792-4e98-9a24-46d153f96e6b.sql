@@ -1,0 +1,1 @@
+ALTER TYPE public.estado_proyecto_candidato ADD VALUE IF NOT EXISTS 'pendiente_validacion';

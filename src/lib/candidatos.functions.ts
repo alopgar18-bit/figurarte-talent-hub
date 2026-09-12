@@ -226,6 +226,8 @@ export const crearCandidatura = createServerFn({ method: "POST" })
           proyecto_id: data.proyecto_id,
           candidato_id: creado.id,
           origen: "web_directa",
+          // Pendiente de que el equipo revise la ficha antes de preseleccionar.
+          estado: "pendiente_validacion",
         });
       if (errCasting && errCasting.code !== "23505") {
         console.error("[registro] No se pudo apuntar al casting:", errCasting);

@@ -5,6 +5,7 @@ import { plantillaEmail, botonEmail } from "@/lib/email-layout";
 import { getRequest } from "@tanstack/react-start/server";
 
 export const ESTADOS_PROYECTO_CANDIDATO = [
+  "pendiente_validacion",
   "preseleccionado",
   "enviado",
   "contratado",

@@ -1,6 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
-import { Loader2, Inbox, TrendingUp, Users, Clapperboard, Building2 } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  Loader2,
+  Inbox,
+  TrendingUp,
+  Users,
+  Clapperboard,
+  Building2,
+  UserCheck,
+  ClipboardList,
+} from "lucide-react";
+import {
+  listarCandidatosPorRevisar,
+  listarInscripcionesPendientes,
+  decidirVisibilidadPublica,
+  type CandidatoPorRevisar,
+  type InscripcionPendiente,
+} from "@/lib/dashboard-revision.functions";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";

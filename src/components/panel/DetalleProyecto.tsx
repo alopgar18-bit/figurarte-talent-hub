@@ -1154,6 +1154,48 @@ export function DetalleProyecto({ id }: { id: string }) {
         )}
       </Tarjeta>
 
+      <Dialog
+        open={revisando !== null}
+        onOpenChange={(abierto) => {
+          if (!abierto) setRevisando(null);
+        }}
+      >
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Revisar inscripción</DialogTitle>
+            <DialogDescription>
+              Revisa la ficha completa antes de preseleccionar a esta persona para el
+              casting.
+            </DialogDescription>
+          </DialogHeader>
+          {revisando && (
+            <div className="space-y-4">
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Button
+                  className="flex-1"
+                  disabled={resolviendo}
+                  onClick={() => resolverInscripcion(revisando, "preseleccionado")}
+                >
+                  {resolviendo && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Validar
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  disabled={resolviendo}
+                  onClick={() => resolverInscripcion(revisando, "descartado")}
+                >
+                  Rechazar
+                </Button>
+              </div>
+              <div className="border-t border-border pt-4">
+                <FichaCandidato id={revisando} volverAProyectoId={id} />
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={dialogoDossier} onOpenChange={setDialogoDossier}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>

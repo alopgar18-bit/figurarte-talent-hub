@@ -884,6 +884,9 @@ export function ListadoCandidatos() {
             <Button variant="outline" onClick={() => setDialogoExport(true)}>
               <Download className="size-4" /> Exportar selección
             </Button>
+            <Button variant="outline" onClick={() => setDialogoComunicacion(true)}>
+              Enviar comunicación
+            </Button>
           </div>
           {aviso && <p className="w-full text-sm text-muted-foreground">{aviso}</p>}
         </div>

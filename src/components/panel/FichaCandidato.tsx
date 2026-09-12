@@ -304,6 +304,14 @@ export function FichaCandidato({
   const [dialogoBorrado, setDialogoBorrado] = useState(false);
   const [confirmacion, setConfirmacion] = useState("");
   const [borrando, setBorrando] = useState(false);
+  const pedirSubida = useServerFn(obtenerUrlSubidaFoto);
+  const anadirFoto = useServerFn(anadirFotoCandidatoStaff);
+  const quitarFoto = useServerFn(eliminarFotoCandidatoStaff);
+  const inputFotoRef = useRef<HTMLInputElement>(null);
+  const [recortando, setRecortando] = useState<File | null>(null);
+  const [subiendoFoto, setSubiendoFoto] = useState(false);
+  const [borrandoFoto, setBorrandoFoto] = useState<number | null>(null);
+  const [fotoAEliminar, setFotoAEliminar] = useState<number | null>(null);
   const [vestuario, setVestuario] = useState<Record<string, string>>({});
   const [perfil, setPerfil] = useState<Record<string, unknown>>({});
   const [guardandoPerfil, setGuardandoPerfil] = useState(false);
@@ -425,6 +433,53 @@ export function FichaCandidato({
     }
   }
 
+
+  /** Sube una foto nueva reutilizando el mismo mecanismo del alta pública. */
+  async function subirFoto(file: File, area: AreaRecorte) {
+    if (!candidato) return;
+    setSubiendoFoto(true);
+    try {
+      const ext = (file.name.split(".").pop() ?? "").toLowerCase();
+      const extension = (["jpg", "jpeg", "png", "webp", "heic"].includes(ext)
+        ? ext
+        : "jpg") as "jpg" | "jpeg" | "png" | "webp" | "heic";
+
+      const permiso = await pedirSubida({ data: { extension } });
+      if (permiso.estado === "limite")
+        throw new Error("Demasiadas subidas seguidas. Prueba de nuevo dentro de un rato.");
+      if (permiso.estado !== "ok") throw new Error("No se pudo preparar la subida.");
+
+      const { error: errorSubida } = await supabase.storage
+        .from("candidatos-fotos")
+        .uploadToSignedUrl(permiso.path, permiso.token, file);
+      if (errorSubida) throw new Error("No se pudo subir la foto.");
+
+      const res = await anadirFoto({
+        data: { candidatoId: candidato.id, path: permiso.path, area },
+      });
+      setCandidato({ ...candidato, fotos: res.fotos });
+      toast.success("Foto añadida");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo añadir la foto.");
+    } finally {
+      setSubiendoFoto(false);
+    }
+  }
+
+  /** Quita una foto de la ficha y borra también el archivo del almacenamiento. */
+  async function eliminarFoto(indice: number) {
+    if (!candidato) return;
+    setBorrandoFoto(indice);
+    try {
+      const res = await quitarFoto({ data: { candidatoId: candidato.id, indice } });
+      setCandidato({ ...candidato, fotos: res.fotos });
+      toast.success("Foto eliminada");
+    } catch {
+      toast.error("No se pudo eliminar la foto.");
+    } finally {
+      setBorrandoFoto(null);
+    }
+  }
 
   async function guardarCatalogo() {
     if (!candidato) return;
@@ -1082,6 +1137,49 @@ export function FichaCandidato({
           </Button>
         </CardContent>
       </Card>
+
+      {recortando && (
+        <RecorteFoto
+          file={recortando}
+          titulo="Nueva foto del candidato"
+          onCancelar={() => setRecortando(null)}
+          onConfirmar={(area) => {
+            const file = recortando;
+            setRecortando(null);
+            void subirFoto(file, area);
+          }}
+        />
+      )}
+
+      <Dialog
+        open={fotoAEliminar !== null}
+        onOpenChange={(abierto) => !abierto && setFotoAEliminar(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Eliminar foto</DialogTitle>
+            <DialogDescription>
+              La foto se quitará de la ficha y se borrará definitivamente del
+              almacenamiento. Esta acción no se puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setFotoAEliminar(null)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                const indice = fotoAEliminar;
+                setFotoAEliminar(null);
+                if (indice !== null) void eliminarFoto(indice);
+              }}
+            >
+              Eliminar foto
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={dialogoBorrado} onOpenChange={setDialogoBorrado}>
         <DialogContent>

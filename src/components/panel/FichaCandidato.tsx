@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -9,12 +9,20 @@ import {
   Mail,
   Phone,
   Ruler,
+  Trash2,
+  Upload,
   Weight,
   User,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { obtenerFichaCandidatoStaff } from "@/lib/ficha-candidato.functions";
 import { eliminarCandidatoStaff } from "@/lib/derechos-rgpd.functions";
+import { obtenerUrlSubidaFoto } from "@/lib/subida-fotos.functions";
+import {
+  anadirFotoCandidatoStaff,
+  eliminarFotoCandidatoStaff,
+} from "@/lib/fotos-candidato.functions";
+import { RecorteFoto, type AreaRecorte } from "@/components/RecorteFoto";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -296,6 +304,14 @@ export function FichaCandidato({
   const [dialogoBorrado, setDialogoBorrado] = useState(false);
   const [confirmacion, setConfirmacion] = useState("");
   const [borrando, setBorrando] = useState(false);
+  const pedirSubida = useServerFn(obtenerUrlSubidaFoto);
+  const anadirFoto = useServerFn(anadirFotoCandidatoStaff);
+  const quitarFoto = useServerFn(eliminarFotoCandidatoStaff);
+  const inputFotoRef = useRef<HTMLInputElement>(null);
+  const [recortando, setRecortando] = useState<File | null>(null);
+  const [subiendoFoto, setSubiendoFoto] = useState(false);
+  const [borrandoFoto, setBorrandoFoto] = useState<number | null>(null);
+  const [fotoAEliminar, setFotoAEliminar] = useState<number | null>(null);
   const [vestuario, setVestuario] = useState<Record<string, string>>({});
   const [perfil, setPerfil] = useState<Record<string, unknown>>({});
   const [guardandoPerfil, setGuardandoPerfil] = useState(false);
@@ -417,6 +433,53 @@ export function FichaCandidato({
     }
   }
 
+
+  /** Sube una foto nueva reutilizando el mismo mecanismo del alta pública. */
+  async function subirFoto(file: File, area: AreaRecorte) {
+    if (!candidato) return;
+    setSubiendoFoto(true);
+    try {
+      const ext = (file.name.split(".").pop() ?? "").toLowerCase();
+      const extension = (["jpg", "jpeg", "png", "webp", "heic"].includes(ext)
+        ? ext
+        : "jpg") as "jpg" | "jpeg" | "png" | "webp" | "heic";
+
+      const permiso = await pedirSubida({ data: { extension } });
+      if (permiso.estado === "limite")
+        throw new Error("Demasiadas subidas seguidas. Prueba de nuevo dentro de un rato.");
+      if (permiso.estado !== "ok") throw new Error("No se pudo preparar la subida.");
+
+      const { error: errorSubida } = await supabase.storage
+        .from("candidatos-fotos")
+        .uploadToSignedUrl(permiso.path, permiso.token, file);
+      if (errorSubida) throw new Error("No se pudo subir la foto.");
+
+      const res = await anadirFoto({
+        data: { candidatoId: candidato.id, path: permiso.path, area },
+      });
+      setCandidato({ ...candidato, fotos: res.fotos });
+      toast.success("Foto añadida");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo añadir la foto.");
+    } finally {
+      setSubiendoFoto(false);
+    }
+  }
+
+  /** Quita una foto de la ficha y borra también el archivo del almacenamiento. */
+  async function eliminarFoto(indice: number) {
+    if (!candidato) return;
+    setBorrandoFoto(indice);
+    try {
+      const res = await quitarFoto({ data: { candidatoId: candidato.id, indice } });
+      setCandidato({ ...candidato, fotos: res.fotos });
+      toast.success("Foto eliminada");
+    } catch {
+      toast.error("No se pudo eliminar la foto.");
+    } finally {
+      setBorrandoFoto(null);
+    }
+  }
 
   async function guardarCatalogo() {
     if (!candidato) return;
@@ -644,6 +707,88 @@ export function FichaCandidato({
         </CardContent>
       </Card>
 
+      {/* Fotos */}
+      <Card>
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
+          <CardTitle className="text-base">Fotos ({candidato.fotos?.length ?? 0})</CardTitle>
+          <div>
+            <input
+              ref={inputFotoRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/heic"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (file) setRecortando(file);
+              }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={subiendoFoto}
+              onClick={() => inputFotoRef.current?.click()}
+            >
+              {subiendoFoto ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4" />
+              )}
+              Añadir foto
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {candidato.fotos && candidato.fotos.length > 0 ? (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {candidato.fotos.map((foto, indice) => {
+                const esPlaceholder = !/^https?:\/\//.test(foto);
+                return (
+                  <div key={`${foto}-${indice}`} className="group relative">
+                    {esPlaceholder ? (
+                      <div className="flex aspect-[3/4] flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/50 p-3 text-center">
+                        <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                        <span className="break-all text-[10px] leading-tight text-muted-foreground">
+                          {foto}
+                        </span>
+                      </div>
+                    ) : (
+                      <img
+                        src={foto}
+                        alt={`Foto de ${nombreCompleto}`}
+                        loading="lazy"
+                        className="aspect-[3/4] w-full rounded-md border object-cover"
+                      />
+                    )}
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute right-2 top-2 h-8 w-8"
+                      aria-label="Eliminar esta foto"
+                      disabled={borrandoFoto === indice}
+                      onClick={() => setFotoAEliminar(indice)}
+                    >
+                      {borrandoFoto === indice ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">Sin fotos todavía.</p>
+          )}
+          <p className="mt-3 text-xs text-muted-foreground">
+            Las fotos se recortan en formato 3:4, igual que en el alta del candidato.
+          </p>
+        </CardContent>
+      </Card>
+
       {/* Datos de perfil con catálogo */}
       <Card>
         <CardHeader>
@@ -769,43 +914,6 @@ export function FichaCandidato({
             {guardandoVestuario && <Loader2 className="h-4 w-4 animate-spin" />}
             Guardar medidas
           </Button>
-        </CardContent>
-      </Card>
-
-      {/* Fotos */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Fotos ({candidato.fotos?.length ?? 0})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {candidato.fotos && candidato.fotos.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {candidato.fotos.map((foto) => {
-                const esPlaceholder = !/^https?:\/\//.test(foto);
-                return esPlaceholder ? (
-                  <div
-                    key={foto}
-                    className="flex aspect-[3/4] flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/50 p-3 text-center"
-                  >
-                    <ImageIcon className="h-6 w-6 text-muted-foreground" />
-                    <span className="break-all text-[10px] leading-tight text-muted-foreground">
-                      {foto}
-                    </span>
-                  </div>
-                ) : (
-                  <img
-                    key={foto}
-                    src={foto}
-                    alt={`Foto de ${nombreCompleto}`}
-                    loading="lazy"
-                    className="aspect-[3/4] w-full rounded-md border object-cover"
-                  />
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">Sin fotos todavía.</p>
-          )}
         </CardContent>
       </Card>
 
@@ -1029,6 +1137,49 @@ export function FichaCandidato({
           </Button>
         </CardContent>
       </Card>
+
+      {recortando && (
+        <RecorteFoto
+          file={recortando}
+          titulo="Nueva foto del candidato"
+          onCancelar={() => setRecortando(null)}
+          onConfirmar={(area) => {
+            const file = recortando;
+            setRecortando(null);
+            void subirFoto(file, area);
+          }}
+        />
+      )}
+
+      <Dialog
+        open={fotoAEliminar !== null}
+        onOpenChange={(abierto) => !abierto && setFotoAEliminar(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Eliminar foto</DialogTitle>
+            <DialogDescription>
+              La foto se quitará de la ficha y se borrará definitivamente del
+              almacenamiento. Esta acción no se puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setFotoAEliminar(null)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                const indice = fotoAEliminar;
+                setFotoAEliminar(null);
+                if (indice !== null) void eliminarFoto(indice);
+              }}
+            >
+              Eliminar foto
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={dialogoBorrado} onOpenChange={setDialogoBorrado}>
         <DialogContent>

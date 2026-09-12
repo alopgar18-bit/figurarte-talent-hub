@@ -4,6 +4,7 @@ import { ArrowLeft, Building2, Loader2, Pencil, Plus, Trash2 } from "lucide-reac
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { DialogoEnviarComunicacion } from "@/components/panel/DialogoEnviarComunicacion";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";

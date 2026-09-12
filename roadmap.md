@@ -39,6 +39,6 @@
 - Tipografía de panel/portal alineada con la marca pública.
 
 ## Navegación móvil sin desplazamiento horizontal
-- [ ] Sustituir la navegación móvil pública y del portal por menús de hamburguesa con panel lateral.
-- [ ] Adaptar las pestañas de Comunicaciones a un selector móvil.
-- [ ] Verificar a 390 px que ningún menú tiene desplazamiento horizontal; conservarlo en tablas.
+- [x] Sustituir la navegación móvil pública y del portal por menús de hamburguesa con panel lateral.
+- [x] Adaptar las pestañas de Comunicaciones a un selector móvil.
+- [x] Verificar a 390 px que ningún menú tiene desplazamiento horizontal; conservarlo en tablas.

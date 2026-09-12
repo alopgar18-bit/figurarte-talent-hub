@@ -70,7 +70,7 @@ export function PortalShell({
               </span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[min(20rem,85vw)] p-0">
+          <SheetContent side="left" className="w-[85vw] max-w-80 p-0">
             <SheetHeader className="border-b border-border px-5 py-5 text-left">
               <SheetTitle>Portal de cliente</SheetTitle>
               <SheetDescription>Selecciona una sección</SheetDescription>

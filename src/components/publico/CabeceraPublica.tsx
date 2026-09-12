@@ -94,7 +94,7 @@ export function CabeceraPublica({ ancho = "max-w-6xl" }: { ancho?: string }) {
               <Menu className="size-5" aria-hidden="true" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[min(20rem,85vw)] p-0">
+          <SheetContent side="right" className="w-[85vw] max-w-80 p-0">
             <SheetHeader className="border-b border-border px-5 py-5 text-left">
               <SheetTitle className="text-lg font-black tracking-tight">
                 FigurArte<span className="text-primary">.</span>es

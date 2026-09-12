@@ -658,7 +658,11 @@ export function FichaCandidato({
                 <Select
                   value={catalogo[clave] ? catalogo[clave] : SIN_TALLA}
                   onValueChange={(v) =>
-                    setCatalogo((s) => ({ ...s, [clave]: v === SIN_TALLA ? "" : v }))
+                    setCatalogo((s) => ({
+                      ...s,
+                      [clave]: v === SIN_TALLA ? "" : v,
+                      ...(clave === "provincia" ? { ciudad: "" } : {}),
+                    }))
                   }
                 >
                   <SelectTrigger id={`cat-${clave}`} aria-label={etiqueta}>

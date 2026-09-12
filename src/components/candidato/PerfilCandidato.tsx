@@ -56,6 +56,8 @@ import {
   desdeTextoLista,
   provinciaPorCp,
 } from "@/lib/catalogos";
+import { municipioPorCp } from "@/lib/municipios";
+import { SelectorMunicipio } from "@/components/SelectorMunicipio";
 
 
 type Ficha = Record<string, unknown> & {

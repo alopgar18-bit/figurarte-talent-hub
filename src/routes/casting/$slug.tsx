@@ -218,6 +218,9 @@ function CastingPage() {
           </section>
         )}
 
+        {/* Acceso rápido */}
+        <AccesoRapido proyectoId={casting.id} />
+
         {/* CTA */}
         <section className="mt-10">
           {!mostrarForm && (
@@ -243,9 +246,6 @@ function CastingPage() {
             </section>
           )}
         </div>
-
-        {/* Acceso rápido */}
-        <AccesoRapido proyectoId={casting.id} />
       </div>
 
       <footer className="border-t border-border bg-secondary py-8 text-center text-xs uppercase tracking-widest text-secondary-foreground/80">

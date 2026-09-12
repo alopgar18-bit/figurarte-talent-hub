@@ -695,6 +695,12 @@ export function ListadoCandidatos() {
           <SlidersHorizontal className="size-4" />
           {avanzados ? "Ocultar filtros" : "Filtros avanzados"}
         </Button>
+        <FiltrosPersonalizados
+          condiciones={condiciones}
+          alCambiar={setCondiciones}
+          basicos={basicos}
+          alCargarBasicos={cargarBasicos}
+        />
       </div>
 
       {avanzados && (

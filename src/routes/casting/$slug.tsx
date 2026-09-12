@@ -291,8 +291,11 @@ function AccesoRapido({ proyectoId }: { proyectoId: string }) {
       {estado === "enviado" ? (
         <p className="mt-4 flex items-start gap-2 text-sm font-medium text-foreground">
           <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-          Te hemos enviado un enlace a <strong>{email}</strong>. Ábrelo desde este mismo
-          dispositivo y quedarás apuntado a este casting.
+          <span className="min-w-0 break-words">
+            Te hemos enviado un enlace a{" "}
+            <strong className="break-all">{email}</strong>. Ábrelo desde este mismo
+            dispositivo y quedarás apuntado a este casting.
+          </span>
         </p>
       ) : (
         <form onSubmit={enviar} className="mt-4 space-y-3">

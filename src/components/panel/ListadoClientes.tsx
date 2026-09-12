@@ -395,7 +395,6 @@ export function ListadoClientes() {
           onOpenChange={setComunicacionAbierta}
           clientesIniciales={[{ id: cliente.id, etiqueta: cliente.razon_social }]}
         />
-      </header>
 
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <div className="border border-border p-3">

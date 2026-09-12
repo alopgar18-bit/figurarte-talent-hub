@@ -58,7 +58,7 @@ export function CabeceraPublica({ ancho = "max-w-6xl" }: { ancho?: string }) {
         <Link to="/" className="min-w-0 truncate text-lg font-black tracking-tight">
           FigurArte<span className="text-primary">.</span>es
         </Link>
-        <nav className="hidden shrink-0 items-center gap-1 text-sm font-medium md:flex md:gap-2">
+        <nav className="hidden shrink-0 items-center gap-1 text-sm font-medium lg:flex lg:gap-2">
           {ENLACES.map((enlace) => (
             <Link
               key={enlace.hash}
@@ -88,7 +88,7 @@ export function CabeceraPublica({ ancho = "max-w-6xl" }: { ancho?: string }) {
               type="button"
               variant="ghost"
               size="icon"
-              className="shrink-0 md:hidden"
+              className="shrink-0 lg:hidden"
               aria-label="Abrir menú"
             >
               <Menu className="size-5" aria-hidden="true" />

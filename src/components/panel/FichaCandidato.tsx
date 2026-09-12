@@ -422,6 +422,7 @@ export function FichaCandidato({
     setGuardandoCatalogo(true);
     const valores: Record<string, string | null> = { acentos: aTextoLista(acentosSel) };
     for (const { clave } of CAMPOS_CATALOGO) valores[clave] = catalogo[clave] || null;
+    valores["ciudad"] = catalogo["ciudad"] || null;
     const { error } = await supabase
       .from("candidatos")
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

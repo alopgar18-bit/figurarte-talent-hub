@@ -37,3 +37,8 @@
 - Candidatos: panel de filtros avanzados (provincia, género, idiomas, rangos de edad/altura/peso).
 - Dossier reconstruido al formato real (portada con lockup, banner rojo, fotos en fila, medidas de vestuario, pie con www.figurarte.es y número de página); fn_datos_publicos_candidato amplía las 5 medidas.
 - Tipografía de panel/portal alineada con la marca pública.
+
+## Navegación móvil sin desplazamiento horizontal
+- [ ] Sustituir la navegación móvil pública y del portal por menús de hamburguesa con panel lateral.
+- [ ] Adaptar las pestañas de Comunicaciones a un selector móvil.
+- [ ] Verificar a 390 px que ningún menú tiene desplazamiento horizontal; conservarlo en tablas.

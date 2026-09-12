@@ -552,11 +552,10 @@ export function DetalleProyecto({ id }: { id: string }) {
     await cambiarEstadoCandidato(candidatoId, estado);
     setResolviendo(false);
     setRevisando(null);
-    toast.success(
-      estado === "preseleccionado"
-        ? "Inscripción validada: ya puede entrar en el dossier."
-        : "Inscripción rechazada.",
-    );
+    // Al rechazar, cambiarEstadoCandidato ya avisa del email al candidato.
+    if (estado === "preseleccionado") {
+      toast.success("Inscripción validada: ya puede entrar en el dossier.");
+    }
   }
 
   const manuales = useMemo(

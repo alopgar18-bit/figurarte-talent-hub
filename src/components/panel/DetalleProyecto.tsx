@@ -1139,6 +1139,7 @@ export function DetalleProyecto({ id }: { id: string }) {
                             ))}
                           </SelectContent>
                         </Select>
+                        )}
                       </td>
                     </tr>
                   );

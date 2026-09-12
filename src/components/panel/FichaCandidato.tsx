@@ -357,6 +357,14 @@ export function FichaCandidato({
         }
         setCatalogo(inicialCatalogo);
         setAcentosSel(desdeTextoLista(ficha["acentos"]));
+        const inicialPerfil: Record<string, unknown> = {};
+        for (const { clave, tipo } of CAMPOS_PERFIL) {
+          const v = ficha[clave];
+          if (tipo === "bool") inicialPerfil[clave] = v === true;
+          else inicialPerfil[clave] = typeof v === "string" ? v : v == null ? "" : String(v);
+        }
+        for (const { clave } of CAMPOS_BADGES) inicialPerfil[clave] = arrayTexto(ficha[clave]);
+        setPerfil(inicialPerfil);
         setCastings((resultado.castings as CastingAsociado[] | null) ?? []);
       }
       setCargando(false);

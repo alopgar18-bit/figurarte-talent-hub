@@ -542,6 +542,22 @@ export function DetalleProyecto({ id }: { id: string }) {
     }
   }
 
+  /** Primera revisión de una inscripción web: validar o rechazar. */
+  async function resolverInscripcion(
+    candidatoId: string,
+    estado: "preseleccionado" | "descartado",
+  ) {
+    setResolviendo(true);
+    await cambiarEstadoCandidato(candidatoId, estado);
+    setResolviendo(false);
+    setRevisando(null);
+    toast.success(
+      estado === "preseleccionado"
+        ? "Inscripción validada: ya puede entrar en el dossier."
+        : "Inscripción rechazada.",
+    );
+  }
+
   const manuales = useMemo(
     () => asociaciones.filter((a) => a.origen === "manual"),
     [asociaciones],

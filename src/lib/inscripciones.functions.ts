@@ -61,6 +61,8 @@ export const inscribirEnCasting = createServerFn({ method: "POST" })
       proyecto_id: proyecto.id,
       candidato_id: candidato.id,
       origen: "web_directa",
+      // Las inscripciones por la web quedan a la espera de revisión del equipo.
+      estado: "pendiente_validacion",
     });
 
     // La clave primaria compuesta protege de duplicados por carrera.

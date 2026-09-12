@@ -1062,6 +1062,18 @@ export function DetalleProyecto({ id }: { id: string }) {
               if (!c) return null;
               return (
                 <div key={a.candidato_id} className="border border-border p-3">
+                  <label className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+                    <Checkbox
+                      checked={!!seleccionComunicacion[a.candidato_id]}
+                      onCheckedChange={(v) =>
+                        setSeleccionComunicacion((prev) => ({
+                          ...prev,
+                          [a.candidato_id]: v === true,
+                        }))
+                      }
+                    />
+                    Seleccionar para comunicación
+                  </label>
                   <Link
                     to="/panel/candidatos/$id"
                     params={{ id: a.candidato_id }}

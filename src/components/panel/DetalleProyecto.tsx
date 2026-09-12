@@ -167,6 +167,66 @@ function Tarjeta({
   );
 }
 
+function CandidatoCard({
+  proyectoId,
+  candidato,
+  accion,
+  seleccion,
+  onToggleSeleccion,
+}: {
+  proyectoId: string;
+  candidato: Candidato;
+  accion: React.ReactNode;
+  seleccion?: boolean;
+  onToggleSeleccion?: (v: boolean) => void;
+}) {
+  return (
+    <div className="border border-border p-3">
+      {onToggleSeleccion && (
+        <label className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+          <Checkbox
+            checked={seleccion}
+            onCheckedChange={(v) => onToggleSeleccion(v === true)}
+          />
+          Seleccionar para comunicación
+        </label>
+      )}
+      <Link
+        to="/panel/candidatos/$id"
+        params={{ id: candidato.id }}
+        search={{ desde: proyectoId }}
+        className="flex items-start gap-3 transition-opacity hover:opacity-80"
+      >
+        {candidato.fotos?.[0] ? (
+          <img
+            src={candidato.fotos[0]}
+            alt={candidato.nombre}
+            className="h-16 w-12 shrink-0 object-cover"
+          />
+        ) : (
+          <div className="flex h-16 w-12 shrink-0 items-center justify-center bg-muted text-lg font-bold tracking-tight text-muted-foreground">
+            {candidato.nombre.charAt(0)}
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium">{candidato.nombre}</p>
+          <p className="text-xs text-muted-foreground">{candidato.codigo}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {[
+              candidato.edad ? `${candidato.edad} años` : null,
+              candidato.altura_cm ? `${candidato.altura_cm} cm` : null,
+              candidato.peso_kg ? `${candidato.peso_kg} kg` : null,
+            ]
+              .filter(Boolean)
+              .join(" · ") || "Sin medidas"}
+          </p>
+        </div>
+      </Link>
+      <div className="mt-3">{accion}</div>
+    </div>
+  );
+}
+
 export function DetalleProyecto({ id }: { id: string }) {
   const [proyecto, setProyecto] = useState<Proyecto | null>(null);
   const [clienteNombre, setClienteNombre] = useState<string | null>(null);

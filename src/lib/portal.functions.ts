@@ -238,20 +238,8 @@ export const crearSolicitudProyecto = createServerFn({ method: "POST" })
 
     if (error || !fila) throw new Error("No se pudo registrar la solicitud.");
 
-    const { data: cliente } = await sesion.supabaseAdmin
-      .from("clientes")
-      .select("razon_social")
-      .eq("id", sesion.clienteId)
-      .maybeSingle();
-
     // El aviso nunca puede romper la creación de la solicitud.
-    await avisarEquipoNuevaSolicitud({
-      razonSocial: cliente?.razon_social ?? "Cliente",
-      nombreProyecto: data.nombreProyecto,
-      categoria: data.categoria,
-      numAprox: data.numAprox,
-      fechaNecesaria: data.fechaNecesaria,
-    });
+    await avisarEquipoNuevaSolicitud();
 
     return { estado: "ok", id: fila.id };
   });

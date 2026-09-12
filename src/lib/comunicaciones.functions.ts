@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { plantillaEmail, botonEmail } from "@/lib/email-layout";
 import { getRequest } from "@tanstack/react-start/server";
 
 export const ESTADOS_PROYECTO_CANDIDATO = [
@@ -27,7 +26,6 @@ function origenPeticion() {
   return `https://${host}`;
 }
 
-
 export type ResultadoCambioEstado = {
   estado: EstadoProyectoCandidato;
   emailEnviado: boolean;
@@ -36,8 +34,9 @@ export type ResultadoCambioEstado = {
 
 /**
  * Cambia el estado de un candidato dentro de un proyecto (solo staff).
- * En "descartado" y "contratado" avisa al candidato por email y deja
- * constancia del envío en `comunicaciones`.
+ * El aviso al candidato ya no está fijado en código: se busca una plantilla
+ * activa en `plantillas_comunicacion` para ese evento (el propio estado),
+ * primero WhatsApp y si no email. Añadir un evento nuevo es añadir una fila.
  */
 export const cambiarEstadoProyectoCandidato = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -64,7 +63,13 @@ export const cambiarEstadoProyectoCandidato = createServerFn({ method: "POST" })
       .eq("candidato_id", data.candidatoId);
     if (errUpd) throw new Error("No se pudo cambiar el estado.");
 
-    if (data.estado !== "descartado" && data.estado !== "contratado") {
+    const { data: plantillas } = await supabaseAdmin
+      .from("plantillas_comunicacion")
+      .select("canal, asunto, cuerpo, plantilla_wati")
+      .eq("evento", data.estado)
+      .eq("activo", true);
+
+    if (!plantillas || plantillas.length === 0) {
       return { estado: data.estado, emailEnviado: false, canal: null };
     }
 
@@ -75,36 +80,72 @@ export const cambiarEstadoProyectoCandidato = createServerFn({ method: "POST" })
       .maybeSingle();
 
     const baseUrl = origenPeticion();
+    const enlace = `${baseUrl}/candidato`;
+    const nombre = candidato?.nombre ?? "";
 
-    // 1) WhatsApp (Wati) si está configurado y el teléfono es válido.
-    const { enviarAvisoEstadoWhatsapp } = await import("@/lib/wati.server");
-    let canal: "email" | "whatsapp" | null = null;
-    const porWhatsapp = await enviarAvisoEstadoWhatsapp(
-      data.estado,
-      candidato?.nombre ?? "",
-      candidato?.telefono ?? null,
-      baseUrl,
+    const { aplicarVariables, enviarEmailFigurarte } = await import(
+      "@/lib/comunicaciones.server"
     );
-    if (porWhatsapp) canal = "whatsapp";
 
-    // 2) Si no, email como hasta ahora.
-    if (!canal) {
-      const { enviarAvisoEstado } = await import("@/lib/comunicaciones.server");
-      const porEmail = await enviarAvisoEstado(
-        data.estado,
-        candidato?.nombre ?? "",
-        candidato?.email ?? null,
-        baseUrl,
+    let canal: "email" | "whatsapp" | null = null;
+    let contenido: string | null = null;
+
+    // 1) WhatsApp (Wati) si hay plantilla activa, está configurado y el teléfono vale.
+    const pWhats = plantillas.find((p) => p.canal === "whatsapp" && p.plantilla_wati);
+    if (pWhats?.plantilla_wati) {
+      const { watiConfigurado, normalizarTelefonoES, watiEnviarPlantilla } = await import(
+        "@/lib/wati.server"
       );
-      if (porEmail) canal = "email";
+      const numero = normalizarTelefonoES(candidato?.telefono ?? null);
+      if (watiConfigurado() && numero) {
+        const { ok } = await watiEnviarPlantilla({
+          telefono: numero,
+          plantilla: pWhats.plantilla_wati,
+          broadcast: `figurarte_${data.estado}_${new Date().toISOString().slice(0, 10)}`,
+          parametros: [
+            { name: "nombre", value: nombre },
+            { name: "enlace", value: enlace },
+          ],
+        });
+        if (ok) {
+          canal = "whatsapp";
+          contenido = `Plantilla Wati: ${pWhats.plantilla_wati}\nnombre=${nombre}\nenlace=${enlace}`;
+        }
+      }
+    }
+
+    // 2) Si no, email con la plantilla editable.
+    const pEmail = plantillas.find((p) => p.canal === "email");
+    if (!canal && pEmail?.asunto && pEmail.cuerpo) {
+      const asunto = aplicarVariables(pEmail.asunto, { nombre, enlace });
+      const cuerpo = aplicarVariables(pEmail.cuerpo, { nombre, enlace });
+      const ok = await enviarEmailFigurarte({
+        email: candidato?.email ?? null,
+        asunto,
+        cuerpo,
+        enlace,
+        textoBoton: "Ver mis procesos",
+      });
+      if (ok) {
+        canal = "email";
+        contenido = `Asunto: ${asunto}\n\n${cuerpo}`;
+      }
     }
 
     if (canal) {
       const { error: errCom } = await supabaseAdmin.from("comunicaciones").insert({
         candidato_id: data.candidatoId,
         proyecto_id: data.proyectoId,
-        tipo: data.estado === "contratado" ? "aviso_seleccionado" : "aviso_no_seleccionado",
+        tipo:
+          data.estado === "contratado"
+            ? "aviso_seleccionado"
+            : data.estado === "descartado"
+              ? "aviso_no_seleccionado"
+              : `aviso_${data.estado}`,
         canal,
+        origen: "automatica",
+        destinatario_tipo: "candidato",
+        contenido,
       });
       if (errCom) console.error("[comunicaciones] No se pudo registrar:", errCom.message);
     }

@@ -4,6 +4,7 @@ import { ArrowLeft, Building2, Loader2, Pencil, Plus, Trash2 } from "lucide-reac
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { DialogoEnviarComunicacion } from "@/components/panel/DialogoEnviarComunicacion";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -131,6 +132,7 @@ export function ListadoClientes() {
   const [error, setError] = useState<string | null>(null);
   const [seleccionado, setSeleccionado] = useState<string | null>(null);
   const [detalleMovil, setDetalleMovil] = useState(false);
+  const [comunicacionAbierta, setComunicacionAbierta] = useState(false);
 
   const [dialogo, setDialogo] = useState(false);
   const [editandoId, setEditandoId] = useState<string | null>(null);
@@ -378,11 +380,22 @@ export function ListadoClientes() {
             </h2>
             <p className="text-sm text-muted-foreground">{cliente.sector ?? "Sector sin definir"}</p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => abrirEdicion(cliente)}>
-            <Pencil className="size-4" />
-            Editar
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={() => abrirEdicion(cliente)}>
+              <Pencil className="size-4" />
+              Editar
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setComunicacionAbierta(true)}>
+              Enviar comunicación
+            </Button>
+          </div>
         </div>
+
+        <DialogoEnviarComunicacion
+          abierto={comunicacionAbierta}
+          onOpenChange={setComunicacionAbierta}
+          clientesIniciales={[{ id: cliente.id, etiqueta: cliente.razon_social }]}
+        />
 
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <div className="border border-border p-3">

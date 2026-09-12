@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DialogoEnviarComunicacion } from "@/components/panel/DialogoEnviarComunicacion";
 import {
   Dialog,
   DialogContent,
@@ -223,6 +224,10 @@ export function DetalleProyecto({ id }: { id: string }) {
   }
 
   const [seleccionDossier, setSeleccionDossier] = useState<Record<string, boolean>>({});
+  const [seleccionComunicacion, setSeleccionComunicacion] = useState<
+    Record<string, boolean>
+  >({});
+  const [dialogoComunicacion, setDialogoComunicacion] = useState(false);
   const [caducidadDossier, setCaducidadDossier] = useState("");
   const [generandoDossier, setGenerandoDossier] = useState(false);
 
@@ -1031,9 +1036,20 @@ export function DetalleProyecto({ id }: { id: string }) {
       <Tarjeta
         titulo="Candidatos preseleccionados"
         accion={
-          <Button size="sm" onClick={() => setDialogoAnadir(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Añadir candidato
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {Object.values(seleccionComunicacion).some(Boolean) && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setDialogoComunicacion(true)}
+              >
+                Enviar comunicación
+              </Button>
+            )}
+            <Button size="sm" onClick={() => setDialogoAnadir(true)}>
+              <Plus className="mr-2 h-4 w-4" /> Añadir candidato
+            </Button>
+          </div>
         }
       >
         {manuales.length === 0 ? (
@@ -1047,6 +1063,18 @@ export function DetalleProyecto({ id }: { id: string }) {
               if (!c) return null;
               return (
                 <div key={a.candidato_id} className="border border-border p-3">
+                  <label className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+                    <Checkbox
+                      checked={!!seleccionComunicacion[a.candidato_id]}
+                      onCheckedChange={(v) =>
+                        setSeleccionComunicacion((prev) => ({
+                          ...prev,
+                          [a.candidato_id]: v === true,
+                        }))
+                      }
+                    />
+                    Seleccionar para comunicación
+                  </label>
                   <Link
                     to="/panel/candidatos/$id"
                     params={{ id: a.candidato_id }}
@@ -1332,6 +1360,20 @@ export function DetalleProyecto({ id }: { id: string }) {
           </div>
         </DialogContent>
       </Dialog>
+
+      <DialogoEnviarComunicacion
+        abierto={dialogoComunicacion}
+        onOpenChange={setDialogoComunicacion}
+        proyectoId={id}
+        candidatosIniciales={manuales
+          .filter((a) => seleccionComunicacion[a.candidato_id])
+          .map((a) => ({
+            id: a.candidato_id,
+            etiqueta: candidatos[a.candidato_id]
+              ? `${candidatos[a.candidato_id]!.codigo} — ${candidatos[a.candidato_id]!.nombre}`
+              : a.candidato_id,
+          }))}
+      />
     </div>
   );
 }

@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
+import { DialogoEnviarComunicacion } from "@/components/panel/DialogoEnviarComunicacion";
 import { asignarCandidatosAProyecto } from "@/lib/rgpd.functions";
 import { registrarAccesoStaff } from "@/lib/registro-accesos.functions";
 import { firmarFotosStaff } from "@/lib/fotos.functions";
@@ -378,6 +379,7 @@ export function ListadoCandidatos() {
   const [seleccion, setSeleccion] = useState<string[]>([]);
   const [proyectoDestino, setProyectoDestino] = useState("");
   const [asignando, setAsignando] = useState(false);
+  const [dialogoComunicacion, setDialogoComunicacion] = useState(false);
   const asignar = useServerFn(asignarCandidatosAProyecto);
   const anotar = useServerFn(registrarAccesoStaff);
   const firmarFotos = useServerFn(firmarFotosStaff);
@@ -884,6 +886,9 @@ export function ListadoCandidatos() {
             <Button variant="outline" onClick={() => setDialogoExport(true)}>
               <Download className="size-4" /> Exportar selección
             </Button>
+            <Button variant="outline" onClick={() => setDialogoComunicacion(true)}>
+              Enviar comunicación
+            </Button>
           </div>
           {aviso && <p className="w-full text-sm text-muted-foreground">{aviso}</p>}
         </div>
@@ -994,6 +999,14 @@ export function ListadoCandidatos() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <DialogoEnviarComunicacion
+        abierto={dialogoComunicacion}
+        onOpenChange={setDialogoComunicacion}
+        candidatosIniciales={filtrados
+          .filter((c) => seleccionados.includes(c.id))
+          .map((c) => ({ id: c.id, etiqueta: `${c.codigo} — ${c.nombre}` }))}
+      />
     </div>
   );
 }

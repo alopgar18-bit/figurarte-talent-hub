@@ -1099,14 +1099,15 @@ export function DetalleProyecto({ id }: { id: string }) {
               <tbody>
                 {web.map((a) => {
                   const c = candidatos[a.candidato_id];
+                  const pendiente = a.estado === "pendiente_validacion";
                   return (
                     <tr key={a.candidato_id} className="border-b border-border last:border-0">
                       <td className="px-3 py-2">{c?.codigo ?? "—"}</td>
                       <td className="px-3 py-2">
                         <span className="flex items-center gap-2">
                           <span className="font-medium">{c?.nombre ?? "—"}</span>
-                          {a.estado === "preseleccionado" && (
-                            <Badge className="h-5 px-1.5 text-[10px]">nuevo</Badge>
+                          {pendiente && (
+                            <Badge className="h-5 px-1.5 text-[10px]">pendiente</Badge>
                           )}
                         </span>
                       </td>
@@ -1114,6 +1115,15 @@ export function DetalleProyecto({ id }: { id: string }) {
                         {new Date(a.creado_en).toLocaleDateString("es-ES")}
                       </td>
                       <td className="px-3 py-2">
+                        {pendiente ? (
+                          <Button
+                            size="sm"
+                            className="h-8 text-xs"
+                            onClick={() => setRevisando(a.candidato_id)}
+                          >
+                            Revisar ficha
+                          </Button>
+                        ) : (
                         <Select
                           value={a.estado}
                           onValueChange={(v) => cambiarEstadoCandidato(a.candidato_id, v)}

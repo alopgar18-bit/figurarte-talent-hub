@@ -411,7 +411,7 @@ function tieneDato(valor: unknown) {
   return valor === true;
 }
 
-const CAMPOS_COMPLETADO: Record<Exclude<SeccionId, "rgpd" | "procesos">, string[]> = {
+const CAMPOS_COMPLETADO: Record<Exclude<SeccionId, "rgpd" | "procesos" | "fotos">, string[]> = {
   basicos: ["nombre", "apellidos", "telefono", "ciudad", "provincia"],
   identidad: ["genero", "fecha_nacimiento", "dni", "nacionalidad"],
   fisico: ["altura_cm", "peso_kg", "color_piel", "color_cabello", "color_ojos", "talla_camisa", "talla_pantalon", "talla_chaqueta", "talla_calzado"],
@@ -683,7 +683,9 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
                 ? ficha["consentimiento_rgpd"] === true
                 : seccion.id === "procesos"
                   ? procesos.length > 0
-                  : CAMPOS_COMPLETADO[seccion.id].some((campo) => tieneDato(f[campo]));
+                  : seccion.id === "fotos"
+                    ? listaTextos(f["fotos"]).length > 0
+                    : CAMPOS_COMPLETADO[seccion.id].some((campo) => tieneDato(f[campo]));
               return <SelectItem key={seccion.id} value={seccion.id}>{seccion.id === "rgpd" && !completa ? "⚠ " : completa ? "✓ " : "○ "}{seccion.etiqueta}</SelectItem>;
             })}
           </SelectContent>
@@ -698,7 +700,9 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
                 ? ficha["consentimiento_rgpd"] === true
                 : seccion.id === "procesos"
                   ? procesos.length > 0
-                  : CAMPOS_COMPLETADO[seccion.id].some((campo) => tieneDato(f[campo]));
+                  : seccion.id === "fotos"
+                    ? listaTextos(f["fotos"]).length > 0
+                    : CAMPOS_COMPLETADO[seccion.id].some((campo) => tieneDato(f[campo]));
               const pendienteRgpd = seccion.id === "rgpd" && !completa;
               return (
                 <Button
@@ -1532,6 +1536,8 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
           )}
         </div>
       </Seccion></>}
+
+      {seccionActiva === "fotos" && <MisFotos nombre={texto(f["nombre"])} />}
 
       {seccionActiva === "video" && <VideoPresentacion
         videoUrlActual={texto(f["video_youtube_url"]) || null}

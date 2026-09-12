@@ -30,6 +30,7 @@ import { Route as PanelAccesosInvitadosRouteImport } from './routes/panel/acceso
 import { Route as PanelAdministracionRouteImport } from './routes/panel/administracion'
 import { Route as PanelCaptacionRouteImport } from './routes/panel/captacion'
 import { Route as PanelClientesRouteImport } from './routes/panel/clientes'
+import { Route as PanelComunicacionesRouteImport } from './routes/panel/comunicaciones'
 import { Route as PanelDashboardRouteImport } from './routes/panel/dashboard'
 import { Route as PanelPortalClienteRouteImport } from './routes/panel/portal-cliente'
 import { Route as PortalIndexRouteImport } from './routes/portal/index'
@@ -147,6 +148,11 @@ const PanelClientesRoute = PanelClientesRouteImport.update({
   path: '/clientes',
   getParentRoute: () => PanelRouteRoute,
 } as any)
+const PanelComunicacionesRoute = PanelComunicacionesRouteImport.update({
+  id: '/comunicaciones',
+  path: '/comunicaciones',
+  getParentRoute: () => PanelRouteRoute,
+} as any)
 const PanelDashboardRoute = PanelDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -222,6 +228,7 @@ export interface FileRoutesByFullPath {
   '/panel/administracion': typeof PanelAdministracionRoute
   '/panel/captacion': typeof PanelCaptacionRoute
   '/panel/clientes': typeof PanelClientesRoute
+  '/panel/comunicaciones': typeof PanelComunicacionesRoute
   '/panel/dashboard': typeof PanelDashboardRoute
   '/panel/portal-cliente': typeof PanelPortalClienteRoute
   '/portal/candidatos': typeof PortalCandidatosRoute
@@ -253,6 +260,7 @@ export interface FileRoutesByTo {
   '/panel/administracion': typeof PanelAdministracionRoute
   '/panel/captacion': typeof PanelCaptacionRoute
   '/panel/clientes': typeof PanelClientesRoute
+  '/panel/comunicaciones': typeof PanelComunicacionesRoute
   '/panel/dashboard': typeof PanelDashboardRoute
   '/panel/portal-cliente': typeof PanelPortalClienteRoute
   '/portal/candidatos': typeof PortalCandidatosRoute
@@ -288,6 +296,7 @@ export interface FileRoutesById {
   '/panel/administracion': typeof PanelAdministracionRoute
   '/panel/captacion': typeof PanelCaptacionRoute
   '/panel/clientes': typeof PanelClientesRoute
+  '/panel/comunicaciones': typeof PanelComunicacionesRoute
   '/panel/dashboard': typeof PanelDashboardRoute
   '/panel/portal-cliente': typeof PanelPortalClienteRoute
   '/portal/candidatos': typeof PortalCandidatosRoute
@@ -324,6 +333,7 @@ export interface FileRouteTypes {
     | '/panel/administracion'
     | '/panel/captacion'
     | '/panel/clientes'
+    | '/panel/comunicaciones'
     | '/panel/dashboard'
     | '/panel/portal-cliente'
     | '/portal/candidatos'
@@ -355,6 +365,7 @@ export interface FileRouteTypes {
     | '/panel/administracion'
     | '/panel/captacion'
     | '/panel/clientes'
+    | '/panel/comunicaciones'
     | '/panel/dashboard'
     | '/panel/portal-cliente'
     | '/portal/candidatos'
@@ -389,6 +400,7 @@ export interface FileRouteTypes {
     | '/panel/administracion'
     | '/panel/captacion'
     | '/panel/clientes'
+    | '/panel/comunicaciones'
     | '/panel/dashboard'
     | '/panel/portal-cliente'
     | '/portal/candidatos'
@@ -572,6 +584,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PanelClientesRouteImport
       parentRoute: typeof PanelRouteRoute
     }
+    '/panel/comunicaciones': {
+      id: '/panel/comunicaciones'
+      path: '/comunicaciones'
+      fullPath: '/panel/comunicaciones'
+      preLoaderRoute: typeof PanelComunicacionesRouteImport
+      parentRoute: typeof PanelRouteRoute
+    }
     '/panel/dashboard': {
       id: '/panel/dashboard'
       path: '/dashboard'
@@ -669,6 +688,7 @@ interface PanelRouteRouteChildren {
   PanelAdministracionRoute: typeof PanelAdministracionRoute
   PanelCaptacionRoute: typeof PanelCaptacionRoute
   PanelClientesRoute: typeof PanelClientesRoute
+  PanelComunicacionesRoute: typeof PanelComunicacionesRoute
   PanelDashboardRoute: typeof PanelDashboardRoute
   PanelPortalClienteRoute: typeof PanelPortalClienteRoute
   PanelIndexRoute: typeof PanelIndexRoute
@@ -684,6 +704,7 @@ const PanelRouteRouteChildren: PanelRouteRouteChildren = {
   PanelAdministracionRoute: PanelAdministracionRoute,
   PanelCaptacionRoute: PanelCaptacionRoute,
   PanelClientesRoute: PanelClientesRoute,
+  PanelComunicacionesRoute: PanelComunicacionesRoute,
   PanelDashboardRoute: PanelDashboardRoute,
   PanelPortalClienteRoute: PanelPortalClienteRoute,
   PanelIndexRoute: PanelIndexRoute,

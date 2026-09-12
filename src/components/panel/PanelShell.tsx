@@ -4,6 +4,7 @@ import {
   Users,
   Clapperboard,
   Megaphone,
+  MessageSquare,
   LayoutDashboard,
   Building2,
   KeyRound,

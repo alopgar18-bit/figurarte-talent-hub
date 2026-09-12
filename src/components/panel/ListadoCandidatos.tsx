@@ -998,6 +998,14 @@ export function ListadoCandidatos() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <DialogoEnviarComunicacion
+        abierto={dialogoComunicacion}
+        onOpenChange={setDialogoComunicacion}
+        candidatosIniciales={filtrados
+          .filter((c) => seleccionados.includes(c.id))
+          .map((c) => ({ id: c.id, etiqueta: `${c.codigo} — ${c.nombre}` }))}
+      />
     </div>
   );
 }

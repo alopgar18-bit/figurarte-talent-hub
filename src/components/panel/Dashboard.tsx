@@ -314,6 +314,138 @@ export function Dashboard() {
         )}
       </section>
 
+      {/* Candidatos nuevos por revisar (visibilidad pública) */}
+      <section
+        className={
+          porRevisar.length
+            ? "border-2 border-primary bg-card p-4 sm:p-5"
+            : "border border-border bg-card p-4 sm:p-5"
+        }
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <UserCheck className="size-5 text-primary" aria-hidden="true" />
+          <h2 className="text-base font-semibold text-foreground">
+            Candidatos nuevos por revisar (visibilidad pública)
+          </h2>
+          {porRevisar.length > 0 && (
+            <Badge className="bg-primary text-primary-foreground">{porRevisar.length}</Badge>
+          )}
+        </div>
+
+        {porRevisar.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">
+            No hay candidatos pendientes de revisar.
+          </p>
+        ) : (
+          <ul className="mt-4 space-y-3">
+            {porRevisar.map((c) => (
+              <li
+                key={c.id}
+                className="flex flex-col gap-3 border border-border p-3 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  {c.foto ? (
+                    <img
+                      src={c.foto}
+                      alt={`Foto de ${c.nombre}`}
+                      className="size-14 shrink-0 object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="flex size-14 shrink-0 items-center justify-center bg-muted text-xs text-muted-foreground">
+                      Sin foto
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-foreground">
+                      {[c.nombre, c.apellidos].filter(Boolean).join(" ")}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {c.codigo} · {c.categoria}
+                      {c.provincia ? ` · ${c.provincia}` : ""}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{cuandoLlego(c.creado_en)}</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
+                  <Button
+                    size="sm"
+                    disabled={decidiendo === c.id}
+                    onClick={() => decidir(c.id, true)}
+                  >
+                    {decidiendo === c.id && <Loader2 className="size-4 animate-spin" />}
+                    Publicar
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={decidiendo === c.id}
+                    onClick={() => decidir(c.id, false)}
+                  >
+                    No publicar
+                  </Button>
+                  <Button size="sm" variant="ghost" asChild>
+                    <Link to="/panel/candidatos/$id" params={{ id: c.id }}>
+                      Ver ficha
+                    </Link>
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Candidatos nuevos en castings concretos */}
+      <section
+        className={
+          pendientes.length
+            ? "border-2 border-primary bg-card p-4 sm:p-5"
+            : "border border-border bg-card p-4 sm:p-5"
+        }
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <ClipboardList className="size-5 text-primary" aria-hidden="true" />
+          <h2 className="text-base font-semibold text-foreground">
+            Candidatos nuevos en castings concretos
+          </h2>
+          {pendientes.length > 0 && (
+            <Badge className="bg-primary text-primary-foreground">{pendientes.length}</Badge>
+          )}
+        </div>
+
+        {pendientes.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">
+            No hay inscripciones pendientes de validar.
+          </p>
+        ) : (
+          <ul className="mt-4 space-y-3">
+            {pendientes.map((p) => (
+              <li
+                key={`${p.proyecto_id}-${p.candidato_id}`}
+                className="flex flex-col gap-3 border border-border p-3 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-foreground">
+                    {p.candidato_nombre || "Candidato"}{" "}
+                    <span className="font-normal text-muted-foreground">
+                      {p.candidato_codigo}
+                    </span>
+                  </p>
+                  <p className="truncate text-sm text-foreground">{p.proyecto_nombre}</p>
+                  <p className="text-xs text-muted-foreground">{cuandoLlego(p.creado_en)}</p>
+                </div>
+                <Button size="sm" className="shrink-0" asChild>
+                  <Link to="/panel/proyectos/$id" params={{ id: p.proyecto_id }}>
+                    Revisar
+                  </Link>
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       {/* KPIs */}
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Kpi

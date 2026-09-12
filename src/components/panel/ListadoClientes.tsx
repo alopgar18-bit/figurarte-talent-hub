@@ -379,11 +379,23 @@ export function ListadoClientes() {
             </h2>
             <p className="text-sm text-muted-foreground">{cliente.sector ?? "Sector sin definir"}</p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => abrirEdicion(cliente)}>
-            <Pencil className="size-4" />
-            Editar
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={() => abrirEdicion(cliente)}>
+              <Pencil className="size-4" />
+              Editar
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setComunicacionAbierta(true)}>
+              Enviar comunicación
+            </Button>
+          </div>
         </div>
+
+        <DialogoEnviarComunicacion
+          abierto={comunicacionAbierta}
+          onOpenChange={setComunicacionAbierta}
+          clientesIniciales={[{ id: cliente.id, etiqueta: cliente.razon_social }]}
+        />
+      </header>
 
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <div className="border border-border p-3">

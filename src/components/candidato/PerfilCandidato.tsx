@@ -762,7 +762,7 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
             onChange={(e) => {
               const v = e.target.value.replace(/\D/g, "").slice(0, 5);
               setF((s) => {
-                const siguiente = { ...s, codigo_postal: v };
+                const siguiente: Record<string, unknown> = { ...s, codigo_postal: v };
                 const deducida = provinciaPorCp(v);
                 if (deducida) siguiente["provincia"] = deducida;
                 return siguiente;

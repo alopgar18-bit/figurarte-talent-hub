@@ -324,10 +324,6 @@ export function FormularioCaptacion({
             <Input id="email" type="email" value={email} maxLength={255} onChange={(e) => setEmail(e.target.value)} className="mt-2" />
           </div>
           <div>
-            <Label htmlFor="ciudad">Ciudad</Label>
-            <Input id="ciudad" value={ciudad} maxLength={120} onChange={(e) => setCiudad(e.target.value)} className="mt-2" />
-          </div>
-          <div>
             <Label htmlFor="cp">Código postal</Label>
             <Input
               id="cp"
@@ -339,19 +335,28 @@ export function FormularioCaptacion({
                 setCodigoPostal(v);
                 const deducida = provinciaPorCp(v);
                 if (deducida) setProvincia(deducida);
+                if (v.length === 5) {
+                  void municipioPorCp(v).then((m) => {
+                    if (m) setCiudad(m);
+                  });
+                }
               }}
               className="mt-2"
               placeholder="29001"
             />
             <p className="mt-1 text-xs text-muted-foreground">
-              Al escribirlo completamos tu provincia; puedes cambiarla.
+              Al escribirlo completamos tu provincia y municipio; puedes cambiarlos.
             </p>
           </div>
           <div>
             <Label htmlFor="provincia">Provincia</Label>
             <Select
               value={provincia || SIN_VALOR}
-              onValueChange={(v) => setProvincia(v === SIN_VALOR ? "" : v)}
+              onValueChange={(v) => {
+                const nueva = v === SIN_VALOR ? "" : v;
+                setProvincia(nueva);
+                setCiudad("");
+              }}
             >
               <SelectTrigger id="provincia" className="mt-2" aria-label="Provincia">
                 <SelectValue placeholder="Elige provincia" />

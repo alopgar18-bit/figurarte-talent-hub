@@ -1194,7 +1194,7 @@ export function DetalleProyecto({ id }: { id: string }) {
             <Button
               className="w-full"
               onClick={generarDossier}
-              disabled={generandoDossier || asociaciones.length === 0}
+              disabled={generandoDossier || asociacionesDossier.length === 0}
             >
               {generandoDossier && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Generar y abrir dossier

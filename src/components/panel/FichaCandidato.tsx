@@ -862,7 +862,7 @@ export function FichaCandidato({
                   <div key={clave} className="space-y-1.5">
                     <Label>{etiqueta}</Label>
                     <Select
-                      value={typeof perfil[clave] === "string" && perfil[clave] ? String(perfil[clave]) : undefined}
+                      value={typeof perfil[clave] === "string" ? String(perfil[clave]) : ""}
                       onValueChange={(v) => setPerfil((s) => ({ ...s, [clave]: v }))}
                     >
                       <SelectTrigger>

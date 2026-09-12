@@ -116,91 +116,80 @@ const ETIQUETA_CATEGORIA: Record<string, string> = {
 };
 
 /**
- * Avisa por email al equipo (usuarios con rol admin_figurarte) de una nueva
- * solicitud. Nunca lanza: cualquier fallo se registra en el log del servidor.
+ * Avisa por email a todos los administradores (admin_figurarte y superadmin)
+ * de una nueva solicitud, incluyendo el resumen de TODAS las pendientes.
+ * Nunca lanza: cualquier fallo se registra en el log del servidor.
  */
-async function avisarEquipoNuevaSolicitud(datos: {
-  razonSocial: string;
-  nombreProyecto: string;
-  categoria: string;
-  numAprox: number | null;
-  fechaNecesaria: string | null;
-}) {
+async function avisarEquipoNuevaSolicitud() {
   try {
-    const apiKey = process.env["RESEND_API_KEY"];
-    if (!apiKey) {
-      console.error("[email] RESEND_API_KEY no está configurado");
-      return;
-    }
-
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: admins, error } = await supabaseAdmin
+
+    const { data: admins, error: errorAdmins } = await supabaseAdmin
       .from("usuarios")
       .select("email")
-      .eq("rol", "admin_figurarte");
+      .in("rol", ["admin_figurarte", "superadmin"]);
 
-    if (error) {
-      console.error("[email] No se pudieron leer los destinatarios:", error.message);
+    if (errorAdmins) {
+      console.error("[email] No se pudieron leer los administradores:", errorAdmins.message);
       return;
     }
 
-    const destinatarios = (admins ?? [])
-      .map((a) => a.email)
-      .filter((e): e is string => !!e);
+    const destinatarios = Array.from(
+      new Set((admins ?? []).map((a) => a.email).filter((e): e is string => !!e && e.includes("@"))),
+    );
 
     if (destinatarios.length === 0) {
-      console.error("[email] No hay usuarios con rol admin_figurarte a quien avisar");
+      console.error("[email] No hay administradores con email a quien avisar");
       return;
     }
 
-    const categoria = ETIQUETA_CATEGORIA[datos.categoria] ?? datos.categoria;
-    const fecha = datos.fechaNecesaria
-      ? new Date(datos.fechaNecesaria).toLocaleDateString("es-ES")
-      : "Sin fecha indicada";
-    const numero = datos.numAprox != null ? String(datos.numAprox) : "Sin concretar";
+    const { data: pendientes, error: errorPend } = await supabaseAdmin
+      .from("solicitudes_proyecto")
+      .select("nombre_proyecto, categoria, recibida_en, cliente_id")
+      .eq("estado", "pendiente")
+      .order("recibida_en", { ascending: true });
 
-    const text = `Nueva solicitud de proyecto recibida en el portal de cliente.
+    if (errorPend) {
+      console.error("[email] No se pudieron leer las solicitudes pendientes:", errorPend.message);
+    }
 
-Cliente: ${datos.razonSocial}
-Proyecto solicitado: ${datos.nombreProyecto}
-Categoría: ${categoria}
-Nº aproximado de candidatos: ${numero}
-Fecha necesaria: ${fecha}
+    const filas = pendientes ?? [];
+    const idsCliente = Array.from(new Set(filas.map((f) => f.cliente_id).filter(Boolean)));
+    const nombresCliente: Record<string, string> = {};
+    if (idsCliente.length > 0) {
+      const { data: clientes } = await supabaseAdmin
+        .from("clientes")
+        .select("id, razon_social")
+        .in("id", idsCliente);
+      for (const c of clientes ?? []) nombresCliente[c.id] = c.razon_social;
+    }
 
-Ya está disponible en la bandeja de solicitudes pendientes del dashboard del panel.
-
-— FIGURARTE · Agencia de casting & producción`;
-
-    const html = plantillaEmail(`
-      <p style="margin:0 0 16px;">Nueva solicitud de proyecto recibida en el portal de cliente.</p>
-      <ul style="margin:0 0 16px;padding-left:20px;">
-        <li><strong>Cliente:</strong> ${datos.razonSocial}</li>
-        <li><strong>Proyecto solicitado:</strong> ${datos.nombreProyecto}</li>
-        <li><strong>Categoría:</strong> ${categoria}</li>
-        <li><strong>Nº aproximado de candidatos:</strong> ${numero}</li>
-        <li><strong>Fecha necesaria:</strong> ${fecha}</li>
-      </ul>
-      <p style="margin:0;">Ya está disponible en la bandeja de solicitudes pendientes del dashboard del panel.</p>
-    `.trim());
-
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        from: "FIGURARTE Casting & Producción <casting@figurarte.app>",
-        to: destinatarios,
-        subject: `Nueva solicitud de proyecto — ${datos.razonSocial}`,
-        html,
-        text,
-      }),
+    const lineas = filas.map((f) => {
+      const cliente = nombresCliente[f.cliente_id] ?? "Cliente";
+      const categoria = ETIQUETA_CATEGORIA[f.categoria] ?? f.categoria;
+      const fecha = f.recibida_en ? new Date(f.recibida_en).toLocaleDateString("es-ES") : "";
+      return `• ${cliente} — ${f.nombre_proyecto} (${categoria})${fecha ? ` · recibida el ${fecha}` : ""}`;
     });
 
-    if (!response.ok) {
-      const body = await response.text();
-      console.error(`[email] Resend respondió ${response.status}: ${body}`);
+    const cuerpo = `Ha entrado una nueva solicitud de proyecto desde el portal de cliente.
+
+Solicitudes pendientes de gestionar (${filas.length}):
+${lineas.length > 0 ? lineas.join("\n") : "—"}
+
+Entra en el panel para revisarlas y convertirlas en proyectos.`;
+
+    const { enviarEmailFigurarte } = await import("@/lib/comunicaciones.server");
+    const enlace = `${origenPeticion()}/panel/dashboard`;
+
+    for (const email of destinatarios) {
+      const ok = await enviarEmailFigurarte({
+        email,
+        asunto: "Tienes una nueva solicitud",
+        cuerpo,
+        enlace,
+        textoBoton: "Gestionar solicitudes",
+      });
+      if (!ok) console.error(`[email] No se pudo avisar a ${email} de la nueva solicitud`);
     }
   } catch (err) {
     console.error("[email] Error avisando al equipo de nueva solicitud:", err);

@@ -165,6 +165,7 @@ export function Dashboard() {
 
   useEffect(() => {
     cargar();
+    cargarBandejas();
   }, []);
 
   const nombreCliente = useMemo(() => {

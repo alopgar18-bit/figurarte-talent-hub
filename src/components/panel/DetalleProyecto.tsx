@@ -1122,66 +1122,35 @@ export function DetalleProyecto({ id }: { id: string }) {
               const c = candidatos[a.candidato_id];
               if (!c) return null;
               return (
-                <div key={a.candidato_id} className="border border-border p-3">
-                  <label className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
-                    <Checkbox
-                      checked={!!seleccionComunicacion[a.candidato_id]}
-                      onCheckedChange={(v) =>
-                        setSeleccionComunicacion((prev) => ({
-                          ...prev,
-                          [a.candidato_id]: v === true,
-                        }))
-                      }
-                    />
-                    Seleccionar para comunicación
-                  </label>
-                  <Link
-                    to="/panel/candidatos/$id"
-                    params={{ id: a.candidato_id }}
-                    search={{ desde: id }}
-                    className="flex items-start gap-3 transition-opacity hover:opacity-80"
-                  >
-                    {c.fotos?.[0] ? (
-                      <img
-                        src={c.fotos[0]}
-                        alt={c.nombre}
-                        className="h-16 w-12 shrink-0 object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-16 w-12 shrink-0 items-center justify-center bg-muted text-lg font-bold tracking-tight text-muted-foreground">
-                        {c.nombre.charAt(0)}
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{c.nombre}</p>
-                      <p className="text-xs text-muted-foreground">{c.codigo}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {[
-                          c.edad ? `${c.edad} años` : null,
-                          c.altura_cm ? `${c.altura_cm} cm` : null,
-                          c.peso_kg ? `${c.peso_kg} kg` : null,
-                        ]
-                          .filter(Boolean)
-                          .join(" · ") || "Sin medidas"}
-                      </p>
-                    </div>
-                  </Link>
-                  <Select
-                    value={a.estado}
-                    onValueChange={(v) => cambiarEstadoCandidato(a.candidato_id, v)}
-                  >
-                    <SelectTrigger className="mt-3 h-8 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ESTADOS_CANDIDATO.map((e) => (
-                        <SelectItem key={e.valor} value={e.valor}>
-                          {e.etiqueta}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <CandidatoCard
+                  key={a.candidato_id}
+                  proyectoId={id}
+                  candidato={c}
+                  seleccion={!!seleccionComunicacion[a.candidato_id]}
+                  onToggleSeleccion={(v) =>
+                    setSeleccionComunicacion((prev) => ({
+                      ...prev,
+                      [a.candidato_id]: v,
+                    }))
+                  }
+                  accion={
+                    <Select
+                      value={a.estado}
+                      onValueChange={(v) => cambiarEstadoCandidato(a.candidato_id, v)}
+                    >
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ESTADOS_CANDIDATO.map((e) => (
+                          <SelectItem key={e.valor} value={e.valor}>
+                            {e.etiqueta}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  }
+                />
               );
             })}
           </div>
@@ -1194,66 +1163,46 @@ export function DetalleProyecto({ id }: { id: string }) {
             Todavía no hay inscripciones desde la ficha pública.
           </p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-sm">
-              <thead className="border-b border-border text-left text-xs uppercase tracking-wider text-muted-foreground">
-                <tr>
-                  <th className="px-3 py-2 font-semibold">Código</th>
-                  <th className="px-3 py-2 font-semibold">Nombre</th>
-                  <th className="px-3 py-2 font-semibold">Inscripción</th>
-                  <th className="px-3 py-2 font-semibold">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {web.map((a) => {
-                  const c = candidatos[a.candidato_id];
-                  const pendiente = a.estado === "pendiente_validacion";
-                  return (
-                    <tr key={a.candidato_id} className="border-b border-border last:border-0">
-                      <td className="px-3 py-2">{c?.codigo ?? "—"}</td>
-                      <td className="px-3 py-2">
-                        <span className="flex items-center gap-2">
-                          <span className="font-medium">{c?.nombre ?? "—"}</span>
-                          {pendiente && (
-                            <Badge className="h-5 px-1.5 text-[10px]">pendiente</Badge>
-                          )}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2 text-muted-foreground">
-                        {new Date(a.creado_en).toLocaleDateString("es-ES")}
-                      </td>
-                      <td className="px-3 py-2">
-                        {pendiente ? (
-                          <Button
-                            size="sm"
-                            className="h-8 text-xs"
-                            onClick={() => setRevisando(a.candidato_id)}
-                          >
-                            Revisar ficha
-                          </Button>
-                        ) : (
-                        <Select
-                          value={a.estado}
-                          onValueChange={(v) => cambiarEstadoCandidato(a.candidato_id, v)}
-                        >
-                          <SelectTrigger className="h-8 w-40 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {ESTADOS_CANDIDATO.map((e) => (
-                              <SelectItem key={e.valor} value={e.valor}>
-                                {e.etiqueta}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {web.map((a) => {
+              const c = candidatos[a.candidato_id];
+              if (!c) return null;
+              const pendiente = a.estado === "pendiente_validacion";
+              return (
+                <CandidatoCard
+                  key={a.candidato_id}
+                  proyectoId={id}
+                  candidato={c}
+                  accion={
+                    pendiente ? (
+                      <Button
+                        size="sm"
+                        className="h-8 w-full text-xs"
+                        onClick={() => setRevisando(a.candidato_id)}
+                      >
+                        Revisar ficha
+                      </Button>
+                    ) : (
+                      <Select
+                        value={a.estado}
+                        onValueChange={(v) => cambiarEstadoCandidato(a.candidato_id, v)}
+                      >
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ESTADOS_CANDIDATO.map((e) => (
+                            <SelectItem key={e.valor} value={e.valor}>
+                              {e.etiqueta}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )
+                  }
+                />
+              );
+            })}
           </div>
         )}
       </Tarjeta>

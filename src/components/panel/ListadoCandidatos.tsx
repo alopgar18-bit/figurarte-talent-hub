@@ -378,6 +378,7 @@ export function ListadoCandidatos() {
   const [seleccion, setSeleccion] = useState<string[]>([]);
   const [proyectoDestino, setProyectoDestino] = useState("");
   const [asignando, setAsignando] = useState(false);
+  const [dialogoComunicacion, setDialogoComunicacion] = useState(false);
   const asignar = useServerFn(asignarCandidatosAProyecto);
   const anotar = useServerFn(registrarAccesoStaff);
   const firmarFotos = useServerFn(firmarFotosStaff);

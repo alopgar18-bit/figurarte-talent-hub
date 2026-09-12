@@ -1,33 +1,49 @@
-# Rediseño del área de candidato por secciones
+# Revisión responsive de navegación horizontal
 
-## Qué se va a construir
-- Sustituir el formulario largo por una navegación de diez apartados, mostrando solo el apartado activo.
-- Mantener todos los campos y botones de guardado actuales, reagrupándolos sin cambiar su lógica.
-- Añadir indicadores de completado basados en datos reales para los ocho apartados editables.
-- Destacar Consentimiento RGPD mientras esté pendiente y abrirlo inicialmente en ese caso.
-- Añadir “Mis procesos de casting” en modo lectura, con proyecto, categoría, estado, origen explicado y fecha, sin datos del cliente.
-- Mostrar siempre código, nombre y progreso de los ocho apartados editables.
-- En escritorio usar navegación lateral; en móvil, un selector desplegable superior.
+## Hallazgos de la auditoría
 
-## Agrupación
-1. Datos básicos: datos personales de contacto y ubicación.
-2. Identidad: identidad, tutor legal para menores y datos fiscales.
-3. Físico: físico general, ampliado y vestuario.
-4. Habilidades y perfil: habilidades actuales, especialidades y tipos de perfil.
-5. Idiomas y formación: estudios, idiomas y acentos.
-6. Carnés y documentación: carnés y documentación personal.
-7. Redes y enlaces: redes, enlaces adicionales y otras residencias.
-8. Vídeo de presentación.
-9. Consentimiento RGPD y derechos sobre los datos.
-10. Mis procesos de casting.
+Se localizaron **18 usos explícitos de `overflow-x-auto` en 16 archivos**.
 
-## Seguridad y datos
-- La consulta de procesos será una función protegida por sesión y limitará la respuesta a los campos solicitados.
-- No devolverá cliente, brief, condiciones ni otros datos internos del proyecto.
-- Se conservarán las políticas actuales y no se crearán tablas ni se cambiará el esquema.
+### Menús de navegación que hay que corregir
+- `CabeceraPublica.tsx`: fila móvil deslizante con los enlaces públicos.
+- `PortalShell.tsx`: menú del portal de cliente en fila horizontal móvil.
+
+### Pestañas que hay que adaptar
+- `Comunicaciones.tsx`: las tres pestañas usan etiquetas sin salto de línea y no caben con seguridad a 390 px. No llevan `overflow-x-auto`, pero pueden desbordar; se sustituirán por un selector en móvil.
+
+### Tablas de datos que deben conservar su desplazamiento horizontal
+- `RegistroAccesos.tsx`: registro de accesos.
+- `FichaCandidato.tsx`: historial de castings.
+- `ListadoProyectos.tsx`: proyectos.
+- `ListadoClientes.tsx`: clientes.
+- `ListadoCandidatos.tsx`: candidatos.
+- `ImportarCandidatos.tsx`: dos tablas de previsualización/importación.
+- `BuscarCandidatos.tsx`: resultados del portal.
+- `CaptacionRRSS.tsx`: convocatorias activas.
+- `Administracion.tsx`: usuarios y campos personalizados.
+- `AccesosInvitados.tsx`: accesos invitados.
+- `Comunicaciones.tsx`: historial de comunicaciones.
+- `Dashboard.tsx`: proyectos activos por cliente.
+- `DetalleProyecto.tsx`: candidatos del proyecto.
+- `SolicitarProyecto.tsx`: solicitudes del cliente.
+
+### Otras fichas y perfiles revisados
+- `PerfilCandidato.tsx` ya usa el patrón correcto: selector móvil y navegación lateral en escritorio.
+- La ficha staff del candidato, el detalle de proyecto y la gestión de clientes no contienen otros menús internos horizontales.
+- Los usos generales de `whitespace-nowrap` en botones, selectores y celdas no forman menús desplazables.
+
+## Cambios
+
+1. Reemplazar la fila móvil de la cabecera pública por un botón de menú y un panel lateral accesible con los siete destinos. El panel cerrará al pulsar fuera, Escape, el botón de cierre o cualquier enlace, y gestionará el foco automáticamente.
+2. Mantener la navegación pública de escritorio sin cambios funcionales.
+3. Sustituir el menú horizontal móvil del portal de cliente por un selector de sección, conservando el menú lateral de escritorio.
+4. Convertir las pestañas de Comunicaciones en un selector a ancho completo en móvil, manteniendo las pestañas visibles desde pantallas medianas.
+5. No modificar ninguna tabla ni su desplazamiento horizontal.
 
 ## Verificación
-- Comprobar TypeScript y el funcionamiento visual a escritorio y unos 390 px.
-- Probar navegación entre apartados, estado inicial de RGPD y progreso calculado con el candidato demo.
-- Verificar con datos reales que “Mis procesos” muestra inscripciones y que la respuesta no contiene información del cliente.
-- Confirmar que los guardados existentes siguen disponibles dentro de su apartado correspondiente.
+
+- Comprobar a 390 px la cabecera pública, el portal de cliente y Comunicaciones.
+- Confirmar que los menús no producen ancho lateral de página y que todos sus destinos siguen accesibles.
+- Probar apertura, cierre exterior, Escape, foco y cierre al navegar en la cabecera.
+- Confirmar que las tablas conservan su desplazamiento horizontal intencionado.
+- Ejecutar las comprobaciones automáticas del proyecto.

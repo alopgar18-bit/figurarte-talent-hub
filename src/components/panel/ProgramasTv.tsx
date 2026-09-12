@@ -222,7 +222,9 @@ export function ProgramasTv({ esAdmin }: { esAdmin: boolean }) {
       <Dialog open={dialogo} onOpenChange={setDialogo}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Nuevo programa de TV</DialogTitle>
+            <DialogTitle>
+              {editandoId ? "Editar programa de TV" : "Nuevo programa de TV"}
+            </DialogTitle>
             <DialogDescription>
               El enlace lleva al formulario externo de inscripción.
             </DialogDescription>
@@ -270,9 +272,9 @@ export function ProgramasTv({ esAdmin }: { esAdmin: boolean }) {
             <Button variant="outline" onClick={() => setDialogo(false)}>
               Cancelar
             </Button>
-            <Button onClick={() => void crear()} disabled={guardando}>
+            <Button onClick={() => void guardar()} disabled={guardando}>
               {guardando && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
-              Crear
+              {editandoId ? "Guardar cambios" : "Crear"}
             </Button>
           </DialogFooter>
         </DialogContent>

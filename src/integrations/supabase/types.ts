@@ -231,6 +231,7 @@ export type Database = {
           profesion: string | null
           provincia: string | null
           representacion: string | null
+          revisado_publico: boolean
           talla_calzado: string | null
           talla_camisa: string | null
           talla_chaqueta: string | null
@@ -325,6 +326,7 @@ export type Database = {
           profesion?: string | null
           provincia?: string | null
           representacion?: string | null
+          revisado_publico?: boolean
           talla_calzado?: string | null
           talla_camisa?: string | null
           talla_chaqueta?: string | null
@@ -419,6 +421,7 @@ export type Database = {
           profesion?: string | null
           provincia?: string | null
           representacion?: string | null
+          revisado_publico?: boolean
           talla_calzado?: string | null
           talla_camisa?: string | null
           talla_chaqueta?: string | null

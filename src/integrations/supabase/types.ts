@@ -601,6 +601,33 @@ export type Database = {
           },
         ]
       }
+      filtros_guardados: {
+        Row: {
+          actualizado_en: string
+          condiciones: Json
+          creado_en: string
+          id: string
+          nombre: string
+          usuario_id: string
+        }
+        Insert: {
+          actualizado_en?: string
+          condiciones?: Json
+          creado_en?: string
+          id?: string
+          nombre: string
+          usuario_id?: string
+        }
+        Update: {
+          actualizado_en?: string
+          condiciones?: Json
+          creado_en?: string
+          id?: string
+          nombre?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       programas_tv: {
         Row: {
           activo: boolean

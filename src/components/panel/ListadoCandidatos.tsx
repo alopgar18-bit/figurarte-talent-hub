@@ -10,6 +10,8 @@ import {
   Upload,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { FiltrosPersonalizados } from "@/components/panel/FiltrosPersonalizados";
+import { cumpleTodas, type Condicion } from "@/lib/filtros-personalizados";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -143,6 +145,7 @@ const filtrosGuardados = {
   ojosSel: [] as string[],
   idiomas: "",
   rangos: { ...RANGOS_VACIOS },
+  condiciones: [] as Condicion[],
 };
 
 const COLOR_CATEGORIA: Record<string, string> = {
@@ -279,6 +282,54 @@ export function ListadoCandidatos() {
   const [fotosFirmadas, setFotosFirmadas] = useState<Record<string, string>>({});
   const [idiomas, setIdiomas] = useState(filtrosGuardados.idiomas);
   const [rangos, setRangos] = useState(filtrosGuardados.rangos);
+  const [condiciones, setCondiciones] = useState<Condicion[]>(filtrosGuardados.condiciones);
+
+  /** Filtros fijos que se guardan junto a las condiciones a medida. */
+  const basicos = {
+    categorias,
+    disponibleSi,
+    disponibleNo,
+    busqueda,
+    provinciasSel,
+    generosSel,
+    habilidadesSel,
+    tiposPerfilSel,
+    carnesSel,
+    camisaSel,
+    pantalonSel,
+    calzadoSel,
+    nacionalidadSel,
+    cabelloSel,
+    ojosSel,
+    idiomas,
+    rangos,
+  };
+
+  function cargarBasicos(b: Record<string, unknown>) {
+    const lista = (k: string) => (Array.isArray(b[k]) ? (b[k] as string[]) : []);
+    const texto = (k: string) => (typeof b[k] === "string" ? (b[k] as string) : "");
+    setCategorias(lista("categorias"));
+    setDisponibleSi(Boolean(b["disponibleSi"]));
+    setDisponibleNo(Boolean(b["disponibleNo"]));
+    setBusqueda(texto("busqueda"));
+    setProvinciasSel(lista("provinciasSel"));
+    setGenerosSel(lista("generosSel"));
+    setHabilidadesSel(lista("habilidadesSel"));
+    setTiposPerfilSel(lista("tiposPerfilSel"));
+    setCarnesSel(lista("carnesSel"));
+    setCamisaSel(lista("camisaSel"));
+    setPantalonSel(lista("pantalonSel"));
+    setCalzadoSel(lista("calzadoSel"));
+    setNacionalidadSel(lista("nacionalidadSel"));
+    setCabelloSel(lista("cabelloSel"));
+    setOjosSel(lista("ojosSel"));
+    setIdiomas(texto("idiomas"));
+    setRangos(
+      b["rangos"] && typeof b["rangos"] === "object"
+        ? { ...RANGOS_VACIOS, ...(b["rangos"] as typeof RANGOS_VACIOS) }
+        : { ...RANGOS_VACIOS },
+    );
+  }
 
   // Al desmontar (navegar a la ficha), los filtros quedan guardados y se restauran al volver.
   useEffect(() => {
@@ -299,7 +350,9 @@ export function ListadoCandidatos() {
     filtrosGuardados.ojosSel = ojosSel;
     filtrosGuardados.idiomas = idiomas;
     filtrosGuardados.rangos = rangos;
+    filtrosGuardados.condiciones = condiciones;
   }, [
+    condiciones,
     categorias,
     disponibleSi,
     disponibleNo,
@@ -463,6 +516,9 @@ export function ListadoCandidatos() {
       if (!enRango(c.edad, rangos.edadMin, rangos.edadMax)) return false;
       if (!enRango(c.altura_cm, rangos.alturaMin, rangos.alturaMax)) return false;
       if (!enRango(c["peso_kg"], rangos.pesoMin, rangos.pesoMax)) return false;
+      // Condiciones a medida: todas se combinan con Y.
+      if (condiciones.length > 0 && !cumpleTodas(c as Record<string, unknown>, condiciones))
+        return false;
       return true;
     });
   }, [
@@ -484,6 +540,7 @@ export function ListadoCandidatos() {
     ojosSel,
     idiomas,
     rangos,
+    condiciones,
   ]);
 
   const idsFiltrados = filtrados.map((c) => c.id);
@@ -638,6 +695,12 @@ export function ListadoCandidatos() {
           <SlidersHorizontal className="size-4" />
           {avanzados ? "Ocultar filtros" : "Filtros avanzados"}
         </Button>
+        <FiltrosPersonalizados
+          condiciones={condiciones}
+          alCambiar={setCondiciones}
+          basicos={basicos}
+          alCargarBasicos={cargarBasicos}
+        />
       </div>
 
       {avanzados && (

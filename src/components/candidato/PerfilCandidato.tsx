@@ -32,6 +32,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { VideoPresentacion } from "@/components/candidato/VideoPresentacion";
+import { MisFotos } from "@/components/candidato/MisFotos";
 import { Progress } from "@/components/ui/progress";
 import {
   obtenerMisProcesos,
@@ -389,6 +390,7 @@ const CAMPOS_IDENTIDAD_FISCAL = [
 
 const SECCIONES = [
   { id: "basicos", etiqueta: "Datos básicos" },
+  { id: "fotos", etiqueta: "Mis fotos" },
   { id: "identidad", etiqueta: "Identidad" },
   { id: "fisico", etiqueta: "Físico" },
   { id: "habilidades", etiqueta: "Habilidades y perfil" },

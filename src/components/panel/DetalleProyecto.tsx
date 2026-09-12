@@ -1149,12 +1149,13 @@ export function DetalleProyecto({ id }: { id: string }) {
           </DialogHeader>
           <div className="space-y-4">
             <div className="max-h-64 space-y-2 overflow-y-auto border border-border p-3">
-              {asociaciones.length === 0 && (
+              {asociacionesDossier.length === 0 && (
                 <p className="text-sm text-muted-foreground">
-                  Este proyecto todavía no tiene candidatos asociados.
+                  No hay candidatos validados para este dossier. Valida antes las
+                  inscripciones pendientes.
                 </p>
               )}
-              {asociaciones.map((a) => {
+              {asociacionesDossier.map((a) => {
                 const c = candidatos[a.candidato_id];
                 if (!c) return null;
                 return (

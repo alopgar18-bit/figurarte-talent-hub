@@ -108,7 +108,9 @@ export function FiltrosPersonalizados({
     const { error } = await supabase.from("filtros_guardados").insert({
       usuario_id: usuarioId,
       nombre,
-      condiciones: { version: 1, condiciones: borrador, basicos },
+      condiciones: JSON.parse(
+        JSON.stringify({ version: 1, condiciones: borrador, basicos }),
+      ),
     });
     setGuardando(false);
     if (error) {
@@ -272,7 +274,10 @@ export function FiltrosPersonalizados({
                     {(cond.operador === "alguno" || cond.operador === "todos") && (
                       <MultiSelect
                         etiqueta="Valores"
-                        opciones={def?.opciones ?? []}
+                        opciones={(def?.opciones ?? []).map((o) => ({
+                          valor: o,
+                          etiqueta: o,
+                        }))}
                         seleccionados={cond.valores ?? []}
                         alCambiar={(v) => actualizar(i, { valores: v })}
                       />

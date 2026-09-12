@@ -131,6 +131,7 @@ export function ListadoClientes() {
   const [error, setError] = useState<string | null>(null);
   const [seleccionado, setSeleccionado] = useState<string | null>(null);
   const [detalleMovil, setDetalleMovil] = useState(false);
+  const [comunicacionAbierta, setComunicacionAbierta] = useState(false);
 
   const [dialogo, setDialogo] = useState(false);
   const [editandoId, setEditandoId] = useState<string | null>(null);

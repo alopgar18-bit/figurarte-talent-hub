@@ -1,6 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { plantillaEmail } from "@/lib/email-layout";
+
+/** URL base de la petición actual, para los enlaces de los correos. */
+function origenPeticion() {
+  const request = getRequest();
+  const host = request?.headers.get("host") ?? "figurarte-casting.lovable.app";
+  return `https://${host}`;
+}
 
 export type CandidatoPortal = {
   id: string;

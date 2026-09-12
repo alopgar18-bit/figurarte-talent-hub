@@ -226,7 +226,7 @@ export function MisFotos({ nombre }: { nombre: string }) {
               Eliminar foto
             </Button>
           </DialogFooter>
-        </DialogFooter>
+        </DialogContent>
       </Dialog>
     </section>
   );

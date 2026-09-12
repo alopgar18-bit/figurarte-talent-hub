@@ -1031,9 +1031,20 @@ export function DetalleProyecto({ id }: { id: string }) {
       <Tarjeta
         titulo="Candidatos preseleccionados"
         accion={
-          <Button size="sm" onClick={() => setDialogoAnadir(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Añadir candidato
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {Object.values(seleccionComunicacion).some(Boolean) && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setDialogoComunicacion(true)}
+              >
+                Enviar comunicación
+              </Button>
+            )}
+            <Button size="sm" onClick={() => setDialogoAnadir(true)}>
+              <Plus className="mr-2 h-4 w-4" /> Añadir candidato
+            </Button>
+          </div>
         }
       >
         {manuales.length === 0 ? (

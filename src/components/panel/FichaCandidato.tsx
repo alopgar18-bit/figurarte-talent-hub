@@ -296,6 +296,8 @@ export function FichaCandidato({
   const [confirmacion, setConfirmacion] = useState("");
   const [borrando, setBorrando] = useState(false);
   const [vestuario, setVestuario] = useState<Record<string, string>>({});
+  const [perfil, setPerfil] = useState<Record<string, unknown>>({});
+  const [guardandoPerfil, setGuardandoPerfil] = useState(false);
   const [guardandoVestuario, setGuardandoVestuario] = useState(false);
   const [catalogo, setCatalogo] = useState<Record<string, string>>({});
   const [acentosSel, setAcentosSel] = useState<string[]>([]);

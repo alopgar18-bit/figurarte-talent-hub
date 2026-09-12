@@ -37,9 +37,12 @@ import {
 } from "@/components/ui/select";
 import {
   ACENTOS,
+  CARNES_OPCIONES,
   COLORES_CABELLO,
   COLORES_OJOS,
   GENEROS,
+  GRUPOS_HABILIDADES,
+  GRUPOS_TIPO_PERFIL,
   PAISES,
   PROVINCIAS_ES,
   TALLAS_CALZADO,
@@ -178,6 +181,43 @@ const CAMPOS_BADGES: { clave: string; etiqueta: string }[] = [
   { clave: "otras_residencias", etiqueta: "Disponibilidad para otras residencias" },
 ];
 
+/** Opciones de cada campo de tipo lista, tomadas de los catálogos compartidos. */
+const OPCIONES_BADGES: Record<string, { titulo: string; opciones: string[] }[]> = {
+  habilidades: GRUPOS_HABILIDADES,
+  tipo_perfil: GRUPOS_TIPO_PERFIL,
+  carnes_conducir: [{ titulo: "Carnés y licencias", opciones: CARNES_OPCIONES }],
+  otras_residencias: [{ titulo: "Provincias", opciones: PROVINCIAS_ES }],
+};
+
+const OPCIONES_REPRESENTACION = [
+  { valor: "sin_representacion", etiqueta: "Sin representación" },
+  { valor: "con_representacion", etiqueta: "Con representación / agencia" },
+];
+
+function ChipStaff({
+  activo,
+  onClick,
+  children,
+}: {
+  activo: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`border px-3 py-1 text-sm transition-colors ${
+        activo
+          ? "border-primary bg-primary text-primary-foreground"
+          : "border-border bg-background hover:bg-muted/60"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
 function arrayTexto(v: unknown): string[] {
   return Array.isArray(v) ? v.filter((x): x is string => typeof x === "string" && x.trim() !== "") : [];
 }
@@ -256,6 +296,8 @@ export function FichaCandidato({
   const [confirmacion, setConfirmacion] = useState("");
   const [borrando, setBorrando] = useState(false);
   const [vestuario, setVestuario] = useState<Record<string, string>>({});
+  const [perfil, setPerfil] = useState<Record<string, unknown>>({});
+  const [guardandoPerfil, setGuardandoPerfil] = useState(false);
   const [guardandoVestuario, setGuardandoVestuario] = useState(false);
   const [catalogo, setCatalogo] = useState<Record<string, string>>({});
   const [acentosSel, setAcentosSel] = useState<string[]>([]);
@@ -315,6 +357,14 @@ export function FichaCandidato({
         }
         setCatalogo(inicialCatalogo);
         setAcentosSel(desdeTextoLista(ficha["acentos"]));
+        const inicialPerfil: Record<string, unknown> = {};
+        for (const { clave, tipo } of CAMPOS_PERFIL) {
+          const v = ficha[clave];
+          if (tipo === "bool") inicialPerfil[clave] = v === true;
+          else inicialPerfil[clave] = typeof v === "string" ? v : v == null ? "" : String(v);
+        }
+        for (const { clave } of CAMPOS_BADGES) inicialPerfil[clave] = arrayTexto(ficha[clave]);
+        setPerfil(inicialPerfil);
         setCastings((resultado.castings as CastingAsociado[] | null) ?? []);
       }
       setCargando(false);
@@ -417,6 +467,46 @@ export function FichaCandidato({
     toast.success("Medidas guardadas");
   }
 
+  /** Guarda todos los campos del perfil completo (texto, fechas, sí/no y listas). */
+  async function guardarPerfil() {
+    if (!candidato) return;
+    setGuardandoPerfil(true);
+    const valores: Record<string, unknown> = {};
+    for (const { clave, tipo } of CAMPOS_PERFIL) {
+      const v = perfil[clave];
+      if (tipo === "bool") valores[clave] = v === true;
+      else {
+        const t = typeof v === "string" ? v.trim() : "";
+        valores[clave] = t === "" ? null : t;
+      }
+    }
+    for (const { clave } of CAMPOS_BADGES) valores[clave] = arrayTexto(perfil[clave]);
+    const { error } = await supabase
+      .from("candidatos")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .update(valores as any)
+      .eq("id", candidato.id);
+    setGuardandoPerfil(false);
+    if (error) {
+      toast.error("No se pudo guardar el perfil completo.");
+      return;
+    }
+    setCandidato({ ...candidato, ...valores });
+    toast.success("Perfil completo guardado");
+  }
+
+  function alternarBadge(clave: string, valor: string) {
+    setPerfil((s) => {
+      const actual = arrayTexto(s[clave]);
+      return {
+        ...s,
+        [clave]: actual.includes(valor)
+          ? actual.filter((x) => x !== valor)
+          : [...actual, valor],
+      };
+    });
+  }
+
   if (cargando) {
     return (
       <div className="flex items-center gap-2 py-16 text-muted-foreground">
@@ -450,19 +540,11 @@ export function FichaCandidato({
   }
 
   const nombreCompleto = [candidato.nombre, candidato.apellidos].filter(Boolean).join(" ");
-  const camposPerfilConValor = CAMPOS_PERFIL.filter(({ clave }) => {
-    const v = candidato[clave];
-    return v !== null && v !== undefined && v !== "";
-  });
-  const badgesConValor = CAMPOS_BADGES.map((campo) => ({
-    ...campo,
-    valores: arrayTexto(candidato[campo.clave]),
-  })).filter((campo) => campo.valores.length > 0);
   const estudios = arrayObjetos(candidato["estudios"]);
   const idiomasDetalle = arrayObjetos(candidato["idiomas_detalle"]);
   const enlaces = arrayObjetos(candidato["enlaces"]);
   const haySeccionesListas =
-    badgesConValor.length > 0 || estudios.length > 0 || idiomasDetalle.length > 0 || enlaces.length > 0;
+    estudios.length > 0 || idiomasDetalle.length > 0 || enlaces.length > 0;
 
   return (
     <div className="space-y-6">
@@ -761,43 +843,96 @@ export function FichaCandidato({
           <CardTitle className="text-base">Perfil completo</CardTitle>
         </CardHeader>
         <CardContent>
-          {camposPerfilConValor.length > 0 ? (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {camposPerfilConValor.map(({ clave, etiqueta, tipo, etiquetas }) => {
-                const bruto = candidato[clave];
-                let valor: string;
-                if (tipo === "bool") {
-                  valor = bruto ? "Sí" : "No";
-                } else if (tipo === "fecha") {
-                  valor = formateaFecha(String(bruto));
-                } else if (tipo === "etiqueta") {
-                  valor = etiquetas?.[String(bruto)] ?? String(bruto);
-                } else {
-                  valor = String(bruto);
-                }
-                return <Dato key={clave} etiqueta={etiqueta} valor={valor} />;
-              })}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              Este candidato aún no ha completado su perfil ampliado.
-            </p>
-          )}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {CAMPOS_PERFIL.map(({ clave, etiqueta, tipo }) => {
+              if (tipo === "bool") {
+                return (
+                  <div key={clave} className="flex items-center justify-between gap-3 border border-border p-3">
+                    <Label htmlFor={`perfil_${clave}`}>{etiqueta}</Label>
+                    <Switch
+                      id={`perfil_${clave}`}
+                      checked={perfil[clave] === true}
+                      onCheckedChange={(v) => setPerfil((s) => ({ ...s, [clave]: v }))}
+                    />
+                  </div>
+                );
+              }
+              if (clave === "representacion") {
+                return (
+                  <div key={clave} className="space-y-1.5">
+                    <Label>{etiqueta}</Label>
+                    <Select
+                      value={typeof perfil[clave] === "string" ? String(perfil[clave]) : ""}
+                      onValueChange={(v) => setPerfil((s) => ({ ...s, [clave]: v }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sin especificar" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {OPCIONES_REPRESENTACION.map((o) => (
+                          <SelectItem key={o.valor} value={o.valor}>
+                            {o.etiqueta}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                );
+              }
+              return (
+                <div key={clave} className="space-y-1.5">
+                  <Label htmlFor={`perfil_${clave}`}>{etiqueta}</Label>
+                  <Input
+                    id={`perfil_${clave}`}
+                    type={tipo === "fecha" ? "date" : "text"}
+                    value={typeof perfil[clave] === "string" ? String(perfil[clave]) : ""}
+                    onChange={(e) => setPerfil((s) => ({ ...s, [clave]: e.target.value }))}
+                  />
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-6 space-y-5 border-t pt-6">
+            {CAMPOS_BADGES.map(({ clave, etiqueta }) => (
+              <div key={clave} className="space-y-2">
+                <p className="text-sm font-semibold">{etiqueta}</p>
+                {(OPCIONES_BADGES[clave] ?? []).map((grupo) => (
+                  <div key={grupo.titulo} className="space-y-1.5">
+                    <p className="text-xs text-muted-foreground">{grupo.titulo}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {grupo.opciones.map((opcion) => (
+                        <ChipStaff
+                          key={opcion}
+                          activo={arrayTexto(perfil[clave]).includes(opcion)}
+                          onClick={() => alternarBadge(clave, opcion)}
+                        >
+                          {opcion}
+                        </ChipStaff>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                {arrayTexto(perfil[clave])
+                  .filter((v) => !(OPCIONES_BADGES[clave] ?? []).some((g) => g.opciones.includes(v)))
+                  .map((v) => (
+                    <Badge key={v} variant="outline">
+                      {v}
+                    </Badge>
+                  ))}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 flex justify-end">
+            <Button onClick={() => void guardarPerfil()} disabled={guardandoPerfil}>
+              {guardandoPerfil ? "Guardando…" : "Guardar perfil completo"}
+            </Button>
+          </div>
 
           {haySeccionesListas ? (
             <div className="mt-6 space-y-4 border-t pt-6">
-              {badgesConValor.map(({ clave, etiqueta, valores }) => (
-                <div key={clave} className="space-y-1.5">
-                  <p className="text-xs text-muted-foreground">{etiqueta}</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {valores.map((valor, i) => (
-                      <Badge key={`${valor}-${i}`} variant="outline">
-                        {valor}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              ))}
+
 
               {estudios.length > 0 ? (
                 <div className="space-y-1.5">

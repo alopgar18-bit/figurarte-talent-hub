@@ -40,9 +40,12 @@ import {
 } from "@/lib/procesos-candidato.functions";
 import {
   ACENTOS,
+  CARNES_OPCIONES,
   COLORES_CABELLO,
   COLORES_OJOS,
   GENEROS,
+  GRUPOS_HABILIDADES,
+  GRUPOS_TIPO_PERFIL,
   PAISES,
   PROVINCIAS_ES,
   TALLAS_CALZADO,
@@ -51,6 +54,7 @@ import {
   aTextoLista,
   conValorActual,
   desdeTextoLista,
+  provinciaPorCp,
 } from "@/lib/catalogos";
 
 
@@ -189,94 +193,8 @@ const COMPLEXIONES = [
   },
 ];
 
-const GRUPOS_HABILIDADES: { titulo: string; opciones: string[] }[] = [
-  {
-    titulo: "Artes escénicas y circenses",
-    opciones: ["Baile / Danza", "Canto", "Circo", "Malabares", "Mago", "Doblador/a", "Locutor/a"],
-  },
-  {
-    titulo: "Música",
-    opciones: [
-      "Instrumento de cuerda",
-      "Instrumento de viento",
-      "Instrumento de percusión",
-      "Electrófonos",
-    ],
-  },
-  {
-    titulo: "Deporte y acción",
-    opciones: [
-      "Artes marciales",
-      "Deportes",
-      "Especialista / stunt",
-      "Esgrima",
-      "Equitación",
-      "Culturismo",
-    ],
-  },
-  {
-    titulo: "Rasgos y singularidades",
-    opciones: ["Tengo un gemelo/a", "Drag queen", "Drag king"],
-  },
-];
-
-const GRUPOS_TIPO_PERFIL: { titulo: string; opciones: string[] }[] = [
-  {
-    titulo: "Interpretación",
-    opciones: [
-      "Actor / actriz",
-      "Ficción",
-      "Publicidad",
-      "Doblaje",
-      "Teatro aficionado",
-      "Modelo",
-      "Bailarín/a",
-    ],
-  },
-  {
-    titulo: "Música",
-    opciones: [
-      "Cantante pop",
-      "Cantante rock",
-      "Cantante rap / trap",
-      "Cantante jazz",
-      "Ópera / zarzuela",
-    ],
-  },
-  {
-    titulo: "Medios y contenido digital",
-    opciones: [
-      "Influencer",
-      "YouTuber",
-      "Tiktoker",
-      "Presentador/a",
-      "Periodista",
-      "Tertuliano/a",
-      "Colaborador/a",
-    ],
-  },
-  { titulo: "Otros", opciones: ["Especialista", "Casting de calle"] },
-];
-
-const CARNES_OPCIONES = [
-  "AM",
-  "A1",
-  "A2",
-  "A",
-  "B",
-  "B+E",
-  "C1",
-  "C1+E",
-  "C",
-  "C+E",
-  "D1",
-  "D1+E",
-  "D",
-  "D+E",
-  "Licencia LVA",
-  "Licencia LCM",
-  "ADR",
-];
+/* GRUPOS_HABILIDADES, GRUPOS_TIPO_PERFIL y CARNES_OPCIONES viven en @/lib/catalogos
+   para que el panel de staff use exactamente las mismas opciones. */
 
 function Chip({
   activo,
@@ -824,6 +742,7 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
             "nombre",
             "apellidos",
             "telefono",
+            "codigo_postal",
             "ciudad",
             "provincia",
           ])
@@ -833,6 +752,27 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         <Campo id="nombre" etiqueta="Nombre" valor={texto(f["nombre"])} onChange={(v) => set("nombre", v)} />
         <Campo id="apellidos" etiqueta="Apellidos" valor={texto(f["apellidos"])} onChange={(v) => set("apellidos", v)} />
         <Campo id="telefono" etiqueta="Teléfono" valor={texto(f["telefono"])} onChange={(v) => set("telefono", v)} />
+        <div className="space-y-2">
+          <Label htmlFor="codigo_postal">Código postal</Label>
+          <Input
+            id="codigo_postal"
+            inputMode="numeric"
+            maxLength={5}
+            value={texto(f["codigo_postal"])}
+            onChange={(e) => {
+              const v = e.target.value.replace(/\D/g, "").slice(0, 5);
+              setF((s) => {
+                const siguiente: Record<string, unknown> = { ...s, codigo_postal: v };
+                const deducida = provinciaPorCp(v);
+                if (deducida) siguiente["provincia"] = deducida;
+                return siguiente;
+              });
+            }}
+          />
+          <p className="text-xs text-muted-foreground">
+            Al escribirlo proponemos tu provincia; puedes cambiarla si no coincide.
+          </p>
+        </div>
         <Campo id="ciudad" etiqueta="Ciudad" valor={texto(f["ciudad"])} onChange={(v) => set("ciudad", v)} />
         <SelectCampo
           etiqueta="Provincia"

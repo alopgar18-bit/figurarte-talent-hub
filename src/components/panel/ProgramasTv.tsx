@@ -43,6 +43,7 @@ export function ProgramasTv({ esAdmin }: { esAdmin: boolean }) {
   const [dialogo, setDialogo] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [form, setForm] = useState(VACIO);
+  const [editandoId, setEditandoId] = useState<string | null>(null);
 
   async function cargar() {
     setCargando(true);
@@ -63,7 +64,24 @@ export function ProgramasTv({ esAdmin }: { esAdmin: boolean }) {
     void cargar();
   }, []);
 
-  async function crear() {
+  function abrirNuevo() {
+    setEditandoId(null);
+    setForm(VACIO);
+    setDialogo(true);
+  }
+
+  function abrirEdicion(p: Programa) {
+    setEditandoId(p.id);
+    setForm({
+      nombre: p.nombre,
+      imagen_url: p.imagen_url ?? "",
+      link_formulario: p.link_formulario,
+      orden: String(p.orden),
+    });
+    setDialogo(true);
+  }
+
+  async function guardar() {
     if (!form.nombre.trim()) {
       toast.error("Indica el nombre del programa.");
       return;
@@ -77,19 +95,25 @@ export function ProgramasTv({ esAdmin }: { esAdmin: boolean }) {
       return;
     }
     setGuardando(true);
-    const { error: err } = await supabase.from("programas_tv").insert({
+    const valores = {
       nombre: form.nombre.trim(),
       imagen_url: form.imagen_url.trim() || null,
       link_formulario: form.link_formulario.trim(),
       orden: Number(form.orden) || 0,
-    });
+    };
+    const { error: err } = editandoId
+      ? await supabase.from("programas_tv").update(valores).eq("id", editandoId)
+      : await supabase.from("programas_tv").insert(valores);
     setGuardando(false);
     if (err) {
-      toast.error("No se pudo crear el programa.");
+      toast.error(
+        editandoId ? "No se pudo guardar el programa." : "No se pudo crear el programa.",
+      );
       return;
     }
-    toast.success("Programa creado.");
+    toast.success(editandoId ? "Programa actualizado." : "Programa creado.");
     setForm(VACIO);
+    setEditandoId(null);
     setDialogo(false);
     void cargar();
   }
@@ -131,7 +155,7 @@ export function ProgramasTv({ esAdmin }: { esAdmin: boolean }) {
             Tarjetas que se muestran en la Home pública y enlazan a formularios externos.
           </p>
         </div>
-        <Button size="sm" onClick={() => setDialogo(true)}>
+        <Button size="sm" onClick={abrirNuevo}>
           <Plus className="mr-1.5 h-4 w-4" />
           Añadir programa
         </Button>
@@ -171,6 +195,14 @@ export function ProgramasTv({ esAdmin }: { esAdmin: boolean }) {
                 <span className="text-xs text-muted-foreground">
                   {p.activo ? "Visible" : "Oculto"}
                 </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  aria-label={`Editar ${p.nombre}`}
+                  onClick={() => abrirEdicion(p)}
+                >
+                  Editar
+                </Button>
                 {esAdmin && (
                   <Button
                     variant="ghost"
@@ -190,7 +222,9 @@ export function ProgramasTv({ esAdmin }: { esAdmin: boolean }) {
       <Dialog open={dialogo} onOpenChange={setDialogo}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Nuevo programa de TV</DialogTitle>
+            <DialogTitle>
+              {editandoId ? "Editar programa de TV" : "Nuevo programa de TV"}
+            </DialogTitle>
             <DialogDescription>
               El enlace lleva al formulario externo de inscripción.
             </DialogDescription>
@@ -238,9 +272,9 @@ export function ProgramasTv({ esAdmin }: { esAdmin: boolean }) {
             <Button variant="outline" onClick={() => setDialogo(false)}>
               Cancelar
             </Button>
-            <Button onClick={() => void crear()} disabled={guardando}>
+            <Button onClick={() => void guardar()} disabled={guardando}>
               {guardando && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
-              Crear
+              {editandoId ? "Guardar cambios" : "Crear"}
             </Button>
           </DialogFooter>
         </DialogContent>

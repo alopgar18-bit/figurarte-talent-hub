@@ -314,6 +314,98 @@ export const TIPOS_PERFIL = [
   "Casting de calle",
 ];
 
+/** Habilidades agrupadas (fuente única para autoservicio y panel). */
+export const GRUPOS_HABILIDADES: { titulo: string; opciones: string[] }[] = [
+  {
+    titulo: "Artes escénicas y circenses",
+    opciones: ["Baile / Danza", "Canto", "Circo", "Malabares", "Mago", "Doblador/a", "Locutor/a"],
+  },
+  {
+    titulo: "Música",
+    opciones: [
+      "Instrumento de cuerda",
+      "Instrumento de viento",
+      "Instrumento de percusión",
+      "Electrófonos",
+    ],
+  },
+  {
+    titulo: "Deporte y acción",
+    opciones: [
+      "Artes marciales",
+      "Deportes",
+      "Especialista / stunt",
+      "Esgrima",
+      "Equitación",
+      "Culturismo",
+    ],
+  },
+  {
+    titulo: "Rasgos y singularidades",
+    opciones: ["Tengo un gemelo/a", "Drag queen", "Drag king"],
+  },
+];
+
+/** Tipos de perfil agrupados (fuente única para autoservicio y panel). */
+export const GRUPOS_TIPO_PERFIL: { titulo: string; opciones: string[] }[] = [
+  {
+    titulo: "Interpretación",
+    opciones: [
+      "Actor / actriz",
+      "Ficción",
+      "Publicidad",
+      "Doblaje",
+      "Teatro aficionado",
+      "Modelo",
+      "Bailarín/a",
+    ],
+  },
+  {
+    titulo: "Música",
+    opciones: [
+      "Cantante pop",
+      "Cantante rock",
+      "Cantante rap / trap",
+      "Cantante jazz",
+      "Ópera / zarzuela",
+    ],
+  },
+  {
+    titulo: "Medios y contenido digital",
+    opciones: [
+      "Influencer",
+      "YouTuber",
+      "Tiktoker",
+      "Presentador/a",
+      "Periodista",
+      "Tertuliano/a",
+      "Colaborador/a",
+    ],
+  },
+  { titulo: "Otros", opciones: ["Especialista", "Casting de calle"] },
+];
+
+/** Carnés de conducir y licencias. */
+export const CARNES_OPCIONES = [
+  "AM",
+  "A1",
+  "A2",
+  "A",
+  "B",
+  "B+E",
+  "C1",
+  "C1+E",
+  "C",
+  "C+E",
+  "D1",
+  "D1+E",
+  "D",
+  "D+E",
+  "Licencia LVA",
+  "Licencia LCM",
+  "ADR",
+];
+
 /** Añade un valor ya guardado que no esté en el catálogo, para no perderlo. */
 export function conValorActual(opciones: string[], valor: unknown): string[] {
   const v = typeof valor === "string" ? valor.trim() : "";

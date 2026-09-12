@@ -56,6 +56,8 @@ import {
   desdeTextoLista,
   provinciaPorCp,
 } from "@/lib/catalogos";
+import { municipioPorCp } from "@/lib/municipios";
+import { SelectorMunicipio } from "@/components/SelectorMunicipio";
 
 
 type Ficha = Record<string, unknown> & {
@@ -767,19 +769,32 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
                 if (deducida) siguiente["provincia"] = deducida;
                 return siguiente;
               });
+              if (v.length === 5) {
+                void municipioPorCp(v).then((m) => {
+                  if (m) setF((s) => ({ ...s, ciudad: m }));
+                });
+              }
             }}
           />
           <p className="text-xs text-muted-foreground">
-            Al escribirlo proponemos tu provincia; puedes cambiarla si no coincide.
+            Al escribirlo proponemos tu provincia y municipio; puedes cambiarlos.
           </p>
         </div>
-        <Campo id="ciudad" etiqueta="Ciudad" valor={texto(f["ciudad"])} onChange={(v) => set("ciudad", v)} />
         <SelectCampo
           etiqueta="Provincia"
           valor={texto(f["provincia"])}
           opciones={conValorActual(PROVINCIAS_ES, f["provincia"])}
-          onChange={(v) => set("provincia", v)}
+          onChange={(v) => setF((s) => ({ ...s, provincia: v, ciudad: "" }))}
         />
+        <div className="space-y-2">
+          <Label htmlFor="ciudad">Ciudad</Label>
+          <SelectorMunicipio
+            id="ciudad"
+            provincia={texto(f["provincia"])}
+            valor={texto(f["ciudad"])}
+            onChange={(v) => set("ciudad", v)}
+          />
+        </div>
       </Seccion>
 
       <Seccion

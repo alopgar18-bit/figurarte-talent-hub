@@ -50,6 +50,7 @@ import {
   conValorActual,
   desdeTextoLista,
 } from "@/lib/catalogos";
+import { SelectorMunicipio } from "@/components/SelectorMunicipio";
 
 const SIN_TALLA = "__sin_talla__";
 import { Switch } from "@/components/ui/switch";
@@ -355,6 +356,7 @@ export function FichaCandidato({
           const v = ficha[clave];
           inicialCatalogo[clave] = typeof v === "string" ? v : "";
         }
+        inicialCatalogo["ciudad"] = typeof ficha.ciudad === "string" ? ficha.ciudad : "";
         setCatalogo(inicialCatalogo);
         setAcentosSel(desdeTextoLista(ficha["acentos"]));
         const inicialPerfil: Record<string, unknown> = {};
@@ -421,6 +423,7 @@ export function FichaCandidato({
     setGuardandoCatalogo(true);
     const valores: Record<string, string | null> = { acentos: aTextoLista(acentosSel) };
     for (const { clave } of CAMPOS_CATALOGO) valores[clave] = catalogo[clave] || null;
+    valores["ciudad"] = catalogo["ciudad"] || null;
     const { error } = await supabase
       .from("candidatos")
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -656,7 +659,11 @@ export function FichaCandidato({
                 <Select
                   value={catalogo[clave] ? catalogo[clave] : SIN_TALLA}
                   onValueChange={(v) =>
-                    setCatalogo((s) => ({ ...s, [clave]: v === SIN_TALLA ? "" : v }))
+                    setCatalogo((s) => ({
+                      ...s,
+                      [clave]: v === SIN_TALLA ? "" : v,
+                      ...(clave === "provincia" ? { ciudad: "" } : {}),
+                    }))
                   }
                 >
                   <SelectTrigger id={`cat-${clave}`} aria-label={etiqueta}>
@@ -673,6 +680,17 @@ export function FichaCandidato({
                 </Select>
               </div>
             ))}
+            <div className="space-y-1.5">
+              <Label htmlFor="cat-ciudad" className="text-xs text-muted-foreground">
+                Ciudad
+              </Label>
+              <SelectorMunicipio
+                id="cat-ciudad"
+                provincia={catalogo["provincia"] ?? ""}
+                valor={catalogo["ciudad"] ?? ""}
+                onChange={(v) => setCatalogo((s) => ({ ...s, ciudad: v }))}
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground">Acentos</p>

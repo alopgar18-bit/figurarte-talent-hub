@@ -156,6 +156,11 @@ const CP_PROVINCIA: Record<string, string> = {
   "52": "Melilla",
 };
 
+/** Inverso del anterior: nombre de provincia → código de dos dígitos. */
+export const CODIGO_POR_PROVINCIA: Record<string, string> = Object.fromEntries(
+  Object.entries(CP_PROVINCIA).map(([codigo, nombre]) => [nombre, codigo]),
+);
+
 /** Provincia deducida de un código postal español de 5 dígitos, o null. */
 export function provinciaPorCp(cp: string): string | null {
   const limpio = cp.replace(/\D/g, "");

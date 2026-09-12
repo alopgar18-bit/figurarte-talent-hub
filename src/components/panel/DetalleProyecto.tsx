@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DialogoEnviarComunicacion } from "@/components/panel/DialogoEnviarComunicacion";
 import {
   Dialog,
   DialogContent,
@@ -1359,6 +1360,20 @@ export function DetalleProyecto({ id }: { id: string }) {
           </div>
         </DialogContent>
       </Dialog>
+
+      <DialogoEnviarComunicacion
+        abierto={dialogoComunicacion}
+        onOpenChange={setDialogoComunicacion}
+        proyectoId={id}
+        candidatosIniciales={manuales
+          .filter((a) => seleccionComunicacion[a.candidato_id])
+          .map((a) => ({
+            id: a.candidato_id,
+            etiqueta: candidatos[a.candidato_id]
+              ? `${candidatos[a.candidato_id]!.codigo} — ${candidatos[a.candidato_id]!.nombre}`
+              : a.candidato_id,
+          }))}
+      />
     </div>
   );
 }

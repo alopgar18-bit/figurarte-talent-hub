@@ -114,7 +114,11 @@ const ESTADOS_PROYECTO = [
   { valor: "cerrado", etiqueta: "Cerrado" },
 ];
 
+/** Estados que sí pueden salir en un dossier de cliente. */
+const ESTADOS_DOSSIER = ["preseleccionado", "enviado", "contratado"];
+
 const ESTADOS_CANDIDATO = [
+  { valor: "pendiente_validacion", etiqueta: "Pendiente de validar" },
   { valor: "preseleccionado", etiqueta: "Preseleccionado" },
   { valor: "enviado", etiqueta: "Enviado" },
   { valor: "contratado", etiqueta: "Contratado" },

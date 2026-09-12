@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -9,12 +9,20 @@ import {
   Mail,
   Phone,
   Ruler,
+  Trash2,
+  Upload,
   Weight,
   User,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { obtenerFichaCandidatoStaff } from "@/lib/ficha-candidato.functions";
 import { eliminarCandidatoStaff } from "@/lib/derechos-rgpd.functions";
+import { obtenerUrlSubidaFoto } from "@/lib/subida-fotos.functions";
+import {
+  anadirFotoCandidatoStaff,
+  eliminarFotoCandidatoStaff,
+} from "@/lib/fotos-candidato.functions";
+import { RecorteFoto, type AreaRecorte } from "@/components/RecorteFoto";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -644,6 +652,88 @@ export function FichaCandidato({
         </CardContent>
       </Card>
 
+      {/* Fotos */}
+      <Card>
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
+          <CardTitle className="text-base">Fotos ({candidato.fotos?.length ?? 0})</CardTitle>
+          <div>
+            <input
+              ref={inputFotoRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/heic"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (file) setRecortando(file);
+              }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={subiendoFoto}
+              onClick={() => inputFotoRef.current?.click()}
+            >
+              {subiendoFoto ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4" />
+              )}
+              Añadir foto
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {candidato.fotos && candidato.fotos.length > 0 ? (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {candidato.fotos.map((foto, indice) => {
+                const esPlaceholder = !/^https?:\/\//.test(foto);
+                return (
+                  <div key={`${foto}-${indice}`} className="group relative">
+                    {esPlaceholder ? (
+                      <div className="flex aspect-[3/4] flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/50 p-3 text-center">
+                        <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                        <span className="break-all text-[10px] leading-tight text-muted-foreground">
+                          {foto}
+                        </span>
+                      </div>
+                    ) : (
+                      <img
+                        src={foto}
+                        alt={`Foto de ${nombreCompleto}`}
+                        loading="lazy"
+                        className="aspect-[3/4] w-full rounded-md border object-cover"
+                      />
+                    )}
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute right-2 top-2 h-8 w-8"
+                      aria-label="Eliminar esta foto"
+                      disabled={borrandoFoto === indice}
+                      onClick={() => setFotoAEliminar(indice)}
+                    >
+                      {borrandoFoto === indice ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">Sin fotos todavía.</p>
+          )}
+          <p className="mt-3 text-xs text-muted-foreground">
+            Las fotos se recortan en formato 3:4, igual que en el alta del candidato.
+          </p>
+        </CardContent>
+      </Card>
+
       {/* Datos de perfil con catálogo */}
       <Card>
         <CardHeader>
@@ -769,43 +859,6 @@ export function FichaCandidato({
             {guardandoVestuario && <Loader2 className="h-4 w-4 animate-spin" />}
             Guardar medidas
           </Button>
-        </CardContent>
-      </Card>
-
-      {/* Fotos */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Fotos ({candidato.fotos?.length ?? 0})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {candidato.fotos && candidato.fotos.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {candidato.fotos.map((foto) => {
-                const esPlaceholder = !/^https?:\/\//.test(foto);
-                return esPlaceholder ? (
-                  <div
-                    key={foto}
-                    className="flex aspect-[3/4] flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/50 p-3 text-center"
-                  >
-                    <ImageIcon className="h-6 w-6 text-muted-foreground" />
-                    <span className="break-all text-[10px] leading-tight text-muted-foreground">
-                      {foto}
-                    </span>
-                  </div>
-                ) : (
-                  <img
-                    key={foto}
-                    src={foto}
-                    alt={`Foto de ${nombreCompleto}`}
-                    loading="lazy"
-                    className="aspect-[3/4] w-full rounded-md border object-cover"
-                  />
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">Sin fotos todavía.</p>
-          )}
         </CardContent>
       </Card>
 

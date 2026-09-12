@@ -233,7 +233,9 @@ export function DetalleProyecto({ id }: { id: string }) {
 
   function abrirDialogoDossier() {
     const marcados: Record<string, boolean> = {};
-    for (const a of asociaciones) marcados[a.candidato_id] = true;
+    // Nunca se ofrece en dossier a quien está pendiente de validar, descartado
+    // o ha rechazado la preselección.
+    for (const a of asociacionesDossier) marcados[a.candidato_id] = true;
     setSeleccionDossier(marcados);
     const en14 = new Date(Date.now() + 14 * 86400000);
     setCaducidadDossier(en14.toISOString().slice(0, 10));

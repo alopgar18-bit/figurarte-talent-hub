@@ -742,6 +742,7 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
             "nombre",
             "apellidos",
             "telefono",
+            "codigo_postal",
             "ciudad",
             "provincia",
           ])
@@ -751,6 +752,27 @@ export function PerfilCandidato({ candidatoId }: { candidatoId: string }) {
         <Campo id="nombre" etiqueta="Nombre" valor={texto(f["nombre"])} onChange={(v) => set("nombre", v)} />
         <Campo id="apellidos" etiqueta="Apellidos" valor={texto(f["apellidos"])} onChange={(v) => set("apellidos", v)} />
         <Campo id="telefono" etiqueta="Teléfono" valor={texto(f["telefono"])} onChange={(v) => set("telefono", v)} />
+        <div className="space-y-2">
+          <Label htmlFor="codigo_postal">Código postal</Label>
+          <Input
+            id="codigo_postal"
+            inputMode="numeric"
+            maxLength={5}
+            value={texto(f["codigo_postal"])}
+            onChange={(e) => {
+              const v = e.target.value.replace(/\D/g, "").slice(0, 5);
+              setF((s) => {
+                const siguiente = { ...s, codigo_postal: v };
+                const deducida = provinciaPorCp(v);
+                if (deducida) siguiente["provincia"] = deducida;
+                return siguiente;
+              });
+            }}
+          />
+          <p className="text-xs text-muted-foreground">
+            Al escribirlo proponemos tu provincia; puedes cambiarla si no coincide.
+          </p>
+        </div>
         <Campo id="ciudad" etiqueta="Ciudad" valor={texto(f["ciudad"])} onChange={(v) => set("ciudad", v)} />
         <SelectCampo
           etiqueta="Provincia"

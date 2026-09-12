@@ -540,19 +540,11 @@ export function FichaCandidato({
   }
 
   const nombreCompleto = [candidato.nombre, candidato.apellidos].filter(Boolean).join(" ");
-  const camposPerfilConValor = CAMPOS_PERFIL.filter(({ clave }) => {
-    const v = candidato[clave];
-    return v !== null && v !== undefined && v !== "";
-  });
-  const badgesConValor = CAMPOS_BADGES.map((campo) => ({
-    ...campo,
-    valores: arrayTexto(candidato[campo.clave]),
-  })).filter((campo) => campo.valores.length > 0);
   const estudios = arrayObjetos(candidato["estudios"]);
   const idiomasDetalle = arrayObjetos(candidato["idiomas_detalle"]);
   const enlaces = arrayObjetos(candidato["enlaces"]);
   const haySeccionesListas =
-    badgesConValor.length > 0 || estudios.length > 0 || idiomasDetalle.length > 0 || enlaces.length > 0;
+    estudios.length > 0 || idiomasDetalle.length > 0 || enlaces.length > 0;
 
   return (
     <div className="space-y-6">

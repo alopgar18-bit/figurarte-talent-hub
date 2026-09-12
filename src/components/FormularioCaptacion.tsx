@@ -24,6 +24,8 @@ import {
   TALLAS_PANTALON,
   provinciaPorCp,
 } from "@/lib/catalogos";
+import { municipioPorCp } from "@/lib/municipios";
+import { SelectorMunicipio } from "@/components/SelectorMunicipio";
 import { cn } from "@/lib/utils";
 
 const SIN_VALOR = "__sin_valor__";

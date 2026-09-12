@@ -1,9 +1,18 @@
-import type { ReactNode } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { FileText, LogOut, Search, Send } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { FileText, LogOut, Menu, Search, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const MENU = [
   { to: "/portal/candidatos", etiqueta: "Buscar candidatos", icono: Search },
@@ -19,6 +28,9 @@ export function PortalShell({
   children: ReactNode;
 }) {
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [menuAbierto, setMenuAbierto] = useState(false);
+  const seccionActiva = MENU.find((item) => pathname.startsWith(item.to));
 
   async function salir() {
     await supabase.auth.signOut();
@@ -45,16 +57,58 @@ export function PortalShell({
       </header>
 
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:flex-row">
-        <nav className="lg:w-56 lg:shrink-0">
-          <ul className="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-visible">
+        <Sheet open={menuAbierto} onOpenChange={setMenuAbierto}>
+          <SheetTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              className="grid w-full grid-cols-[auto_minmax(0,1fr)] justify-start gap-3 lg:hidden"
+            >
+              <Menu className="size-4 shrink-0" aria-hidden="true" />
+              <span className="min-w-0 truncate text-left">
+                {seccionActiva?.etiqueta ?? "Menú del portal"}
+              </span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[min(20rem,85vw)] p-0">
+            <SheetHeader className="border-b border-border px-5 py-5 text-left">
+              <SheetTitle>Portal de cliente</SheetTitle>
+              <SheetDescription>Selecciona una sección</SheetDescription>
+            </SheetHeader>
+            <nav aria-label="Secciones del portal" className="space-y-1 p-3">
+              {MENU.map((item) => {
+                const Icono = item.icono;
+                return (
+                  <SheetClose key={item.to} asChild>
+                    <Link
+                      to={item.to}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-3 text-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        pathname.startsWith(item.to)
+                          ? "bg-muted font-medium text-foreground"
+                          : "text-muted-foreground",
+                      )}
+                    >
+                      <Icono className="size-4 shrink-0" aria-hidden="true" />
+                      <span>{item.etiqueta}</span>
+                    </Link>
+                  </SheetClose>
+                );
+              })}
+            </nav>
+          </SheetContent>
+        </Sheet>
+
+        <nav className="hidden lg:block lg:w-56 lg:shrink-0">
+          <ul className="flex flex-col gap-2">
             {MENU.map((item) => {
               const Icono = item.icono;
               return (
-                <li key={item.to} className="shrink-0 lg:shrink">
+                <li key={item.to}>
                   <Link
                     to={item.to}
                     className={cn(
-                      "flex items-center gap-2 whitespace-nowrap border border-transparent px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                      "flex items-center gap-2 border border-transparent px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
                     )}
                     activeProps={{
                       className: "border-border bg-muted font-medium text-foreground",

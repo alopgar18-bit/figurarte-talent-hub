@@ -86,6 +86,7 @@ export function Comunicaciones() {
   const [canal, setCanal] = useState("todos");
   const [verContenido, setVerContenido] = useState<Fila | null>(null);
   const [dialogoEnvio, setDialogoEnvio] = useState(false);
+  const [pestana, setPestana] = useState("historial");
 
   const [plantillas, setPlantillas] = useState<Plantilla[]>([]);
   const [guardando, setGuardando] = useState<string | null>(null);
@@ -179,8 +180,23 @@ export function Comunicaciones() {
         </p>
       </div>
 
-      <Tabs defaultValue="historial">
-        <TabsList>
+      <Tabs value={pestana} onValueChange={setPestana}>
+        <div className="md:hidden">
+          <Label htmlFor="seccion-comunicaciones" className="sr-only">
+            Seleccionar sección
+          </Label>
+          <Select value={pestana} onValueChange={setPestana}>
+            <SelectTrigger id="seccion-comunicaciones" className="w-full bg-card">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="historial">Historial</SelectItem>
+              <SelectItem value="plantillas">Reglas y plantillas</SelectItem>
+              <SelectItem value="enviar">Enviar comunicación</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <TabsList className="hidden md:inline-flex">
           <TabsTrigger value="historial">Historial</TabsTrigger>
           <TabsTrigger value="plantillas">Reglas y plantillas</TabsTrigger>
           <TabsTrigger value="enviar">Enviar comunicación</TabsTrigger>

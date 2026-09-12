@@ -1,4 +1,16 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const ENLACES = [
   { hash: "casting", etiqueta: "Casting", oculto: "sm" },
@@ -36,6 +48,8 @@ function EnlaceProgramasTv({ clase }: { clase: string }) {
  * casting, acceso y páginas legales). El panel y el portal tienen la suya.
  */
 export function CabeceraPublica({ ancho = "max-w-6xl" }: { ancho?: string }) {
+  const [menuAbierto, setMenuAbierto] = useState(false);
+
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur">
       <div
@@ -44,7 +58,7 @@ export function CabeceraPublica({ ancho = "max-w-6xl" }: { ancho?: string }) {
         <Link to="/" className="min-w-0 truncate text-lg font-black tracking-tight">
           FigurArte<span className="text-primary">.</span>es
         </Link>
-        <nav className="flex shrink-0 items-center gap-1 text-sm font-medium sm:gap-2">
+        <nav className="hidden shrink-0 items-center gap-1 text-sm font-medium md:flex md:gap-2">
           {ENLACES.map((enlace) => (
             <Link
               key={enlace.hash}
@@ -68,25 +82,65 @@ export function CabeceraPublica({ ancho = "max-w-6xl" }: { ancho?: string }) {
             Acceso
           </Link>
         </nav>
+        <Sheet open={menuAbierto} onOpenChange={setMenuAbierto}>
+          <SheetTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="shrink-0 md:hidden"
+              aria-label="Abrir menú"
+            >
+              <Menu className="size-5" aria-hidden="true" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[min(20rem,85vw)] p-0">
+            <SheetHeader className="border-b border-border px-5 py-5 text-left">
+              <SheetTitle className="text-lg font-black tracking-tight">
+                FigurArte<span className="text-primary">.</span>es
+              </SheetTitle>
+              <SheetDescription>Navegación principal</SheetDescription>
+            </SheetHeader>
+            <nav aria-label="Navegación móvil" className="space-y-1 p-3">
+              {ENLACES.map((enlace) => (
+                <SheetClose key={enlace.hash} asChild>
+                  <Link
+                    to="/"
+                    hash={enlace.hash}
+                    className="block px-3 py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {enlace.etiqueta}
+                  </Link>
+                </SheetClose>
+              ))}
+              <SheetClose asChild>
+                <Link
+                  to="/candidatos"
+                  className="block px-3 py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  Candidatos
+                </Link>
+              </SheetClose>
+              <SheetClose asChild>
+                <Link
+                  to="/programas-tv"
+                  className="block px-3 py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  Programas TV
+                </Link>
+              </SheetClose>
+              <SheetClose asChild>
+                <Link
+                  to="/auth"
+                  className="mt-3 block bg-primary px-3 py-3 text-center text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  Acceso
+                </Link>
+              </SheetClose>
+            </nav>
+          </SheetContent>
+        </Sheet>
       </div>
-
-      {/* Móvil: los mismos enlaces en una fila deslizable */}
-      <nav className="flex items-center gap-1 overflow-x-auto border-t border-border px-2 py-1.5 text-sm font-medium md:hidden">
-        {ENLACES.map((enlace) => (
-          <Link
-            key={enlace.hash}
-            to="/"
-            hash={enlace.hash}
-            className={`${
-              enlace.oculto === "sm" ? "sm:hidden" : ""
-            } whitespace-nowrap px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground`}
-          >
-            {enlace.etiqueta}
-          </Link>
-        ))}
-        <EnlaceCandidatos clase="whitespace-nowrap px-3 py-1.5 sm:hidden" />
-        <EnlaceProgramasTv clase="whitespace-nowrap px-3 py-1.5 lg:hidden" />
-      </nav>
     </header>
   );
 }

@@ -373,6 +373,17 @@ export function FormularioCaptacion({
               </SelectContent>
             </Select>
           </div>
+          <div>
+            <Label htmlFor="ciudad">Ciudad</Label>
+            <div className="mt-2">
+              <SelectorMunicipio
+                id="ciudad"
+                provincia={provincia}
+                valor={ciudad}
+                onChange={setCiudad}
+              />
+            </div>
+          </div>
           {(
             [
               { id: "talla-camisa", etiqueta: "Talla de camisa", valor: tallaCamisa, set: setTallaCamisa, opciones: TALLAS_CAMISA },

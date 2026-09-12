@@ -545,6 +545,11 @@ export function DetalleProyecto({ id }: { id: string }) {
     () => asociaciones.filter((a) => a.origen === "web_directa"),
     [asociaciones],
   );
+  /** Solo estos candidatos pueden llegar a un dossier de cliente. */
+  const asociacionesDossier = useMemo(
+    () => asociaciones.filter((a) => ESTADOS_DOSSIER.includes(a.estado)),
+    [asociaciones],
+  );
 
   const criteriosDefinidos = hayCriterios(criterios);
 

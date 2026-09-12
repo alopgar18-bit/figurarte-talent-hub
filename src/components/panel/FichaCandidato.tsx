@@ -418,7 +418,7 @@ export function FichaCandidato({
     setCandidato({ ...candidato, disponible_publico: valor });
     const { error } = await supabase
       .from("candidatos")
-      .update({ disponible_publico: valor })
+      .update({ disponible_publico: valor, revisado_publico: true })
       .eq("id", candidato.id);
     setGuardandoPublico(false);
     if (error) {

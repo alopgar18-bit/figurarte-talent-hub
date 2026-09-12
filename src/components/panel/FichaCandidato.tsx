@@ -679,6 +679,17 @@ export function FichaCandidato({
                 </Select>
               </div>
             ))}
+            <div className="space-y-1.5">
+              <Label htmlFor="cat-ciudad" className="text-xs text-muted-foreground">
+                Ciudad
+              </Label>
+              <SelectorMunicipio
+                id="cat-ciudad"
+                provincia={catalogo["provincia"] ?? ""}
+                valor={catalogo["ciudad"] ?? ""}
+                onChange={(v) => setCatalogo((s) => ({ ...s, ciudad: v }))}
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground">Acentos</p>

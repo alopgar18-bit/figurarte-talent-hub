@@ -223,6 +223,10 @@ export function DetalleProyecto({ id }: { id: string }) {
   }
 
   const [seleccionDossier, setSeleccionDossier] = useState<Record<string, boolean>>({});
+  const [seleccionComunicacion, setSeleccionComunicacion] = useState<
+    Record<string, boolean>
+  >({});
+  const [dialogoComunicacion, setDialogoComunicacion] = useState(false);
   const [caducidadDossier, setCaducidadDossier] = useState("");
   const [generandoDossier, setGenerandoDossier] = useState(false);
 

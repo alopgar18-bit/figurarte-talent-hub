@@ -30,6 +30,7 @@ import { asignarCandidatosAProyecto } from "@/lib/rgpd.functions";
 import { registrarAccesoStaff } from "@/lib/registro-accesos.functions";
 import { firmarFotosStaff } from "@/lib/fotos.functions";
 import { MultiSelect } from "@/components/panel/MultiSelect";
+import { FichaCandidato } from "@/components/panel/FichaCandidato";
 import {
   cambiarEstadoProyectoCandidato,
   type EstadoProyectoCandidato,

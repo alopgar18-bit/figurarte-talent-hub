@@ -409,7 +409,7 @@ export function ListadoCandidatos() {
       if (e1) setError("No se han podido cargar los candidatos.");
       const lista = (cands ?? []) as Candidato[];
       setCandidatos(lista);
-      setProyectos((proys ?? []) as Proyecto[]);
+      setCargando(false);
     })();
   }, [firmarFotos]);
 

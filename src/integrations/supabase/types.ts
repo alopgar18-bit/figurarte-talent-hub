@@ -222,6 +222,7 @@ export type Database = {
           nacionalidad: string | null
           nacionalidad_multiple: string | null
           nombre: string
+          notas_migracion: string | null
           numero_seguridad_social: string | null
           origen_etnia: string | null
           otras_residencias: Json | null
@@ -230,6 +231,7 @@ export type Database = {
           peso_kg: number | null
           profesion: string | null
           provincia: string | null
+          ref_legado: number | null
           representacion: string | null
           revisado_publico: boolean
           talla_calzado: string | null
@@ -317,6 +319,7 @@ export type Database = {
           nacionalidad?: string | null
           nacionalidad_multiple?: string | null
           nombre: string
+          notas_migracion?: string | null
           numero_seguridad_social?: string | null
           origen_etnia?: string | null
           otras_residencias?: Json | null
@@ -325,6 +328,7 @@ export type Database = {
           peso_kg?: number | null
           profesion?: string | null
           provincia?: string | null
+          ref_legado?: number | null
           representacion?: string | null
           revisado_publico?: boolean
           talla_calzado?: string | null
@@ -412,6 +416,7 @@ export type Database = {
           nacionalidad?: string | null
           nacionalidad_multiple?: string | null
           nombre?: string
+          notas_migracion?: string | null
           numero_seguridad_social?: string | null
           origen_etnia?: string | null
           otras_residencias?: Json | null
@@ -420,6 +425,7 @@ export type Database = {
           peso_kg?: number | null
           profesion?: string | null
           provincia?: string | null
+          ref_legado?: number | null
           representacion?: string | null
           revisado_publico?: boolean
           talla_calzado?: string | null

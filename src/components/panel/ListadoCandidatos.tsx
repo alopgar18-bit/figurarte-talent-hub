@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import {
+  ChevronLeft,
+  ChevronRight,
   Columns3,
   Download,
   FolderPlus,
@@ -117,6 +119,9 @@ const ETIQUETA_CATEGORIA: Record<string, string> = {
 };
 
 const GENEROS_BASE = ["Hombre", "Mujer", "Otro"];
+
+/** Filas por página en la tabla (paginación en cliente). */
+const FILAS_POR_PAGINA = 50;
 
 const RANGOS_VACIOS = {
   edadMin: "",
@@ -377,6 +382,7 @@ export function ListadoCandidatos() {
     COLUMNAS.filter((c) => c.pordefecto).map((c) => c.id),
   );
   const [seleccion, setSeleccion] = useState<string[]>([]);
+  const [pagina, setPagina] = useState(1);
   const [proyectoDestino, setProyectoDestino] = useState("");
   const [asignando, setAsignando] = useState(false);
   const [dialogoComunicacion, setDialogoComunicacion] = useState(false);

@@ -555,6 +555,38 @@ export function ListadoCandidatos() {
     condiciones,
   ]);
 
+  // Cualquier cambio de filtro o búsqueda vuelve a la página 1 para no quedarse en una página vacía.
+  useEffect(() => {
+    setPagina(1);
+  }, [
+    candidatos,
+    categorias,
+    disponibleSi,
+    disponibleNo,
+    busqueda,
+    provinciasSel,
+    generosSel,
+    habilidadesSel,
+    tiposPerfilSel,
+    carnesSel,
+    camisaSel,
+    pantalonSel,
+    calzadoSel,
+    nacionalidadSel,
+    cabelloSel,
+    ojosSel,
+    idiomas,
+    rangos,
+    condiciones,
+  ]);
+
+  const totalPaginas = Math.max(1, Math.ceil(filtrados.length / FILAS_POR_PAGINA));
+  const paginaActual = Math.min(pagina, totalPaginas);
+  const paginaCandidatos = useMemo(
+    () => filtrados.slice((paginaActual - 1) * FILAS_POR_PAGINA, paginaActual * FILAS_POR_PAGINA),
+    [filtrados, paginaActual],
+  );
+
   const idsFiltrados = filtrados.map((c) => c.id);
   const seleccionados = seleccion.filter((id) => idsFiltrados.includes(id));
   const todosMarcados = filtrados.length > 0 && seleccionados.length === filtrados.length;

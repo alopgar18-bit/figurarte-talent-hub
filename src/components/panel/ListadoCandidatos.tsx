@@ -957,7 +957,7 @@ export function ListadoCandidatos() {
             </tr>
           </thead>
           <tbody>
-            {filtrados.map((c) => (
+            {paginaCandidatos.map((c) => (
               <tr
                 key={c.id}
                 onClick={() => navigate({ to: "/panel/candidatos/$id", params: { id: c.id } })}
@@ -1020,6 +1020,35 @@ export function ListadoCandidatos() {
           </tbody>
         </table>
       </div>
+
+      {filtrados.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-sm text-muted-foreground">
+            {filtrados.length} resultado{filtrados.length === 1 ? "" : "s"} · Página {paginaActual} de{" "}
+            {totalPaginas}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={paginaActual <= 1}
+              onClick={() => setPagina(paginaActual - 1)}
+              aria-label="Página anterior"
+            >
+              <ChevronLeft className="size-4" /> Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={paginaActual >= totalPaginas}
+              onClick={() => setPagina(paginaActual + 1)}
+              aria-label="Página siguiente"
+            >
+              Siguiente <ChevronRight className="size-4" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       <Dialog open={dialogoExport} onOpenChange={setDialogoExport}>
         <DialogContent>

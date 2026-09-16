@@ -390,7 +390,11 @@ export function ListadoCandidatos() {
   useEffect(() => {
     (async () => {
       const [{ data: cands, error: e1 }, { data: proys }] = await Promise.all([
-        supabase.from("candidatos").select("*").order("codigo", { ascending: true }),
+        supabase
+          .from("candidatos")
+          .select("*")
+          .order("codigo", { ascending: true })
+          .limit(10000),
         supabase
           .from("proyectos_casting")
           .select("id, nombre, creado_en")

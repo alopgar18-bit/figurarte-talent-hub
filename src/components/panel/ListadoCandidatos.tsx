@@ -569,6 +569,30 @@ export function ListadoCandidatos() {
     [filtrados, paginaActual],
   );
 
+  // Las fotos se guardan como rutas privadas: hay que firmarlas para poder verlas.
+  // Se firman solo las de la página visible (máx. 50 rutas, muy por debajo del
+  // límite de 200 de firmarFotosStaff) y se acumulan entre páginas.
+  useEffect(() => {
+    const rutas = paginaCandidatos
+      .map((c) => (Array.isArray(c["fotos"]) ? (c["fotos"] as unknown[])[0] : null))
+      .filter(
+        (f): f is string =>
+          typeof f === "string" &&
+          f !== "" &&
+          !/^https?:\/\//i.test(f) &&
+          !f.startsWith("placeholder://"),
+      );
+    if (rutas.length === 0) return;
+    (async () => {
+      try {
+        const firmadas = await firmarFotos({ data: { rutas: [...new Set(rutas)] } });
+        setFotosFirmadas((prev) => ({ ...prev, ...firmadas }));
+      } catch {
+        /* si falla la firma, se muestra el hueco sin foto */
+      }
+    })();
+  }, [firmarFotos, paginaCandidatos]);
+
   const idsFiltrados = filtrados.map((c) => c.id);
   const seleccionados = seleccion.filter((id) => idsFiltrados.includes(id));
   const todosMarcados = filtrados.length > 0 && seleccionados.length === filtrados.length;

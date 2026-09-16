@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import {
+  ChevronLeft,
+  ChevronRight,
   Columns3,
   Download,
   FolderPlus,
@@ -117,6 +119,9 @@ const ETIQUETA_CATEGORIA: Record<string, string> = {
 };
 
 const GENEROS_BASE = ["Hombre", "Mujer", "Otro"];
+
+/** Filas por página en la tabla (paginación en cliente). */
+const FILAS_POR_PAGINA = 50;
 
 const RANGOS_VACIOS = {
   edadMin: "",
@@ -377,6 +382,7 @@ export function ListadoCandidatos() {
     COLUMNAS.filter((c) => c.pordefecto).map((c) => c.id),
   );
   const [seleccion, setSeleccion] = useState<string[]>([]);
+  const [pagina, setPagina] = useState(1);
   const [proyectoDestino, setProyectoDestino] = useState("");
   const [asignando, setAsignando] = useState(false);
   const [dialogoComunicacion, setDialogoComunicacion] = useState(false);
@@ -548,6 +554,38 @@ export function ListadoCandidatos() {
     rangos,
     condiciones,
   ]);
+
+  // Cualquier cambio de filtro o búsqueda vuelve a la página 1 para no quedarse en una página vacía.
+  useEffect(() => {
+    setPagina(1);
+  }, [
+    candidatos,
+    categorias,
+    disponibleSi,
+    disponibleNo,
+    busqueda,
+    provinciasSel,
+    generosSel,
+    habilidadesSel,
+    tiposPerfilSel,
+    carnesSel,
+    camisaSel,
+    pantalonSel,
+    calzadoSel,
+    nacionalidadSel,
+    cabelloSel,
+    ojosSel,
+    idiomas,
+    rangos,
+    condiciones,
+  ]);
+
+  const totalPaginas = Math.max(1, Math.ceil(filtrados.length / FILAS_POR_PAGINA));
+  const paginaActual = Math.min(pagina, totalPaginas);
+  const paginaCandidatos = useMemo(
+    () => filtrados.slice((paginaActual - 1) * FILAS_POR_PAGINA, paginaActual * FILAS_POR_PAGINA),
+    [filtrados, paginaActual],
+  );
 
   const idsFiltrados = filtrados.map((c) => c.id);
   const seleccionados = seleccion.filter((id) => idsFiltrados.includes(id));
@@ -919,7 +957,7 @@ export function ListadoCandidatos() {
             </tr>
           </thead>
           <tbody>
-            {filtrados.map((c) => (
+            {paginaCandidatos.map((c) => (
               <tr
                 key={c.id}
                 onClick={() => navigate({ to: "/panel/candidatos/$id", params: { id: c.id } })}
@@ -982,6 +1020,35 @@ export function ListadoCandidatos() {
           </tbody>
         </table>
       </div>
+
+      {filtrados.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-sm text-muted-foreground">
+            {filtrados.length} resultado{filtrados.length === 1 ? "" : "s"} · Página {paginaActual} de{" "}
+            {totalPaginas}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={paginaActual <= 1}
+              onClick={() => setPagina(paginaActual - 1)}
+              aria-label="Página anterior"
+            >
+              <ChevronLeft className="size-4" /> Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={paginaActual >= totalPaginas}
+              onClick={() => setPagina(paginaActual + 1)}
+              aria-label="Página siguiente"
+            >
+              Siguiente <ChevronRight className="size-4" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       <Dialog open={dialogoExport} onOpenChange={setDialogoExport}>
         <DialogContent>

@@ -128,6 +128,9 @@ const ESTADOS_CANDIDATO = [
   { valor: "rechazado_por_candidato", etiqueta: "Rechazado por el candidato" },
 ];
 
+/** Máximo de tarjetas de recomendados que se pintan a la vez. */
+const MAX_RECOMENDADOS_VISIBLES = 300;
+
 const CATEGORIAS = [
   { valor: "actor", etiqueta: "Actores" },
   { valor: "modelo", etiqueta: "Modelos" },
@@ -245,6 +248,7 @@ export function DetalleProyecto({ id }: { id: string }) {
   const [criterios, setCriterios] = useState<CriteriosBusqueda>({});
   const [guardandoCriterios, setGuardandoCriterios] = useState(false);
   const [baseCandidatos, setBaseCandidatos] = useState<Record<string, unknown>[]>([]);
+  const [recomendadosFirmados, setRecomendadosFirmados] = useState<Candidato[]>([]);
   const [errorRecomendados, setErrorRecomendados] = useState<string | null>(null);
 
   const [dialogoAnadir, setDialogoAnadir] = useState(false);
@@ -272,7 +276,12 @@ export function DetalleProyecto({ id }: { id: string }) {
       );
     if (rutas.length === 0) return lista;
     try {
-      const mapa = await firmarFotos({ data: { rutas } });
+      // El servidor firma como máximo 200 rutas por llamada.
+      const unicas = [...new Set(rutas)];
+      const mapa: Record<string, string> = {};
+      for (let i = 0; i < unicas.length; i += 200) {
+        Object.assign(mapa, await firmarFotos({ data: { rutas: unicas.slice(i, i + 200) } }));
+      }
       return lista.map((c) => {
         const primera = c.fotos?.[0];
         if (!primera || !mapa[primera]) return c;
@@ -655,14 +664,41 @@ export function DetalleProyecto({ id }: { id: string }) {
   const criteriosDefinidos = hayCriterios(criterios);
 
   /** Candidatos de la base que cumplen los criterios y no están ya en el proyecto. */
-  const recomendados = useMemo(() => {
+  const coincidencias = useMemo(() => {
     if (!criteriosDefinidos) return [];
     const yaEstan = new Set(asociaciones.map((a) => a.candidato_id));
     return baseCandidatos
       .filter((c) => !yaEstan.has(String(c["id"])))
-      .filter((c) => cumpleCriterios(c, criterios))
-      .slice(0, 60);
+      .filter((c) => cumpleCriterios(c, criterios));
   }, [baseCandidatos, asociaciones, criterios, criteriosDefinidos]);
+
+  const totalCoincidencias = coincidencias.length;
+
+  /** Solo se renderiza un máximo de tarjetas, pero el total mostrado es el real. */
+  const recomendados = useMemo(
+    () =>
+      coincidencias
+        .slice(0, MAX_RECOMENDADOS_VISIBLES)
+        .map((c) => c as unknown as Candidato),
+    [coincidencias],
+  );
+
+  /** Las fotos de los recomendados visibles también hay que firmarlas. */
+  useEffect(() => {
+    let activo = true;
+    if (recomendados.length === 0) {
+      setRecomendadosFirmados([]);
+      return;
+    }
+    setRecomendadosFirmados(recomendados);
+    void conFotosFirmadas(recomendados).then((lista) => {
+      if (activo) setRecomendadosFirmados(lista);
+    });
+    return () => {
+      activo = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recomendados]);
 
   const camposAplicables = useMemo(() => {
     const cat = brief.categoria;
@@ -1029,48 +1065,37 @@ export function DetalleProyecto({ id }: { id: string }) {
             Todavía no has definido criterios de búsqueda. Rellena la sección “Criterios de
             búsqueda” de arriba para ver aquí los candidatos que encajan.
           </p>
-        ) : recomendados.length === 0 ? (
+        ) : totalCoincidencias === 0 ? (
           <p className="text-sm text-muted-foreground">
             Ningún candidato de la base cumple ahora mismo estos criterios.
           </p>
         ) : (
           <>
             <p className="text-sm text-muted-foreground">
-              {recomendados.length} candidato(s) cumplen los criterios y no están todavía
-              en el proyecto.
+              {totalCoincidencias} candidato(s) cumplen los criterios y no están todavía
+              en el proyecto
+              {totalCoincidencias > MAX_RECOMENDADOS_VISIBLES
+                ? ` (mostrando los primeros ${MAX_RECOMENDADOS_VISIBLES} de ${totalCoincidencias})`
+                : ""}
+              .
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {recomendados.map((c) => (
-                <div
-                  key={String(c["id"])}
-                  className="flex items-start justify-between gap-3 border border-border p-3"
-                >
-                  <Link
-                    to="/panel/candidatos/$id"
-                    params={{ id: String(c["id"]) }}
-                    search={{ desde: id }}
-                    className="min-w-0 flex-1 transition-opacity hover:opacity-80"
-                  >
-                    <p className="truncate text-sm font-medium">{String(c["nombre"])}</p>
-                    <p className="text-xs text-muted-foreground">{String(c["codigo"])}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {[
-                        c["provincia"] ? String(c["provincia"]) : null,
-                        c["edad"] ? `${c["edad"]} años` : null,
-                        c["altura_cm"] ? `${c["altura_cm"]} cm` : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ") || "Sin datos"}
-                    </p>
-                  </Link>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => anadirCandidato(c as unknown as Candidato)}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
+              {recomendadosFirmados.map((c) => (
+                <CandidatoCard
+                  key={c.id}
+                  proyectoId={id}
+                  candidato={c}
+                  accion={
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 w-full text-xs"
+                      onClick={() => anadirCandidato(c)}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  }
+                />
               ))}
             </div>
           </>

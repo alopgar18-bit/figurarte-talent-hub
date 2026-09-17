@@ -495,12 +495,14 @@ export function ListadoClientes() {
                 <Link
                   to="/panel/proyectos/$id"
                   params={{ id: p.id }}
-                  className="flex items-center justify-between gap-3 border border-border p-3 transition-colors hover:bg-accent"
+                  className="group flex items-center justify-between gap-3 border border-border p-3 transition-colors hover:bg-accent hover:text-accent-foreground"
                 >
-                  <span className="min-w-0 truncate text-sm font-medium text-foreground">
+                  <span className="min-w-0 truncate text-sm font-medium text-foreground group-hover:text-accent-foreground">
                     {p.nombre}
                   </span>
-                  <Badge variant="outline">{ETIQUETA_ESTADO[p.estado] ?? p.estado}</Badge>
+                  <Badge variant="outline" className="group-hover:text-accent-foreground">
+                    {ETIQUETA_ESTADO[p.estado] ?? p.estado}
+                  </Badge>
                 </Link>
               </li>
             ))}

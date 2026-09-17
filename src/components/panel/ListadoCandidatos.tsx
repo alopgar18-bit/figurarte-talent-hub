@@ -68,6 +68,7 @@ type Candidato = Record<string, unknown> & {
   provincia: string | null;
   edad: number | null;
   disponible: boolean;
+  ref_legado: number | null;
 };
 
 type Proyecto = { id: string; nombre: string; creado_en: string };
@@ -495,7 +496,8 @@ export function ListadoCandidatos() {
       if (categorias.length > 0 && !categorias.includes(c.categoria)) return false;
       if (disponibleSi && !disponibleNo && !c.disponible) return false;
       if (disponibleNo && !disponibleSi && c.disponible) return false;
-      if (q && !`${c.nombre} ${c.codigo}`.toLowerCase().includes(q)) return false;
+      if (q && !`${c.nombre} ${c.codigo} ${c.ref_legado ?? ""}`.toLowerCase().includes(q))
+        return false;
       if (provinciasSel.length > 0 && (!c.provincia || !provinciasSel.includes(c.provincia)))
         return false;
       if (generosSel.length > 0 && !generosSel.includes(String(c["genero"] ?? "")))

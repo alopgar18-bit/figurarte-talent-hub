@@ -290,6 +290,8 @@ export function ListadoCandidatos() {
   const [idiomas, setIdiomas] = useState(filtrosGuardados.idiomas);
   const [rangos, setRangos] = useState(filtrosGuardados.rangos);
   const [condiciones, setCondiciones] = useState<Condicion[]>(filtrosGuardados.condiciones);
+  /** Por defecto se descartan los candidatos sin ninguna foto. */
+  const [sinFotos, setSinFotos] = useState(true);
 
   /** Filtros fijos que se guardan junto a las condiciones a medida. */
   const basicos = {
@@ -493,6 +495,8 @@ export function ListadoCandidatos() {
     const alguno = (valor: unknown, sel: string[]) =>
       sel.length === 0 || listaTextos(valor).some((v) => sel.includes(v));
     return candidatos.filter((c) => {
+      const fotos = c["fotos"];
+      if (sinFotos && (!Array.isArray(fotos) || fotos.length === 0)) return false;
       if (categorias.length > 0 && !categorias.includes(c.categoria)) return false;
       if (disponibleSi && !disponibleNo && !c.disponible) return false;
       if (disponibleNo && !disponibleSi && c.disponible) return false;
@@ -534,6 +538,7 @@ export function ListadoCandidatos() {
     });
   }, [
     candidatos,
+    sinFotos,
     categorias,
     disponibleSi,
     disponibleNo,
@@ -559,6 +564,7 @@ export function ListadoCandidatos() {
     setPagina(1);
   }, [
     candidatos,
+    sinFotos,
     categorias,
     disponibleSi,
     disponibleNo,
@@ -727,6 +733,16 @@ export function ListadoCandidatos() {
             setDisponibleNo(valores.includes("no"));
           }}
         />
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="descartar-sin-fotos"
+            checked={sinFotos}
+            onCheckedChange={(v) => setSinFotos(v === true)}
+          />
+          <Label htmlFor="descartar-sin-fotos" className="cursor-pointer text-sm">
+            Descartar sin fotos
+          </Label>
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline">

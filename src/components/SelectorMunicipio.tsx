@@ -99,7 +99,7 @@ export function SelectorMunicipio({
                   setAbierto(false);
                   setBusqueda("");
                 }}
-                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-accent"
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground"
               >
                 <Check
                   className={cn("h-4 w-4", valor === m ? "opacity-100" : "opacity-0")}

@@ -130,16 +130,30 @@ export function ImportarCandidatos() {
   async function analizar() {
     setCargando(true);
     setError(null);
-    const { data, error: e } = await supabase
-      .from("candidatos")
-      .select("id, codigo, nombre, email, telefono")
-      .limit(5000);
-    if (e) {
+    const TAMANO_BLOQUE = 1000;
+    let desde = 0;
+    let existentes: Existente[] = [];
+    let falloCarga = false;
+    while (true) {
+      const { data, error: e } = await supabase
+        .from("candidatos")
+        .select("id, codigo, nombre, email, telefono")
+        .order("codigo")
+        .range(desde, desde + TAMANO_BLOQUE - 1);
+      if (e) {
+        falloCarga = true;
+        break;
+      }
+      const bloque = (data ?? []) as Existente[];
+      existentes = existentes.concat(bloque);
+      if (bloque.length < TAMANO_BLOQUE) break;
+      desde += TAMANO_BLOQUE;
+    }
+    if (falloCarga) {
       setError("No se han podido cargar los candidatos existentes.");
       setCargando(false);
       return;
     }
-    const existentes = (data ?? []) as Existente[];
     const resultado: Clasificada[] = filas.map((fila, indice) => {
       const datos: Partial<Record<CampoId, string | number>> = {};
       for (const campo of CAMPOS) {

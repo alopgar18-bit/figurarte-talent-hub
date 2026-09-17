@@ -433,17 +433,32 @@ export function DetalleProyecto({ id }: { id: string }) {
       await cargarAsociaciones();
       await cargarDossier();
       // Base para las recomendaciones: solo los campos que usan los criterios.
-      const { data: base, error: errBase } = await supabase
-        .from("candidatos")
-        .select(
-          "id,codigo,nombre,categoria,edad,provincia,altura_cm,peso_kg,fotos,disponible,talla_camisa,talla_pantalon,talla_calzado,idiomas,idiomas_detalle,tipo_perfil,habilidades",
-        )
-        .limit(1000);
+      const TAMANO_BLOQUE = 1000;
+      let desde = 0;
+      let base: Record<string, unknown>[] = [];
+      let errBase = false;
+      while (true) {
+        const { data: bloqueData, error: e } = await supabase
+          .from("candidatos")
+          .select(
+            "id,codigo,nombre,categoria,edad,provincia,altura_cm,peso_kg,fotos,disponible,talla_camisa,talla_pantalon,talla_calzado,idiomas,idiomas_detalle,tipo_perfil,habilidades",
+          )
+          .order("codigo", { ascending: true })
+          .range(desde, desde + TAMANO_BLOQUE - 1);
+        if (e) {
+          errBase = true;
+          break;
+        }
+        const bloque = (bloqueData ?? []) as unknown as Record<string, unknown>[];
+        base = base.concat(bloque);
+        if (bloque.length < TAMANO_BLOQUE) break;
+        desde += TAMANO_BLOQUE;
+      }
       if (activo) {
         setErrorRecomendados(
           errBase ? "No se pudo cargar la base de candidatos. Reintenta." : null,
         );
-        setBaseCandidatos((base ?? []) as unknown as Record<string, unknown>[]);
+        setBaseCandidatos(base);
       }
       if (activo) {
         setError(fallo);

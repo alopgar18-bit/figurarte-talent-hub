@@ -174,6 +174,7 @@ export type Database = {
           anchura_pecho: number | null
           apellidos: string | null
           baila: boolean | null
+          baja_comunicaciones: boolean
           barbudo: boolean | null
           canta: boolean | null
           capacidad_diversa: boolean | null
@@ -204,6 +205,7 @@ export type Database = {
           enlaces: Json | null
           estudios: Json | null
           facebook_url: string | null
+          fecha_baja_comunicaciones: string | null
           fecha_consentimiento: string | null
           fecha_nacimiento: string | null
           fotos: string[]
@@ -271,6 +273,7 @@ export type Database = {
           anchura_pecho?: number | null
           apellidos?: string | null
           baila?: boolean | null
+          baja_comunicaciones?: boolean
           barbudo?: boolean | null
           canta?: boolean | null
           capacidad_diversa?: boolean | null
@@ -301,6 +304,7 @@ export type Database = {
           enlaces?: Json | null
           estudios?: Json | null
           facebook_url?: string | null
+          fecha_baja_comunicaciones?: string | null
           fecha_consentimiento?: string | null
           fecha_nacimiento?: string | null
           fotos?: string[]
@@ -368,6 +372,7 @@ export type Database = {
           anchura_pecho?: number | null
           apellidos?: string | null
           baila?: boolean | null
+          baja_comunicaciones?: boolean
           barbudo?: boolean | null
           canta?: boolean | null
           capacidad_diversa?: boolean | null
@@ -398,6 +403,7 @@ export type Database = {
           enlaces?: Json | null
           estudios?: Json | null
           facebook_url?: string | null
+          fecha_baja_comunicaciones?: string | null
           fecha_consentimiento?: string | null
           fecha_nacimiento?: string | null
           fotos?: string[]

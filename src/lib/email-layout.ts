@@ -7,9 +7,20 @@
 const CHARCOAL = "#282828";
 const CREMA = "#E8E8D8";
 const ROJO = "#E03030";
-const LOGO_URL = "https://figurarte.es/img/logo.png";
+const LOGO_URL = "https://casting.figurarte.app/logo-email.png";
 
-export const PIE_TEXTO = "FIGURARTE · Agencia de casting & producción · figurarte.es";
+export const PIE_TEXTO = "FIGURARTE · Agencia de casting & producción · figurarte.app";
+
+/** Línea de baja para el pie de los correos informativos. */
+export function pieBaja(urlBaja?: string | null): string {
+  const destino = urlBaja ?? "mailto:casting@figurarte.app?subject=Baja%20de%20comunicaciones";
+  return `
+    <p style="margin:24px 0 0;padding-top:16px;border-top:1px solid #c9c9b8;font-size:12px;color:#6b6b6b;">
+      ¿No quieres recibir más comunicaciones informativas?
+      <a href="${destino}" style="color:#6b6b6b;">Date de baja aquí</a>.
+    </p>
+  `.trim();
+}
 
 /** Botón destacado en rojo, listo para insertar en el cuerpo del correo. */
 export function botonEmail(texto: string, url: string): string {

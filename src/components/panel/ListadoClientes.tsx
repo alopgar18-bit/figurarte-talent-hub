@@ -342,13 +342,32 @@ export function ListadoClientes() {
                     setDetalleMovil(true);
                   }}
                   className={cn(
-                    "cursor-pointer border-b border-border/60 transition-colors hover:bg-accent",
+                    "group cursor-pointer border-b border-border/60 transition-colors hover:bg-accent",
                     seleccionado === c.id && "bg-accent",
                   )}
                 >
-                  <td className="px-4 py-3 font-medium text-foreground">{c.razon_social}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{c.sector ?? "—"}</td>
-                  <td className="px-4 py-3 text-right tabular-nums text-foreground">
+                  <td
+                    className={cn(
+                      "px-4 py-3 font-medium group-hover:text-accent-foreground",
+                      seleccionado === c.id ? "text-accent-foreground" : "text-foreground",
+                    )}
+                  >
+                    {c.razon_social}
+                  </td>
+                  <td
+                    className={cn(
+                      "px-4 py-3 group-hover:text-accent-foreground",
+                      seleccionado === c.id ? "text-accent-foreground" : "text-muted-foreground",
+                    )}
+                  >
+                    {c.sector ?? "—"}
+                  </td>
+                  <td
+                    className={cn(
+                      "px-4 py-3 text-right tabular-nums group-hover:text-accent-foreground",
+                      seleccionado === c.id ? "text-accent-foreground" : "text-foreground",
+                    )}
+                  >
                     {contarProyectos(c.id)}
                   </td>
                 </tr>

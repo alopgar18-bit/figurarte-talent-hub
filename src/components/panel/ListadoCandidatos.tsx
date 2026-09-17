@@ -538,6 +538,7 @@ export function ListadoCandidatos() {
     });
   }, [
     candidatos,
+    sinFotos,
     categorias,
     disponibleSi,
     disponibleNo,

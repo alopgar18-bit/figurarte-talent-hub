@@ -37,6 +37,7 @@ import { Route as PortalIndexRouteImport } from './routes/portal/index'
 import { Route as PortalCandidatosRouteImport } from './routes/portal/candidatos'
 import { Route as PortalDossiersRouteImport } from './routes/portal/dossiers'
 import { Route as PortalSolicitarRouteImport } from './routes/portal/solicitar'
+import { Route as ApiPublicBajaRouteImport } from './routes/api/public/baja'
 import { Route as PanelCandidatosIndexRouteImport } from './routes/panel/candidatos/index'
 import { Route as PanelCandidatosIdRouteImport } from './routes/panel/candidatos/$id'
 import { Route as PanelCandidatosImportarRouteImport } from './routes/panel/candidatos/importar'
@@ -183,6 +184,11 @@ const PortalSolicitarRoute = PortalSolicitarRouteImport.update({
   path: '/solicitar',
   getParentRoute: () => PortalRouteRoute,
 } as any)
+const ApiPublicBajaRoute = ApiPublicBajaRouteImport.update({
+  id: '/api/public/baja',
+  path: '/api/public/baja',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PanelCandidatosIndexRoute = PanelCandidatosIndexRouteImport.update({
   id: '/candidatos/',
   path: '/candidatos/',
@@ -238,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/candidato/': typeof CandidatoIndexRoute
   '/panel/': typeof PanelIndexRoute
   '/portal/': typeof PortalIndexRoute
+  '/api/public/baja': typeof ApiPublicBajaRoute
   '/panel/candidatos/$id': typeof PanelCandidatosIdRoute
   '/panel/candidatos/importar': typeof PanelCandidatosImportarRoute
   '/panel/proyectos/$id': typeof PanelProyectosIdRoute
@@ -270,6 +277,7 @@ export interface FileRoutesByTo {
   '/candidato': typeof CandidatoIndexRoute
   '/panel': typeof PanelIndexRoute
   '/portal': typeof PortalIndexRoute
+  '/api/public/baja': typeof ApiPublicBajaRoute
   '/panel/candidatos/$id': typeof PanelCandidatosIdRoute
   '/panel/candidatos/importar': typeof PanelCandidatosImportarRoute
   '/panel/proyectos/$id': typeof PanelProyectosIdRoute
@@ -306,6 +314,7 @@ export interface FileRoutesById {
   '/candidato/': typeof CandidatoIndexRoute
   '/panel/': typeof PanelIndexRoute
   '/portal/': typeof PortalIndexRoute
+  '/api/public/baja': typeof ApiPublicBajaRoute
   '/panel/candidatos/$id': typeof PanelCandidatosIdRoute
   '/panel/candidatos/importar': typeof PanelCandidatosImportarRoute
   '/panel/proyectos/$id': typeof PanelProyectosIdRoute
@@ -343,6 +352,7 @@ export interface FileRouteTypes {
     | '/candidato/'
     | '/panel/'
     | '/portal/'
+    | '/api/public/baja'
     | '/panel/candidatos/$id'
     | '/panel/candidatos/importar'
     | '/panel/proyectos/$id'
@@ -375,6 +385,7 @@ export interface FileRouteTypes {
     | '/candidato'
     | '/panel'
     | '/portal'
+    | '/api/public/baja'
     | '/panel/candidatos/$id'
     | '/panel/candidatos/importar'
     | '/panel/proyectos/$id'
@@ -410,6 +421,7 @@ export interface FileRouteTypes {
     | '/candidato/'
     | '/panel/'
     | '/portal/'
+    | '/api/public/baja'
     | '/panel/candidatos/$id'
     | '/panel/candidatos/importar'
     | '/panel/proyectos/$id'
@@ -433,6 +445,7 @@ export interface RootRouteChildren {
   CastingSlugRoute: typeof CastingSlugRoute
   DossierSlugRoute: typeof DossierSlugRoute
   AuthIndexRoute: typeof AuthIndexRoute
+  ApiPublicBajaRoute: typeof ApiPublicBajaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -633,6 +646,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortalSolicitarRouteImport
       parentRoute: typeof PortalRouteRoute
     }
+    '/api/public/baja': {
+      id: '/api/public/baja'
+      path: '/api/public/baja'
+      fullPath: '/api/public/baja'
+      preLoaderRoute: typeof ApiPublicBajaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/panel/candidatos/': {
       id: '/panel/candidatos/'
       path: '/candidatos'
@@ -753,6 +773,7 @@ const rootRouteChildren: RootRouteChildren = {
   CastingSlugRoute: CastingSlugRoute,
   DossierSlugRoute: DossierSlugRoute,
   AuthIndexRoute: AuthIndexRoute,
+  ApiPublicBajaRoute: ApiPublicBajaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

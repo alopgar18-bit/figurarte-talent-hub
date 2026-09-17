@@ -1,4 +1,12 @@
-import { plantillaEmail, botonEmail } from "@/lib/email-layout";
+import { plantillaEmail, botonEmail, pieBaja } from "@/lib/email-layout";
+import { getRequest } from "@tanstack/react-start/server";
+import {
+  REMITENTE,
+  RESPONDER_A,
+  cabecerasBaja,
+  enlaceBaja,
+  origenCorreo,
+} from "@/lib/email-remitente";
 
 export type TipoAviso = "descartado" | "contratado";
 

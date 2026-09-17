@@ -655,14 +655,41 @@ export function DetalleProyecto({ id }: { id: string }) {
   const criteriosDefinidos = hayCriterios(criterios);
 
   /** Candidatos de la base que cumplen los criterios y no están ya en el proyecto. */
-  const recomendados = useMemo(() => {
+  const coincidencias = useMemo(() => {
     if (!criteriosDefinidos) return [];
     const yaEstan = new Set(asociaciones.map((a) => a.candidato_id));
     return baseCandidatos
       .filter((c) => !yaEstan.has(String(c["id"])))
-      .filter((c) => cumpleCriterios(c, criterios))
-      .slice(0, 60);
+      .filter((c) => cumpleCriterios(c, criterios));
   }, [baseCandidatos, asociaciones, criterios, criteriosDefinidos]);
+
+  const totalCoincidencias = coincidencias.length;
+
+  /** Solo se renderiza un máximo de tarjetas, pero el total mostrado es el real. */
+  const recomendados = useMemo(
+    () =>
+      coincidencias
+        .slice(0, MAX_RECOMENDADOS_VISIBLES)
+        .map((c) => c as unknown as Candidato),
+    [coincidencias],
+  );
+
+  /** Las fotos de los recomendados visibles también hay que firmarlas. */
+  useEffect(() => {
+    let activo = true;
+    if (recomendados.length === 0) {
+      setRecomendadosFirmados([]);
+      return;
+    }
+    setRecomendadosFirmados(recomendados);
+    void conFotosFirmadas(recomendados).then((lista) => {
+      if (activo) setRecomendadosFirmados(lista);
+    });
+    return () => {
+      activo = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recomendados]);
 
   const camposAplicables = useMemo(() => {
     const cat = brief.categoria;

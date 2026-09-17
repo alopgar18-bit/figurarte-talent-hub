@@ -128,6 +128,9 @@ const ESTADOS_CANDIDATO = [
   { valor: "rechazado_por_candidato", etiqueta: "Rechazado por el candidato" },
 ];
 
+/** Máximo de tarjetas de recomendados que se pintan a la vez. */
+const MAX_RECOMENDADOS_VISIBLES = 300;
+
 const CATEGORIAS = [
   { valor: "actor", etiqueta: "Actores" },
   { valor: "modelo", etiqueta: "Modelos" },
@@ -245,6 +248,7 @@ export function DetalleProyecto({ id }: { id: string }) {
   const [criterios, setCriterios] = useState<CriteriosBusqueda>({});
   const [guardandoCriterios, setGuardandoCriterios] = useState(false);
   const [baseCandidatos, setBaseCandidatos] = useState<Record<string, unknown>[]>([]);
+  const [recomendadosFirmados, setRecomendadosFirmados] = useState<Candidato[]>([]);
   const [errorRecomendados, setErrorRecomendados] = useState<string | null>(null);
 
   const [dialogoAnadir, setDialogoAnadir] = useState(false);

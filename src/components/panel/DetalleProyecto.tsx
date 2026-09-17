@@ -249,6 +249,8 @@ export function DetalleProyecto({ id }: { id: string }) {
   const [guardandoCriterios, setGuardandoCriterios] = useState(false);
   const [baseCandidatos, setBaseCandidatos] = useState<Record<string, unknown>[]>([]);
   const [recomendadosFirmados, setRecomendadosFirmados] = useState<Candidato[]>([]);
+  /** Por defecto se descartan los candidatos sin ninguna foto. */
+  const [sinFotos, setSinFotos] = useState(true);
   const [errorRecomendados, setErrorRecomendados] = useState<string | null>(null);
 
   const [dialogoAnadir, setDialogoAnadir] = useState(false);
@@ -669,8 +671,12 @@ export function DetalleProyecto({ id }: { id: string }) {
     const yaEstan = new Set(asociaciones.map((a) => a.candidato_id));
     return baseCandidatos
       .filter((c) => !yaEstan.has(String(c["id"])))
-      .filter((c) => cumpleCriterios(c, criterios));
-  }, [baseCandidatos, asociaciones, criterios, criteriosDefinidos]);
+      .filter((c) => cumpleCriterios(c, criterios))
+      .filter((c) => {
+        const fotos = c["fotos"];
+        return !sinFotos || (Array.isArray(fotos) && fotos.length > 0);
+      });
+  }, [baseCandidatos, asociaciones, criterios, criteriosDefinidos, sinFotos]);
 
   const totalCoincidencias = coincidencias.length;
 

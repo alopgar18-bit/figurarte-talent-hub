@@ -276,7 +276,12 @@ export function DetalleProyecto({ id }: { id: string }) {
       );
     if (rutas.length === 0) return lista;
     try {
-      const mapa = await firmarFotos({ data: { rutas } });
+      // El servidor firma como máximo 200 rutas por llamada.
+      const unicas = [...new Set(rutas)];
+      const mapa: Record<string, string> = {};
+      for (let i = 0; i < unicas.length; i += 200) {
+        Object.assign(mapa, await firmarFotos({ data: { rutas: unicas.slice(i, i + 200) } }));
+      }
       return lista.map((c) => {
         const primera = c.fotos?.[0];
         if (!primera || !mapa[primera]) return c;

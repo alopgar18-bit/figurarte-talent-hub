@@ -733,6 +733,16 @@ export function ListadoCandidatos() {
             setDisponibleNo(valores.includes("no"));
           }}
         />
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="descartar-sin-fotos"
+            checked={sinFotos}
+            onCheckedChange={(v) => setSinFotos(v === true)}
+          />
+          <Label htmlFor="descartar-sin-fotos" className="cursor-pointer text-sm">
+            Descartar sin fotos
+          </Label>
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline">

@@ -98,7 +98,8 @@ export function Dashboard() {
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [proyectos, setProyectos] = useState<Proyecto[]>([]);
-  const [candidatos, setCandidatos] = useState<{ id: string; creado_en: string }[]>([]);
+  const [totalCandidatosReal, setTotalCandidatosReal] = useState(0);
+  const [captadosEsteMesReal, setCaptadosEsteMesReal] = useState(0);
   const [asignaciones, setAsignaciones] = useState<
     { candidato_id: string; proyecto_id: string }[]
   >([]);

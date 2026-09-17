@@ -75,8 +75,25 @@ export function DialogoEnviarComunicacion({
     if (!abierto) return;
     let activo = true;
     (async () => {
-      const [{ data: c }, { data: cl }, { data: pw }] = await Promise.all([
-        supabase.from("candidatos").select("id, codigo, nombre").order("codigo").limit(1000),
+      async function cargarTodosLosCandidatos() {
+        const TAMANO_BLOQUE = 1000;
+        let desde = 0;
+        let todos: FilaCandidato[] = [];
+        while (true) {
+          const { data } = await supabase
+            .from("candidatos")
+            .select("id, codigo, nombre")
+            .order("codigo")
+            .range(desde, desde + TAMANO_BLOQUE - 1);
+          const bloque = (data ?? []) as FilaCandidato[];
+          todos = todos.concat(bloque);
+          if (bloque.length < TAMANO_BLOQUE) break;
+          desde += TAMANO_BLOQUE;
+        }
+        return todos;
+      }
+      const [c, { data: cl }, { data: pw }] = await Promise.all([
+        cargarTodosLosCandidatos(),
         supabase.from("clientes").select("id, razon_social").order("razon_social").limit(500),
         supabase
           .from("plantillas_comunicacion")

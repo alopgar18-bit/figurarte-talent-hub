@@ -1065,48 +1065,37 @@ export function DetalleProyecto({ id }: { id: string }) {
             Todavía no has definido criterios de búsqueda. Rellena la sección “Criterios de
             búsqueda” de arriba para ver aquí los candidatos que encajan.
           </p>
-        ) : recomendados.length === 0 ? (
+        ) : totalCoincidencias === 0 ? (
           <p className="text-sm text-muted-foreground">
             Ningún candidato de la base cumple ahora mismo estos criterios.
           </p>
         ) : (
           <>
             <p className="text-sm text-muted-foreground">
-              {recomendados.length} candidato(s) cumplen los criterios y no están todavía
-              en el proyecto.
+              {totalCoincidencias} candidato(s) cumplen los criterios y no están todavía
+              en el proyecto
+              {totalCoincidencias > MAX_RECOMENDADOS_VISIBLES
+                ? ` (mostrando los primeros ${MAX_RECOMENDADOS_VISIBLES} de ${totalCoincidencias})`
+                : ""}
+              .
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {recomendados.map((c) => (
-                <div
-                  key={String(c["id"])}
-                  className="flex items-start justify-between gap-3 border border-border p-3"
-                >
-                  <Link
-                    to="/panel/candidatos/$id"
-                    params={{ id: String(c["id"]) }}
-                    search={{ desde: id }}
-                    className="min-w-0 flex-1 transition-opacity hover:opacity-80"
-                  >
-                    <p className="truncate text-sm font-medium">{String(c["nombre"])}</p>
-                    <p className="text-xs text-muted-foreground">{String(c["codigo"])}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {[
-                        c["provincia"] ? String(c["provincia"]) : null,
-                        c["edad"] ? `${c["edad"]} años` : null,
-                        c["altura_cm"] ? `${c["altura_cm"]} cm` : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ") || "Sin datos"}
-                    </p>
-                  </Link>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => anadirCandidato(c as unknown as Candidato)}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
+              {recomendadosFirmados.map((c) => (
+                <CandidatoCard
+                  key={c.id}
+                  proyectoId={id}
+                  candidato={c}
+                  accion={
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 w-full text-xs"
+                      onClick={() => anadirCandidato(c)}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  }
+                />
               ))}
             </div>
           </>

@@ -139,7 +139,12 @@ export const enviarComunicacionExpress = createServerFn({ method: "POST" })
           nombre: d.nombre,
           enlace: d.enlace,
         });
-        enviado = await enviarEmailFigurarte({ email: d.email, asunto, cuerpo });
+        enviado = await enviarEmailFigurarte({
+          email: d.email,
+          asunto,
+          cuerpo,
+          candidatoId: d.candidatoId,
+        });
         contenido = `Asunto: ${asunto}\n\n${cuerpo}`;
       } else {
         const numero = normalizarTelefonoES(d.telefono);

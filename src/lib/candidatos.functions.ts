@@ -92,6 +92,7 @@ Puedes entrar aquí cuando quieras: ${authUrl}
       },
       body: JSON.stringify({
         from: "FIGURARTE Casting & Producción <casting@figurarte.app>",
+        reply_to: "casting@figurarte.app",
         to: [email],
         subject: "Hemos recibido tu candidatura — FigurArte",
         html,
@@ -152,6 +153,7 @@ Si no has sido tú, puedes ignorar este mensaje.
       },
       body: JSON.stringify({
         from: "FIGURARTE Casting & Producción <casting@figurarte.app>",
+        reply_to: "casting@figurarte.app",
         to: [email],
         subject: "Tu acceso a FigurArte",
         html,

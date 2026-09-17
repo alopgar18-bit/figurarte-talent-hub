@@ -121,6 +121,7 @@ export const cambiarEstadoProyectoCandidato = createServerFn({ method: "POST" })
       const cuerpo = aplicarVariables(pEmail.cuerpo, { nombre, enlace });
       const ok = await enviarEmailFigurarte({
         email: candidato?.email ?? null,
+        candidatoId: data.candidatoId,
         asunto,
         cuerpo,
         enlace,

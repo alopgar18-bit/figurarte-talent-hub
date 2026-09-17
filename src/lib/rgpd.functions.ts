@@ -58,6 +58,7 @@ Entra en tu área de candidato para darla: ${enlace}
       },
       body: JSON.stringify({
         from: "FIGURARTE Casting & Producción <casting@figurarte.app>",
+        reply_to: "casting@figurarte.app",
         to: [email],
         subject: "Necesitamos tu autorización — FigurArte",
         html,

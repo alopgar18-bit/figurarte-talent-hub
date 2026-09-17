@@ -394,21 +394,36 @@ export function ListadoCandidatos() {
   const [dialogoExport, setDialogoExport] = useState(false);
 
   useEffect(() => {
-    (async () => {
-      const [{ data: cands, error: e1 }, { data: proys }] = await Promise.all([
-        supabase
+    const TAMANO_BLOQUE = 1000;
+    async function cargarTodosLosCandidatos(): Promise<Candidato[]> {
+      let desde = 0;
+      let todos: Candidato[] = [];
+      while (true) {
+        const { data, error } = await supabase
           .from("candidatos")
           .select("*")
           .order("codigo", { ascending: true })
-          .limit(10000),
+          .range(desde, desde + TAMANO_BLOQUE - 1);
+        if (error) throw error;
+        const bloque = (data ?? []) as Candidato[];
+        todos = todos.concat(bloque);
+        if (bloque.length < TAMANO_BLOQUE) break;
+        desde += TAMANO_BLOQUE;
+      }
+      return todos;
+    }
+    (async () => {
+      const [cands, { data: proys }] = await Promise.all([
+        cargarTodosLosCandidatos().catch(() => {
+          setError("No se han podido cargar los candidatos.");
+          return [] as Candidato[];
+        }),
         supabase
           .from("proyectos_casting")
           .select("id, nombre, creado_en")
           .order("creado_en", { ascending: false }),
       ]);
-      if (e1) setError("No se han podido cargar los candidatos.");
-      const lista = (cands ?? []) as Candidato[];
-      setCandidatos(lista);
+      setCandidatos(cands);
       setProyectos((proys ?? []) as Proyecto[]);
       setCargando(false);
     })();

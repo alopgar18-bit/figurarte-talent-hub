@@ -564,6 +564,7 @@ export function ListadoCandidatos() {
     setPagina(1);
   }, [
     candidatos,
+    sinFotos,
     categorias,
     disponibleSi,
     disponibleNo,

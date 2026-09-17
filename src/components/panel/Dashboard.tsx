@@ -184,15 +184,10 @@ export function Dashboard() {
   }, [clientes]);
 
   const kpis = useMemo(() => {
-    const inicioMes = new Date();
-    inicioMes.setDate(1);
-    inicioMes.setHours(0, 0, 0, 0);
-    const esteMes = candidatos.filter(
-      (c) => new Date(c.creado_en).getTime() >= inicioMes.getTime(),
-    ).length;
+    const esteMes = captadosEsteMesReal;
     const enShortlist = new Set(asignaciones.map((a) => a.candidato_id)).size;
-    const conversion = candidatos.length
-      ? Math.round((enShortlist / candidatos.length) * 100)
+    const conversion = totalCandidatosReal
+      ? Math.round((enShortlist / totalCandidatosReal) * 100)
       : 0;
     const activos = proyectos.filter((p) => p.estado === "en_curso");
     const clientesActivos = new Set(
@@ -202,11 +197,11 @@ export function Dashboard() {
       esteMes,
       conversion,
       enShortlist,
-      totalCandidatos: candidatos.length,
+      totalCandidatos: totalCandidatosReal,
       activos,
       clientesActivos,
     };
-  }, [candidatos, asignaciones, proyectos]);
+  }, [captadosEsteMesReal, totalCandidatosReal, asignaciones, proyectos]);
 
   const porCanal = useMemo(() => {
     if (canales.length === 0) return [];

@@ -1077,6 +1077,16 @@ export function DetalleProyecto({ id }: { id: string }) {
           </p>
         ) : (
           <>
+            <div className="mb-3 flex items-center gap-2">
+              <Checkbox
+                id="recomendados-sin-fotos"
+                checked={sinFotos}
+                onCheckedChange={(v) => setSinFotos(v === true)}
+              />
+              <Label htmlFor="recomendados-sin-fotos" className="cursor-pointer">
+                Descartar sin fotos
+              </Label>
+            </div>
             <p className="text-sm text-muted-foreground">
               {totalCoincidencias} candidato(s) cumplen los criterios y no están todavía
               en el proyecto

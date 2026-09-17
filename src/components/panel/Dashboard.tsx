@@ -135,7 +135,10 @@ export function Dashboard() {
 
   async function cargar() {
     setCargando(true);
-    const [sol, cli, pro, can, asg, reg] = await Promise.all([
+    const inicioMes = new Date();
+    inicioMes.setDate(1);
+    inicioMes.setHours(0, 0, 0, 0);
+    const [sol, cli, pro, totCan, mesCan, asg, reg] = await Promise.all([
       supabase
         .from("solicitudes_proyecto")
         .select(
@@ -145,12 +148,16 @@ export function Dashboard() {
         .order("recibida_en", { ascending: false }),
       supabase.from("clientes").select("id,razon_social"),
       supabase.from("proyectos_casting").select("id,nombre,cliente_id,estado"),
-      supabase.from("candidatos").select("id,creado_en"),
+      supabase.from("candidatos").select("*", { count: "exact", head: true }),
+      supabase
+        .from("candidatos")
+        .select("*", { count: "exact", head: true })
+        .gte("creado_en", inicioMes.toISOString()),
       supabase.from("proyecto_candidatos").select("candidato_id,proyecto_id"),
       supabase.from("registros_captacion").select("canal"),
     ]);
 
-    if (sol.error || cli.error || pro.error || can.error) {
+    if (sol.error || cli.error || pro.error || totCan.error || mesCan.error) {
       setError("No se pudieron cargar todos los datos del dashboard.");
     } else {
       setError(null);
@@ -158,7 +165,8 @@ export function Dashboard() {
     setSolicitudes((sol.data ?? []) as Solicitud[]);
     setClientes((cli.data ?? []) as Cliente[]);
     setProyectos((pro.data ?? []) as Proyecto[]);
-    setCandidatos(can.data ?? []);
+    setTotalCandidatosReal(totCan.count ?? 0);
+    setCaptadosEsteMesReal(mesCan.count ?? 0);
     setAsignaciones(asg.data ?? []);
     setCanales((reg.data ?? []).map((r) => r.canal));
     setCargando(false);

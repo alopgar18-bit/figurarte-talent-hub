@@ -139,7 +139,7 @@ const RANGOS_VACIOS = {
 /** Filtros que sobreviven a la navegación listado → ficha → listado. */
 const filtrosGuardados = {
   categorias: [] as string[],
-  disponibleSi: false,
+  disponibleSi: true,
   disponibleNo: false,
   busqueda: "",
   provinciasSel: [] as string[],
@@ -698,11 +698,14 @@ export function ListadoCandidatos({ rol }: { rol: string }) {
         data: { candidatoIds: seleccionados, publicar },
       });
       const accion = publicar ? "publicado(s) en la web" : "retirado(s) de la web";
-      setAviso(
-        res.fallidos > 0
-          ? `${res.actualizados} candidato(s) ${accion}. ${res.fallidos} no se han podido actualizar.`
-          : `${res.actualizados} candidato(s) ${accion}.`,
-      );
+      const partes = [`${res.actualizados} candidato(s) ${accion}.`];
+      if (res.excluidosPorInactivos > 0) {
+        partes.push(`${res.excluidosPorInactivos} no se han publicado por no estar activos.`);
+      }
+      if (res.fallidos > 0) {
+        partes.push(`${res.fallidos} no se han podido actualizar.`);
+      }
+      setAviso(partes.join(" "));
       // Refresco local: la tabla refleja el cambio sin recargar.
       setCandidatos((prev) =>
         prev.map((c) =>

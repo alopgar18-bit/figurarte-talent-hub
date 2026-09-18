@@ -10,6 +10,7 @@ const entradaPublicacion = z.object({
 export type ResultadoPublicacionWeb = {
   actualizados: number;
   fallidos: number;
+  excluidosPorInactivos: number;
 };
 
 const TAMANO_BLOQUE = 200;
@@ -37,11 +38,32 @@ export const cambiarPublicacionWebMasiva = createServerFn({ method: "POST" })
       throw new Error("Solo un administrador puede cambiar la publicación en la web.");
     }
 
+    let idsObjetivo = data.candidatoIds;
+    let excluidosPorInactivos = 0;
+
+    // Al publicar, la base de datos solo admite candidatos activos (disponible):
+    // filtramos antes para devolver un mensaje útil en vez de un error crudo.
+    if (data.publicar) {
+      const disponibles = new Set<string>();
+      for (let i = 0; i < data.candidatoIds.length; i += TAMANO_BLOQUE) {
+        const bloque = data.candidatoIds.slice(i, i + TAMANO_BLOQUE);
+        const { data: filas } = await supabaseAdmin
+          .from("candidatos")
+          .select("id, disponible")
+          .in("id", bloque);
+        for (const fila of filas ?? []) {
+          if (fila.disponible) disponibles.add(fila.id);
+        }
+      }
+      idsObjetivo = data.candidatoIds.filter((id) => disponibles.has(id));
+      excluidosPorInactivos = data.candidatoIds.length - idsObjetivo.length;
+    }
+
     let actualizados = 0;
     let fallidos = 0;
 
-    for (let i = 0; i < data.candidatoIds.length; i += TAMANO_BLOQUE) {
-      const bloque = data.candidatoIds.slice(i, i + TAMANO_BLOQUE);
+    for (let i = 0; i < idsObjetivo.length; i += TAMANO_BLOQUE) {
+      const bloque = idsObjetivo.slice(i, i + TAMANO_BLOQUE);
       const { error, count } = await supabaseAdmin
         .from("candidatos")
         .update(
@@ -57,5 +79,5 @@ export const cambiarPublicacionWebMasiva = createServerFn({ method: "POST" })
       }
     }
 
-    return { actualizados, fallidos };
+    return { actualizados, fallidos, excluidosPorInactivos };
   });

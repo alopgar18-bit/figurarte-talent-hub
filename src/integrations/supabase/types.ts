@@ -984,7 +984,14 @@ export type Database = {
       es_admin: { Args: { _user_id: string }; Returns: boolean }
       es_staff: { Args: { _user_id: string }; Returns: boolean }
       fn_candidatos_publicos: {
-        Args: { p_limit?: number; p_offset?: number }
+        Args: {
+          p_categoria?: Database["public"]["Enums"]["categoria_candidato"]
+          p_edad_max?: number
+          p_edad_min?: number
+          p_genero?: string
+          p_limit?: number
+          p_offset?: number
+        }
         Returns: {
           altura_cm: number
           carnes_conducir: Json

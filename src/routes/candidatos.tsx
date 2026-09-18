@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Users, ImageOff, SlidersHorizontal } from "lucide-react";
+import { Users, ImageOff, SlidersHorizontal, Loader2 } from "lucide-react";
 import { CabeceraPublica, PieLegal } from "@/components/publico/CabeceraPublica";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -83,22 +83,25 @@ function ErrorListado() {
 function Chip({
   activo,
   onClick,
+  deshabilitado,
   children,
 }: {
   activo: boolean;
   onClick: () => void;
+  deshabilitado?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={deshabilitado}
       aria-pressed={activo}
       className={`rounded-md border px-3 py-1.5 text-sm font-semibold transition-colors ${
         activo
           ? "border-primary bg-primary text-primary-foreground"
           : "border-border bg-card text-muted-foreground hover:text-foreground"
-      }`}
+      } ${deshabilitado ? "cursor-not-allowed opacity-50" : ""}`}
     >
       {children}
     </button>
@@ -204,6 +207,8 @@ function CandidatosPublicos() {
     hayMas: boolean;
   } | null>(null);
   const [cargando, setCargando] = useState(false);
+  /** true solo mientras espera una recarga por cambio de filtro (offset 0) */
+  const [cargandoFiltro, setCargandoFiltro] = useState(false);
   const [errorCarga, setErrorCarga] = useState<string | null>(null);
 
   const base = useMemo(

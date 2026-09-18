@@ -686,6 +686,42 @@ export function ListadoCandidatos({ rol }: { rol: string }) {
     setAsignando(false);
   }
 
+  /** Publica o retira la selección en la web pública (igual que la ficha de candidato). */
+  async function cambiarPublicacionWeb(publicar: boolean) {
+    if (seleccionados.length === 0) return;
+    setPublicando(true);
+    setAviso(null);
+    try {
+      const { error } = await supabase
+        .from("candidatos")
+        .update({ disponible_publico: publicar, revisado_publico: true })
+        .in("id", seleccionados);
+      if (error) throw error;
+      setAviso(
+        publicar
+          ? `${seleccionados.length} candidato(s) publicado(s) en la web.`
+          : `${seleccionados.length} candidato(s) retirado(s) de la web.`,
+      );
+      // Refresco local: la tabla refleja el cambio sin recargar.
+      setCandidatos((prev) =>
+        prev.map((c) =>
+          seleccionados.includes(c.id)
+            ? { ...c, disponible_publico: publicar, revisado_publico: true }
+            : c,
+        ),
+      );
+ality:      setSeleccion([]);
+    } catch {
+      setAviso(
+        publicar
+          ? "No se han podido publicar los candidatos."
+          : "No se han podido retirar los candidatos.",
+      );
+    }
+    setPublicando(false);
+    setPublicarPendiente(null);
+  }
+
   if (cargando) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">

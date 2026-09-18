@@ -372,11 +372,7 @@ function CandidatosPublicos() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {
-                setCategoria(null);
-                setGenero(null);
-                setFranja(null);
-              }}
+              onClick={() => aplicarFiltros(null, null, null)}
             >
               Quitar filtros
             </Button>

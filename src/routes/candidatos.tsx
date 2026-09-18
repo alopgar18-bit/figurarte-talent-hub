@@ -197,31 +197,69 @@ function CandidatosPublicos() {
   const [franja, setFranja] = useState<string | null>(null);
   const cargarPagina = useServerFn(listarCandidatosPublicos);
 
-  const [extra, setExtra] = useState<CandidatoPublico[]>([]);
-  const [hayMas, setHayMas] = useState(
-    listado.estado === "ok" ? listado.hayMas : false,
-  );
+  /** null = aún no se ha filtrado, se usa la página inicial del loader */
+  const [pagina, setPagina] = useState<{
+    candidatos: CandidatoPublico[];
+    total: number;
+    hayMas: boolean;
+  } | null>(null);
   const [cargando, setCargando] = useState(false);
   const [errorCarga, setErrorCarga] = useState<string | null>(null);
 
-  const candidatos = useMemo(
-    () => (listado.estado === "ok" ? [...listado.candidatos, ...extra] : []),
-    [listado, extra],
+  const base = useMemo(
+    () =>
+      pagina ??
+      (listado.estado === "ok"
+        ? {
+            candidatos: listado.candidatos,
+            total: listado.total,
+            hayMas: listado.hayMas,
+          }
+        : { candidatos: [], total: 0, hayMas: false }),
+    [pagina, listado],
   );
 
-  async function cargarMas() {
+  const visibles = base.candidatos;
+  const hayFiltros = Boolean(categoria || genero || franja);
+
+  function filtrosServidor(
+    cat: string | null,
+    gen: string | null,
+    fr: string | null,
+  ) {
+    const rango = FRANJAS_EDAD.find((f) => f.clave === fr);
+    return {
+      ...(cat ? { categoria: cat } : {}),
+      ...(gen ? { genero: gen } : {}),
+      ...(rango ? { edadMin: rango.min, edadMax: rango.max } : {}),
+    };
+  }
+
+  async function pedir(
+    cat: string | null,
+    gen: string | null,
+    fr: string | null,
+    offset: number,
+  ) {
     setCargando(true);
     setErrorCarga(null);
     try {
       const res = await cargarPagina({
-        data: { limit: PAGINA, offset: candidatos.length },
+        data: { limit: PAGINA, offset, ...filtrosServidor(cat, gen, fr) },
       });
       if (res.estado === "limitado") {
         setErrorCarga("Demasiadas consultas desde tu conexión. Prueba en unos minutos.");
         return;
       }
-      setExtra((prev) => [...prev, ...res.candidatos]);
-      setHayMas(res.hayMas);
+      setPagina((prev) =>
+        offset > 0 && prev
+          ? {
+              candidatos: [...prev.candidatos, ...res.candidatos],
+              total: res.total,
+              hayMas: res.hayMas,
+            }
+          : { candidatos: res.candidatos, total: res.total, hayMas: res.hayMas },
+      );
     } catch {
       setErrorCarga("No hemos podido cargar más candidatos. Inténtalo de nuevo.");
     } finally {
@@ -229,20 +267,20 @@ function CandidatosPublicos() {
     }
   }
 
-  const visibles = useMemo(() => {
-    const rango = FRANJAS_EDAD.find((f) => f.clave === franja);
-    return candidatos.filter((c) => {
-      if (categoria && c.categoria !== categoria) return false;
-      if (genero && (c.genero ?? "") !== genero) return false;
-      if (rango) {
-        if (c.edad == null) return false;
-        if (c.edad < rango.min || c.edad > rango.max) return false;
-      }
-      return true;
-    });
-  }, [candidatos, categoria, genero, franja]);
+  function aplicarFiltros(
+    cat: string | null,
+    gen: string | null,
+    fr: string | null,
+  ) {
+    setCategoria(cat);
+    setGenero(gen);
+    setFranja(fr);
+    void pedir(cat, gen, fr, 0);
+  }
 
-  const hayFiltros = Boolean(categoria || genero || franja);
+  function cargarMas() {
+    void pedir(categoria, genero, franja, visibles.length);
+  }
 
   return (
     <main className="min-h-screen bg-background text-foreground">

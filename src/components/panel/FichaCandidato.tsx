@@ -671,10 +671,18 @@ export function FichaCandidato({
             </div>
             <Switch
               checked={candidato.disponible_publico}
-              disabled={guardandoPublico}
+              disabled={
+                guardandoPublico ||
+                (!candidato.disponible && !candidato.disponible_publico)
+              }
               onCheckedChange={cambiarDisponiblePublico}
               aria-label="Publicar en candidatos disponibles"
             />
+            {!candidato.disponible && !candidato.disponible_publico && (
+              <p className="text-xs text-muted-foreground">
+                Solo se pueden publicar candidatos activos.
+              </p>
+            )}
           </div>
         )}
       </div>

@@ -710,7 +710,6 @@ export function ListadoCandidatos({ rol }: { rol: string }) {
             : c,
         ),
       );
-ality:      setSeleccion([]);
     } catch {
       setAviso(
         publicar

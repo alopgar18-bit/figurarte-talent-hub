@@ -48,6 +48,7 @@ import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import { DialogoEnviarComunicacion } from "@/components/panel/DialogoEnviarComunicacion";
 import { asignarCandidatosAProyecto } from "@/lib/rgpd.functions";
+import { cambiarPublicacionWebMasiva } from "@/lib/publicacion-web.functions";
 import { registrarAccesoStaff } from "@/lib/registro-accesos.functions";
 import { firmarFotosStaff } from "@/lib/fotos.functions";
 import {
@@ -397,6 +398,7 @@ export function ListadoCandidatos({ rol }: { rol: string }) {
   const [publicando, setPublicando] = useState(false);
   const [dialogoComunicacion, setDialogoComunicacion] = useState(false);
   const asignar = useServerFn(asignarCandidatosAProyecto);
+  const cambiarPublicacion = useServerFn(cambiarPublicacionWebMasiva);
   const anotar = useServerFn(registrarAccesoStaff);
   const firmarFotos = useServerFn(firmarFotosStaff);
 
@@ -686,21 +688,20 @@ export function ListadoCandidatos({ rol }: { rol: string }) {
     setAsignando(false);
   }
 
-  /** Publica o retira la selección en la web pública (igual que la ficha de candidato). */
+  /** Publica o retira la selección en la web pública (vía servidor: la selección puede ser de miles). */
   async function cambiarPublicacionWeb(publicar: boolean) {
     if (seleccionados.length === 0) return;
     setPublicando(true);
     setAviso(null);
     try {
-      const { error } = await supabase
-        .from("candidatos")
-        .update({ disponible_publico: publicar, revisado_publico: true })
-        .in("id", seleccionados);
-      if (error) throw error;
+      const res = await cambiarPublicacion({
+        data: { candidatoIds: seleccionados, publicar },
+      });
+      const accion = publicar ? "publicado(s) en la web" : "retirado(s) de la web";
       setAviso(
-        publicar
-          ? `${seleccionados.length} candidato(s) publicado(s) en la web.`
-          : `${seleccionados.length} candidato(s) retirado(s) de la web.`,
+        res.fallidos > 0
+          ? `${res.actualizados} candidato(s) ${accion}. ${res.fallidos} no se han podido actualizar.`
+          : `${res.actualizados} candidato(s) ${accion}.`,
       );
       // Refresco local: la tabla refleja el cambio sin recargar.
       setCandidatos((prev) =>

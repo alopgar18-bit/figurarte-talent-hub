@@ -358,7 +358,9 @@ function CandidatosPublicos() {
                 <Chip
                   key={f.clave}
                   activo={franja === f.clave}
-                  onClick={() => setFranja((v) => (v === f.clave ? null : f.clave))}
+                  onClick={() =>
+                    aplicarFiltros(categoria, genero, franja === f.clave ? null : f.clave)
+                  }
                 >
                   {f.etiqueta}
                 </Chip>

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { Users, ImageOff, SlidersHorizontal } from "lucide-react";
 import { CabeceraPublica, PieLegal } from "@/components/publico/CabeceraPublica";
@@ -33,8 +34,12 @@ const ETIQUETA_CATEGORIA: Record<string, string> = {
   casting_plus: "Casting +",
 };
 
+const PAGINA = 60;
+
 export const Route = createFileRoute("/candidatos")({
-  loader: async () => ({ listado: await listarCandidatosPublicos() }),
+  loader: async () => ({
+    listado: await listarCandidatosPublicos({ data: { limit: PAGINA, offset: 0 } }),
+  }),
   head: () => {
     const titulo = "Candidatos disponibles | FigurArte.es";
     const descripcion =
@@ -190,8 +195,39 @@ function CandidatosPublicos() {
   const [categoria, setCategoria] = useState<string | null>(null);
   const [genero, setGenero] = useState<string | null>(null);
   const [franja, setFranja] = useState<string | null>(null);
+  const cargarPagina = useServerFn(listarCandidatosPublicos);
 
-  const candidatos = listado.estado === "ok" ? listado.candidatos : [];
+  const [extra, setExtra] = useState<CandidatoPublico[]>([]);
+  const [hayMas, setHayMas] = useState(
+    listado.estado === "ok" ? listado.hayMas : false,
+  );
+  const [cargando, setCargando] = useState(false);
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
+
+  const candidatos = useMemo(
+    () => (listado.estado === "ok" ? [...listado.candidatos, ...extra] : []),
+    [listado, extra],
+  );
+
+  async function cargarMas() {
+    setCargando(true);
+    setErrorCarga(null);
+    try {
+      const res = await cargarPagina({
+        data: { limit: PAGINA, offset: candidatos.length },
+      });
+      if (res.estado === "limitado") {
+        setErrorCarga("Demasiadas consultas desde tu conexión. Prueba en unos minutos.");
+        return;
+      }
+      setExtra((prev) => [...prev, ...res.candidatos]);
+      setHayMas(res.hayMas);
+    } catch {
+      setErrorCarga("No hemos podido cargar más candidatos. Inténtalo de nuevo.");
+    } finally {
+      setCargando(false);
+    }
+  }
 
   const visibles = useMemo(() => {
     const rango = FRANJAS_EDAD.find((f) => f.clave === franja);
@@ -329,6 +365,16 @@ function CandidatosPublicos() {
                 <Tarjeta key={c.id} c={c} />
               ))}
             </div>
+            {errorCarga && (
+              <p className="mt-6 text-sm text-destructive">{errorCarga}</p>
+            )}
+            {hayMas && (
+              <div className="mt-10 flex justify-center">
+                <Button onClick={cargarMas} disabled={cargando} variant="outline">
+                  {cargando ? "Cargando…" : "Cargar más candidatos"}
+                </Button>
+              </div>
+            )}
           </>
         )}
       </section>

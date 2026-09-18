@@ -5,6 +5,8 @@ import {
   ChevronRight,
   Columns3,
   Download,
+  Eye,
+  EyeOff,
   FolderPlus,
   Loader2,
   Search,
@@ -263,8 +265,10 @@ function valorCelda(c: Candidato, col: ColumnaId) {
 }
 
 
-export function ListadoCandidatos() {
+export function ListadoCandidatos({ rol }: { rol: string }) {
   const navigate = useNavigate();
+  /** Publicar/despublicar en la web pública: solo el equipo con permisos. */
+  const esAdmin = rol === "admin_figurarte" || rol === "superadmin";
   const [candidatos, setCandidatos] = useState<Candidato[]>([]);
   const [proyectos, setProyectos] = useState<Proyecto[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -388,6 +392,9 @@ export function ListadoCandidatos() {
   const [pagina, setPagina] = useState(1);
   const [proyectoDestino, setProyectoDestino] = useState("");
   const [asignando, setAsignando] = useState(false);
+  /** Publicación web: true = publicar, false = retirar, null = diálogo cerrado. */
+  const [publicarPendiente, setPublicarPendiente] = useState<boolean | null>(null);
+  const [publicando, setPublicando] = useState(false);
   const [dialogoComunicacion, setDialogoComunicacion] = useState(false);
   const asignar = useServerFn(asignarCandidatosAProyecto);
   const anotar = useServerFn(registrarAccesoStaff);

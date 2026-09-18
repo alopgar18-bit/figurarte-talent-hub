@@ -5,6 +5,8 @@ import {
   ChevronRight,
   Columns3,
   Download,
+  Eye,
+  EyeOff,
   FolderPlus,
   Loader2,
   Search,
@@ -263,8 +265,10 @@ function valorCelda(c: Candidato, col: ColumnaId) {
 }
 
 
-export function ListadoCandidatos() {
+export function ListadoCandidatos({ rol }: { rol: string }) {
   const navigate = useNavigate();
+  /** Publicar/despublicar en la web pública: solo el equipo con permisos. */
+  const esAdmin = rol === "admin_figurarte" || rol === "superadmin";
   const [candidatos, setCandidatos] = useState<Candidato[]>([]);
   const [proyectos, setProyectos] = useState<Proyecto[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -388,6 +392,9 @@ export function ListadoCandidatos() {
   const [pagina, setPagina] = useState(1);
   const [proyectoDestino, setProyectoDestino] = useState("");
   const [asignando, setAsignando] = useState(false);
+  /** Publicación web: true = publicar, false = retirar, null = diálogo cerrado. */
+  const [publicarPendiente, setPublicarPendiente] = useState<boolean | null>(null);
+  const [publicando, setPublicando] = useState(false);
   const [dialogoComunicacion, setDialogoComunicacion] = useState(false);
   const asignar = useServerFn(asignarCandidatosAProyecto);
   const anotar = useServerFn(registrarAccesoStaff);
@@ -677,6 +684,41 @@ export function ListadoCandidatos() {
       setAviso("No se han podido asignar los candidatos.");
     }
     setAsignando(false);
+  }
+
+  /** Publica o retira la selección en la web pública (igual que la ficha de candidato). */
+  async function cambiarPublicacionWeb(publicar: boolean) {
+    if (seleccionados.length === 0) return;
+    setPublicando(true);
+    setAviso(null);
+    try {
+      const { error } = await supabase
+        .from("candidatos")
+        .update({ disponible_publico: publicar, revisado_publico: true })
+        .in("id", seleccionados);
+      if (error) throw error;
+      setAviso(
+        publicar
+          ? `${seleccionados.length} candidato(s) publicado(s) en la web.`
+          : `${seleccionados.length} candidato(s) retirado(s) de la web.`,
+      );
+      // Refresco local: la tabla refleja el cambio sin recargar.
+      setCandidatos((prev) =>
+        prev.map((c) =>
+          seleccionados.includes(c.id)
+            ? { ...c, disponible_publico: publicar, revisado_publico: true }
+            : c,
+        ),
+      );
+    } catch {
+      setAviso(
+        publicar
+          ? "No se han podido publicar los candidatos."
+          : "No se han podido retirar los candidatos.",
+      );
+    }
+    setPublicando(false);
+    setPublicarPendiente(null);
   }
 
   if (cargando) {
@@ -970,6 +1012,24 @@ export function ListadoCandidatos() {
             <Button variant="outline" onClick={() => setDialogoComunicacion(true)}>
               Enviar comunicación
             </Button>
+            {esAdmin && (
+              <>
+                <Button
+                  variant="outline"
+                  disabled={publicando}
+                  onClick={() => setPublicarPendiente(true)}
+                >
+                  <Eye className="size-4" /> Visible en web: Sí
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={publicando}
+                  onClick={() => setPublicarPendiente(false)}
+                >
+                  <EyeOff className="size-4" /> Visible en web: No
+                </Button>
+              </>
+            )}
           </div>
           {aviso && <p className="w-full text-sm text-muted-foreground">{aviso}</p>}
         </div>
@@ -1105,6 +1165,39 @@ export function ListadoCandidatos() {
             <Button onClick={() => exportar("visibles")}>Columnas visibles</Button>
             <Button variant="outline" onClick={() => exportar("todos")}>
               Todos los campos
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={publicarPendiente !== null}
+        onOpenChange={(abierto) => {
+          if (!abierto && !publicando) setPublicarPendiente(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {publicarPendiente ? "Publicar en la web pública" : "Retirar de la web pública"}
+            </DialogTitle>
+            <DialogDescription>
+              {publicarPendiente
+                ? `¿Publicar ${seleccionados.length} candidato(s) en la web pública?`
+                : `¿Retirar ${seleccionados.length} candidato(s) de la web pública?`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:justify-start">
+            <Button onClick={() => cambiarPublicacionWeb(!!publicarPendiente)} disabled={publicando}>
+              {publicando ? <Loader2 className="size-4 animate-spin" /> : null}
+              Confirmar
+            </Button>
+            <Button
+              variant="outline"
+              disabled={publicando}
+              onClick={() => setPublicarPendiente(null)}
+            >
+              Cancelar
             </Button>
           </DialogFooter>
         </DialogContent>

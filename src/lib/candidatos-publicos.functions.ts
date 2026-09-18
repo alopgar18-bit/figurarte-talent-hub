@@ -77,6 +77,10 @@ export const listarCandidatosPublicos = createServerFn({ method: "GET" })
     const { data: filas, error } = await supabaseAdmin.rpc("fn_candidatos_publicos", {
       p_limit: limit,
       p_offset: offset,
+      p_categoria: (data.categoria ?? null) as never,
+      p_genero: data.genero ?? null,
+      p_edad_min: data.edadMin ?? null,
+      p_edad_max: data.edadMax ?? null,
     });
     if (error) {
       console.error("[candidatos-publicos] No se pudo cargar el listado:", error);

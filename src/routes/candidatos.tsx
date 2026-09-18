@@ -319,7 +319,11 @@ function CandidatosPublicos() {
                   key={cat.valor}
                   activo={categoria === cat.valor}
                   onClick={() =>
-                    setCategoria((v) => (v === cat.valor ? null : cat.valor))
+                    aplicarFiltros(
+                      categoria === cat.valor ? null : cat.valor,
+                      genero,
+                      franja,
+                    )
                   }
                 >
                   {cat.etiqueta}

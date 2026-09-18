@@ -246,7 +246,9 @@ function CandidatosPublicos() {
     fr: string | null,
     offset: number,
   ) {
+    const porFiltro = offset === 0;
     setCargando(true);
+    setCargandoFiltro(porFiltro);
     setErrorCarga(null);
     try {
       const res = await cargarPagina({
@@ -269,6 +271,7 @@ function CandidatosPublicos() {
       setErrorCarga("No hemos podido cargar más candidatos. Inténtalo de nuevo.");
     } finally {
       setCargando(false);
+      setCargandoFiltro(false);
     }
   }
 

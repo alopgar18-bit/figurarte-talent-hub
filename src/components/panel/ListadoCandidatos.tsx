@@ -1012,6 +1012,24 @@ export function ListadoCandidatos({ rol }: { rol: string }) {
             <Button variant="outline" onClick={() => setDialogoComunicacion(true)}>
               Enviar comunicación
             </Button>
+            {esAdmin && (
+              <>
+                <Button
+                  variant="outline"
+                  disabled={publicando}
+                  onClick={() => setPublicarPendiente(true)}
+                >
+                  <Eye className="size-4" /> Visible en web: Sí
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={publicando}
+                  onClick={() => setPublicarPendiente(false)}
+                >
+                  <EyeOff className="size-4" /> Visible en web: No
+                </Button>
+              </>
+            )}
           </div>
           {aviso && <p className="w-full text-sm text-muted-foreground">{aviso}</p>}
         </div>
@@ -1147,6 +1165,39 @@ export function ListadoCandidatos({ rol }: { rol: string }) {
             <Button onClick={() => exportar("visibles")}>Columnas visibles</Button>
             <Button variant="outline" onClick={() => exportar("todos")}>
               Todos los campos
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={publicarPendiente !== null}
+        onOpenChange={(abierto) => {
+          if (!abierto && !publicando) setPublicarPendiente(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {publicarPendiente ? "Publicar en la web pública" : "Retirar de la web pública"}
+            </DialogTitle>
+            <DialogDescription>
+              {publicarPendiente
+                ? `¿Publicar ${seleccionados.length} candidato(s) en la web pública?`
+                : `¿Retirar ${seleccionados.length} candidato(s) de la web pública?`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:justify-start">
+            <Button onClick={() => cambiarPublicacionWeb(!!publicarPendiente)} disabled={publicando}>
+              {publicando ? <Loader2 className="size-4 animate-spin" /> : null}
+              Confirmar
+            </Button>
+            <Button
+              variant="outline"
+              disabled={publicando}
+              onClick={() => setPublicarPendiente(null)}
+            >
+              Cancelar
             </Button>
           </DialogFooter>
         </DialogContent>

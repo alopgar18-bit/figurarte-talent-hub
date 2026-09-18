@@ -13,5 +13,10 @@ export const Route = createFileRoute("/panel/candidatos/")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: ListadoCandidatos,
+  component: ListadoCandidatosRoute,
 });
+
+function ListadoCandidatosRoute() {
+  const { staff } = Route.useRouteContext();
+  return <ListadoCandidatos rol={staff.rol} />;
+}

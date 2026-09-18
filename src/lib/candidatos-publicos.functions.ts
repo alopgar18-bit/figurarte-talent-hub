@@ -44,7 +44,13 @@ export type ListadoPublico =
 const entradaListado = z.object({
   limit: z.number().int().min(1).max(100).optional(),
   offset: z.number().int().min(0).max(100000).optional(),
+  categoria: z.string().max(40).optional(),
+  genero: z.string().max(40).optional(),
+  edadMin: z.number().int().min(0).max(120).optional(),
+  edadMax: z.number().int().min(0).max(120).optional(),
 });
+
+export type EntradaListadoPublico = z.input<typeof entradaListado>;
 
 function comoArray<T>(v: unknown): T[] {
   return Array.isArray(v) ? (v as T[]) : [];
@@ -56,7 +62,7 @@ function comoArray<T>(v: unknown): T[] {
  * columnas autorizadas: es el backstop de privacidad de esta vista.
  */
 export const listarCandidatosPublicos = createServerFn({ method: "GET" })
-  .inputValidator((entrada: { limit?: number; offset?: number } | undefined) =>
+  .inputValidator((entrada: EntradaListadoPublico | undefined) =>
     entradaListado.parse(entrada ?? {}),
   )
   .handler(async ({ data }): Promise<ListadoPublico> => {
@@ -71,6 +77,12 @@ export const listarCandidatosPublicos = createServerFn({ method: "GET" })
     const { data: filas, error } = await supabaseAdmin.rpc("fn_candidatos_publicos", {
       p_limit: limit,
       p_offset: offset,
+      ...(data.categoria
+        ? { p_categoria: data.categoria as "actor" | "modelo" | "figurante" | "casting_plus" }
+        : {}),
+      ...(data.genero ? { p_genero: data.genero } : {}),
+      ...(data.edadMin != null ? { p_edad_min: data.edadMin } : {}),
+      ...(data.edadMax != null ? { p_edad_max: data.edadMax } : {}),
     });
     if (error) {
       console.error("[candidatos-publicos] No se pudo cargar el listado:", error);

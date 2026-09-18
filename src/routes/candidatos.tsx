@@ -197,31 +197,69 @@ function CandidatosPublicos() {
   const [franja, setFranja] = useState<string | null>(null);
   const cargarPagina = useServerFn(listarCandidatosPublicos);
 
-  const [extra, setExtra] = useState<CandidatoPublico[]>([]);
-  const [hayMas, setHayMas] = useState(
-    listado.estado === "ok" ? listado.hayMas : false,
-  );
+  /** null = aún no se ha filtrado, se usa la página inicial del loader */
+  const [pagina, setPagina] = useState<{
+    candidatos: CandidatoPublico[];
+    total: number;
+    hayMas: boolean;
+  } | null>(null);
   const [cargando, setCargando] = useState(false);
   const [errorCarga, setErrorCarga] = useState<string | null>(null);
 
-  const candidatos = useMemo(
-    () => (listado.estado === "ok" ? [...listado.candidatos, ...extra] : []),
-    [listado, extra],
+  const base = useMemo(
+    () =>
+      pagina ??
+      (listado.estado === "ok"
+        ? {
+            candidatos: listado.candidatos,
+            total: listado.total,
+            hayMas: listado.hayMas,
+          }
+        : { candidatos: [], total: 0, hayMas: false }),
+    [pagina, listado],
   );
 
-  async function cargarMas() {
+  const visibles = base.candidatos;
+  const hayFiltros = Boolean(categoria || genero || franja);
+
+  function filtrosServidor(
+    cat: string | null,
+    gen: string | null,
+    fr: string | null,
+  ) {
+    const rango = FRANJAS_EDAD.find((f) => f.clave === fr);
+    return {
+      ...(cat ? { categoria: cat } : {}),
+      ...(gen ? { genero: gen } : {}),
+      ...(rango ? { edadMin: rango.min, edadMax: rango.max } : {}),
+    };
+  }
+
+  async function pedir(
+    cat: string | null,
+    gen: string | null,
+    fr: string | null,
+    offset: number,
+  ) {
     setCargando(true);
     setErrorCarga(null);
     try {
       const res = await cargarPagina({
-        data: { limit: PAGINA, offset: candidatos.length },
+        data: { limit: PAGINA, offset, ...filtrosServidor(cat, gen, fr) },
       });
       if (res.estado === "limitado") {
         setErrorCarga("Demasiadas consultas desde tu conexión. Prueba en unos minutos.");
         return;
       }
-      setExtra((prev) => [...prev, ...res.candidatos]);
-      setHayMas(res.hayMas);
+      setPagina((prev) =>
+        offset > 0 && prev
+          ? {
+              candidatos: [...prev.candidatos, ...res.candidatos],
+              total: res.total,
+              hayMas: res.hayMas,
+            }
+          : { candidatos: res.candidatos, total: res.total, hayMas: res.hayMas },
+      );
     } catch {
       setErrorCarga("No hemos podido cargar más candidatos. Inténtalo de nuevo.");
     } finally {
@@ -229,20 +267,20 @@ function CandidatosPublicos() {
     }
   }
 
-  const visibles = useMemo(() => {
-    const rango = FRANJAS_EDAD.find((f) => f.clave === franja);
-    return candidatos.filter((c) => {
-      if (categoria && c.categoria !== categoria) return false;
-      if (genero && (c.genero ?? "") !== genero) return false;
-      if (rango) {
-        if (c.edad == null) return false;
-        if (c.edad < rango.min || c.edad > rango.max) return false;
-      }
-      return true;
-    });
-  }, [candidatos, categoria, genero, franja]);
+  function aplicarFiltros(
+    cat: string | null,
+    gen: string | null,
+    fr: string | null,
+  ) {
+    setCategoria(cat);
+    setGenero(gen);
+    setFranja(fr);
+    void pedir(cat, gen, fr, 0);
+  }
 
-  const hayFiltros = Boolean(categoria || genero || franja);
+  function cargarMas() {
+    void pedir(categoria, genero, franja, visibles.length);
+  }
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -281,7 +319,11 @@ function CandidatosPublicos() {
                   key={cat.valor}
                   activo={categoria === cat.valor}
                   onClick={() =>
-                    setCategoria((v) => (v === cat.valor ? null : cat.valor))
+                    aplicarFiltros(
+                      categoria === cat.valor ? null : cat.valor,
+                      genero,
+                      franja,
+                    )
                   }
                 >
                   {cat.etiqueta}
@@ -296,7 +338,11 @@ function CandidatosPublicos() {
             </p>
             <div className="flex flex-wrap gap-2">
               {GENEROS_FILTRO.map((g) => (
-                <Chip key={g} activo={genero === g} onClick={() => setGenero((v) => (v === g ? null : g))}>
+                <Chip
+                  key={g}
+                  activo={genero === g}
+                  onClick={() => aplicarFiltros(categoria, genero === g ? null : g, franja)}
+                >
                   {g}
                 </Chip>
               ))}
@@ -312,7 +358,9 @@ function CandidatosPublicos() {
                 <Chip
                   key={f.clave}
                   activo={franja === f.clave}
-                  onClick={() => setFranja((v) => (v === f.clave ? null : f.clave))}
+                  onClick={() =>
+                    aplicarFiltros(categoria, genero, franja === f.clave ? null : f.clave)
+                  }
                 >
                   {f.etiqueta}
                 </Chip>
@@ -324,11 +372,7 @@ function CandidatosPublicos() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {
-                setCategoria(null);
-                setGenero(null);
-                setFranja(null);
-              }}
+              onClick={() => aplicarFiltros(null, null, null)}
             >
               Quitar filtros
             </Button>
@@ -358,9 +402,7 @@ function CandidatosPublicos() {
         ) : (
           <>
             <p className="text-sm text-muted-foreground">
-              {hayFiltros
-                ? `${visibles.length} ${visibles.length === 1 ? "candidato" : "candidatos"}`
-                : `${visibles.length} de ${listado.estado === "ok" ? listado.total : visibles.length} candidatos`}
+              {`${visibles.length} de ${base.total} candidatos`}
             </p>
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {visibles.map((c) => (
@@ -370,7 +412,7 @@ function CandidatosPublicos() {
             {errorCarga && (
               <p className="mt-6 text-sm text-destructive">{errorCarga}</p>
             )}
-            {hayMas && (
+            {base.hayMas && (
               <div className="mt-10 flex justify-center">
                 <Button onClick={cargarMas} disabled={cargando} variant="outline">
                   {cargando ? "Cargando…" : "Cargar más candidatos"}

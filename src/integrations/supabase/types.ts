@@ -984,7 +984,7 @@ export type Database = {
       es_admin: { Args: { _user_id: string }; Returns: boolean }
       es_staff: { Args: { _user_id: string }; Returns: boolean }
       fn_candidatos_publicos: {
-        Args: never
+        Args: { p_limit?: number; p_offset?: number }
         Returns: {
           altura_cm: number
           carnes_conducir: Json
@@ -1007,6 +1007,7 @@ export type Database = {
           talla_pantalon: string
           tipo_pelo: string
           tipo_perfil: Json
+          total_disponibles: number
         }[]
       }
       fn_datos_publicos_candidato: {

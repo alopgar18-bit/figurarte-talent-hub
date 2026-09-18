@@ -402,9 +402,7 @@ function CandidatosPublicos() {
         ) : (
           <>
             <p className="text-sm text-muted-foreground">
-              {hayFiltros
-                ? `${visibles.length} ${visibles.length === 1 ? "candidato" : "candidatos"}`
-                : `${visibles.length} de ${listado.estado === "ok" ? listado.total : visibles.length} candidatos`}
+              {`${visibles.length} de ${base.total} candidatos`}
             </p>
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {visibles.map((c) => (

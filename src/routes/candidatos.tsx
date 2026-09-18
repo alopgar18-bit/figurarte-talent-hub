@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Users, ImageOff, SlidersHorizontal } from "lucide-react";
+import { Users, ImageOff, SlidersHorizontal, Loader2 } from "lucide-react";
 import { CabeceraPublica, PieLegal } from "@/components/publico/CabeceraPublica";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -83,22 +83,25 @@ function ErrorListado() {
 function Chip({
   activo,
   onClick,
+  deshabilitado,
   children,
 }: {
   activo: boolean;
   onClick: () => void;
+  deshabilitado?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={deshabilitado}
       aria-pressed={activo}
       className={`rounded-md border px-3 py-1.5 text-sm font-semibold transition-colors ${
         activo
           ? "border-primary bg-primary text-primary-foreground"
           : "border-border bg-card text-muted-foreground hover:text-foreground"
-      }`}
+      } ${deshabilitado ? "cursor-not-allowed opacity-50" : ""}`}
     >
       {children}
     </button>
@@ -204,6 +207,8 @@ function CandidatosPublicos() {
     hayMas: boolean;
   } | null>(null);
   const [cargando, setCargando] = useState(false);
+  /** true solo mientras espera una recarga por cambio de filtro (offset 0) */
+  const [cargandoFiltro, setCargandoFiltro] = useState(false);
   const [errorCarga, setErrorCarga] = useState<string | null>(null);
 
   const base = useMemo(
@@ -241,7 +246,9 @@ function CandidatosPublicos() {
     fr: string | null,
     offset: number,
   ) {
+    const porFiltro = offset === 0;
     setCargando(true);
+    setCargandoFiltro(porFiltro);
     setErrorCarga(null);
     try {
       const res = await cargarPagina({
@@ -264,6 +271,7 @@ function CandidatosPublicos() {
       setErrorCarga("No hemos podido cargar más candidatos. Inténtalo de nuevo.");
     } finally {
       setCargando(false);
+      setCargandoFiltro(false);
     }
   }
 
@@ -318,6 +326,7 @@ function CandidatosPublicos() {
                 <Chip
                   key={cat.valor}
                   activo={categoria === cat.valor}
+                  deshabilitado={cargandoFiltro}
                   onClick={() =>
                     aplicarFiltros(
                       categoria === cat.valor ? null : cat.valor,
@@ -341,6 +350,7 @@ function CandidatosPublicos() {
                 <Chip
                   key={g}
                   activo={genero === g}
+                  deshabilitado={cargandoFiltro}
                   onClick={() => aplicarFiltros(categoria, genero === g ? null : g, franja)}
                 >
                   {g}
@@ -358,6 +368,7 @@ function CandidatosPublicos() {
                 <Chip
                   key={f.clave}
                   activo={franja === f.clave}
+                  deshabilitado={cargandoFiltro}
                   onClick={() =>
                     aplicarFiltros(categoria, genero, franja === f.clave ? null : f.clave)
                   }
@@ -372,6 +383,7 @@ function CandidatosPublicos() {
             <Button
               variant="outline"
               size="sm"
+              disabled={cargandoFiltro}
               onClick={() => aplicarFiltros(null, null, null)}
             >
               Quitar filtros
@@ -401,10 +413,21 @@ function CandidatosPublicos() {
           </div>
         ) : (
           <>
-            <p className="text-sm text-muted-foreground">
-              {`${visibles.length} de ${base.total} candidatos`}
+            <p className="flex items-center gap-2 text-sm text-muted-foreground">
+              {cargandoFiltro ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  Actualizando…
+                </>
+              ) : (
+                `${visibles.length} de ${base.total} candidatos`
+              )}
             </p>
-            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div
+              className={`mt-6 grid grid-cols-1 gap-4 transition-opacity duration-300 sm:grid-cols-2 lg:grid-cols-4 ${
+                cargandoFiltro ? "opacity-40" : "opacity-100"
+              }`}
+            >
               {visibles.map((c) => (
                 <Tarjeta key={c.id} c={c} />
               ))}

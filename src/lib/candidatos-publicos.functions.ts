@@ -62,7 +62,7 @@ function comoArray<T>(v: unknown): T[] {
  * columnas autorizadas: es el backstop de privacidad de esta vista.
  */
 export const listarCandidatosPublicos = createServerFn({ method: "GET" })
-  .inputValidator((entrada: { limit?: number; offset?: number } | undefined) =>
+  .inputValidator((entrada: EntradaListadoPublico | undefined) =>
     entradaListado.parse(entrada ?? {}),
   )
   .handler(async ({ data }): Promise<ListadoPublico> => {

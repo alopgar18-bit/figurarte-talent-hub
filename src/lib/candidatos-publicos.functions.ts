@@ -44,7 +44,13 @@ export type ListadoPublico =
 const entradaListado = z.object({
   limit: z.number().int().min(1).max(100).optional(),
   offset: z.number().int().min(0).max(100000).optional(),
+  categoria: z.string().max(40).optional(),
+  genero: z.string().max(40).optional(),
+  edadMin: z.number().int().min(0).max(120).optional(),
+  edadMax: z.number().int().min(0).max(120).optional(),
 });
+
+export type EntradaListadoPublico = z.input<typeof entradaListado>;
 
 function comoArray<T>(v: unknown): T[] {
   return Array.isArray(v) ? (v as T[]) : [];

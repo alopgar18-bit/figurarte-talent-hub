@@ -338,7 +338,11 @@ function CandidatosPublicos() {
             </p>
             <div className="flex flex-wrap gap-2">
               {GENEROS_FILTRO.map((g) => (
-                <Chip key={g} activo={genero === g} onClick={() => setGenero((v) => (v === g ? null : g))}>
+                <Chip
+                  key={g}
+                  activo={genero === g}
+                  onClick={() => aplicarFiltros(categoria, genero === g ? null : g, franja)}
+                >
                   {g}
                 </Chip>
               ))}

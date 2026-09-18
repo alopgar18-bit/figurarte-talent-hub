@@ -412,7 +412,7 @@ function CandidatosPublicos() {
             {errorCarga && (
               <p className="mt-6 text-sm text-destructive">{errorCarga}</p>
             )}
-            {hayMas && (
+            {base.hayMas && (
               <div className="mt-10 flex justify-center">
                 <Button onClick={cargarMas} disabled={cargando} variant="outline">
                   {cargando ? "Cargando…" : "Cargar más candidatos"}

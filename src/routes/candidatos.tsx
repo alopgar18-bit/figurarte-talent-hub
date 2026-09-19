@@ -77,7 +77,7 @@ function cargarScriptTurnstile(): Promise<void> {
 function VerificacionTurnstile({
   onListo,
 }: {
-  onListo: (obtenerToken: () => string | undefined) => void;
+  onListo: (obtenerToken: () => Promise<string | undefined>) => void;
 }) {
   const contenedor = useRef<HTMLDivElement>(null);
 
@@ -93,9 +93,16 @@ function VerificacionTurnstile({
           sitekey: TURNSTILE_SITE_KEY,
           size: "flexible",
         });
-        onListo(() => {
-          const token = api.getResponse(widgetId);
-          api.reset(widgetId);
+        onListo(async () => {
+          // El widget "managed" suele resolverse solo en < 2 s; esperamos a que
+          // haya token antes de pedir la página, en vez de fallar en seco.
+          const limite = Date.now() + 8000;
+          let token = api.getResponse(widgetId);
+          while (!token && Date.now() < limite) {
+            await new Promise((r) => setTimeout(r, 250));
+            token = api.getResponse(widgetId);
+          }
+          if (token) api.reset(widgetId);
           return token;
         });
       })
@@ -108,7 +115,7 @@ function VerificacionTurnstile({
     };
   }, [onListo]);
 
-  return <div ref={contenedor} className="max-w-xs" aria-hidden="true" />;
+  return <div ref={contenedor} className="max-w-xs" />;
 }
 
 export const Route = createFileRoute("/candidatos")({
@@ -285,9 +292,9 @@ function CandidatosPublicos() {
   /** true solo mientras espera una recarga por cambio de filtro (offset 0) */
   const [cargandoFiltro, setCargandoFiltro] = useState(false);
   const [errorCarga, setErrorCarga] = useState<string | null>(null);
-  /** Función que devuelve el token actual de Turnstile y resetea el widget. */
-  const obtenerToken = useRef<(() => string | undefined) | null>(null);
-  const registrarTurnstile = useRef((fn: () => string | undefined) => {
+  /** Función que espera al token de Turnstile y resetea el widget. */
+  const obtenerToken = useRef<(() => Promise<string | undefined>) | null>(null);
+  const registrarTurnstile = useRef((fn: () => Promise<string | undefined>) => {
     obtenerToken.current = fn;
   }).current;
 
@@ -333,7 +340,7 @@ function CandidatosPublicos() {
     try {
       const filtros = filtrosServidor(cat, gen, fr);
       const necesitaToken = offset > 0 || Object.keys(filtros).length > 0;
-      const token = necesitaToken ? obtenerToken.current?.() : undefined;
+      const token = necesitaToken ? await obtenerToken.current?.() : undefined;
       const res = await cargarPagina({
         data: {
           limit: PAGINA,

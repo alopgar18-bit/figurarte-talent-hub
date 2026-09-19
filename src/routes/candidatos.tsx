@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Users, ImageOff, SlidersHorizontal, Loader2 } from "lucide-react";
 import { CabeceraPublica, PieLegal } from "@/components/publico/CabeceraPublica";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,81 @@ const ETIQUETA_CATEGORIA: Record<string, string> = {
 };
 
 const PAGINA = 60;
+
+/** Clave pública del widget de Cloudflare Turnstile (puede ir en el cliente). */
+const TURNSTILE_SITE_KEY = "0x4AAAAAAE849WrD8HMgqEHx";
+const TURNSTILE_SCRIPT =
+  "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+
+type TurnstileApi = {
+  render: (el: HTMLElement, opciones: { sitekey: string; theme?: string; size?: string }) => string;
+  getResponse: (id?: string) => string | undefined;
+  reset: (id?: string) => void;
+};
+
+function turnstileGlobal(): TurnstileApi | undefined {
+  return (window as unknown as { turnstile?: TurnstileApi }).turnstile;
+}
+
+function cargarScriptTurnstile(): Promise<void> {
+  if (turnstileGlobal()) return Promise.resolve();
+  const existente = document.querySelector<HTMLScriptElement>(
+    `script[src="${TURNSTILE_SCRIPT}"]`,
+  );
+  if (existente) {
+    return new Promise((resolve) => existente.addEventListener("load", () => resolve()));
+  }
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = TURNSTILE_SCRIPT;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("No se pudo cargar Turnstile"));
+    document.head.appendChild(script);
+  });
+}
+
+/**
+ * Widget discreto de Turnstile. Devuelve, vía `onListo`, una función que
+ * entrega el token actual y resetea el widget para obtener uno fresco.
+ */
+function VerificacionTurnstile({
+  onListo,
+}: {
+  onListo: (obtenerToken: () => string | undefined) => void;
+}) {
+  const contenedor = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let cancelado = false;
+    let widgetId: string | undefined;
+
+    void cargarScriptTurnstile()
+      .then(() => {
+        const api = turnstileGlobal();
+        if (cancelado || !api || !contenedor.current) return;
+        widgetId = api.render(contenedor.current, {
+          sitekey: TURNSTILE_SITE_KEY,
+          size: "flexible",
+        });
+        onListo(() => {
+          const token = api.getResponse(widgetId);
+          api.reset(widgetId);
+          return token;
+        });
+      })
+      .catch(() => {
+        /* sin verificación disponible: el servidor rechazará la paginación */
+      });
+
+    return () => {
+      cancelado = true;
+    };
+  }, [onListo]);
+
+  return <div ref={contenedor} className="max-w-xs" aria-hidden="true" />;
+}
 
 export const Route = createFileRoute("/candidatos")({
   loader: async () => ({
@@ -210,6 +285,11 @@ function CandidatosPublicos() {
   /** true solo mientras espera una recarga por cambio de filtro (offset 0) */
   const [cargandoFiltro, setCargandoFiltro] = useState(false);
   const [errorCarga, setErrorCarga] = useState<string | null>(null);
+  /** Función que devuelve el token actual de Turnstile y resetea el widget. */
+  const obtenerToken = useRef<(() => string | undefined) | null>(null);
+  const registrarTurnstile = useRef((fn: () => string | undefined) => {
+    obtenerToken.current = fn;
+  }).current;
 
   const base = useMemo(
     () =>
@@ -251,8 +331,16 @@ function CandidatosPublicos() {
     setCargandoFiltro(porFiltro);
     setErrorCarga(null);
     try {
+      const filtros = filtrosServidor(cat, gen, fr);
+      const necesitaToken = offset > 0 || Object.keys(filtros).length > 0;
+      const token = necesitaToken ? obtenerToken.current?.() : undefined;
       const res = await cargarPagina({
-        data: { limit: PAGINA, offset, ...filtrosServidor(cat, gen, fr) },
+        data: {
+          limit: PAGINA,
+          offset,
+          ...filtros,
+          ...(token ? { turnstileToken: token } : {}),
+        },
       });
       if (res.estado === "limitado") {
         setErrorCarga("Demasiadas consultas desde tu conexión. Prueba en unos minutos.");
@@ -389,6 +477,8 @@ function CandidatosPublicos() {
               Quitar filtros
             </Button>
           )}
+
+          <VerificacionTurnstile onListo={registrarTurnstile} />
         </div>
       </section>
 

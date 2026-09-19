@@ -817,6 +817,27 @@ export type Database = {
           },
         ]
       }
+      rate_limit_contadores: {
+        Row: {
+          ambito: string
+          clave: string
+          usos: number
+          ventana_inicio: string
+        }
+        Insert: {
+          ambito: string
+          clave: string
+          usos?: number
+          ventana_inicio: string
+        }
+        Update: {
+          ambito?: string
+          clave?: string
+          usos?: number
+          ventana_inicio?: string
+        }
+        Relationships: []
+      }
       registro_accesos: {
         Row: {
           accion: Database["public"]["Enums"]["accion_registro_acceso"]
@@ -1060,6 +1081,15 @@ export type Database = {
           categoria: Database["public"]["Enums"]["categoria_candidato"]
           convocatoria_id: string
         }[]
+      }
+      fn_verificar_limite: {
+        Args: {
+          p_ambito: string
+          p_clave: string
+          p_max: number
+          p_ventana_segundos: number
+        }
+        Returns: boolean
       }
       mi_cliente_id: { Args: never; Returns: string }
       obtener_rol: {

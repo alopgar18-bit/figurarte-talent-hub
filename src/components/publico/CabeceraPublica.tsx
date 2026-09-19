@@ -82,7 +82,14 @@ export function CabeceraPublica({ ancho = "max-w-6xl" }: { ancho?: string }) {
             Acceso
           </Link>
         </nav>
-        <Sheet open={menuAbierto} onOpenChange={setMenuAbierto}>
+        <div className="flex shrink-0 items-center gap-2">
+          <Link
+            to="/auth"
+            className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 lg:hidden"
+          >
+            Acceso
+          </Link>
+          <Sheet open={menuAbierto} onOpenChange={setMenuAbierto}>
           <SheetTrigger asChild>
             <Button
               type="button"
@@ -129,19 +136,12 @@ export function CabeceraPublica({ ancho = "max-w-6xl" }: { ancho?: string }) {
                   Programas TV
                 </Link>
               </SheetClose>
-              <SheetClose asChild>
-                <Link
-                  to="/auth"
-                  className="mt-3 block bg-primary px-3 py-3 text-center text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  Acceso
-                </Link>
-              </SheetClose>
             </nav>
           </SheetContent>
-        </Sheet>
-      </div>
-    </header>
+          </Sheet>
+        </div>
+        </div>
+      </header>
   );
 }
 

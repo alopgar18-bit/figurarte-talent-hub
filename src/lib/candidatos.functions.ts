@@ -171,12 +171,22 @@ Si no has sido tú, puedes ignorar este mensaje.
 export const crearCandidatura = createServerFn({ method: "POST" })
   .inputValidator((data: CandidaturaInput) => candidaturaSchema.parse(data))
   .handler(async ({ data }): Promise<CandidaturaResultado> => {
-    const { dentroDeLimite, LIMITES } = await import("@/lib/rate-limit.server");
-    if (!dentroDeLimite("registro", LIMITES.registro)) return { estado: "limite" };
-
+    // Límite persistente en base de datos (fn_verificar_limite), no en memoria.
     const { supabaseAdmin } = await import(
       "@/integrations/supabase/client.server"
     );
+    const { LIMITES, ipPeticion } = await import("@/lib/rate-limit.server");
+    const limite = LIMITES.registro;
+    const { data: dentro, error: errLimite } = await supabaseAdmin.rpc(
+      "fn_verificar_limite",
+      {
+        p_ambito: "registro",
+        p_clave: ipPeticion(),
+        p_max: limite.max,
+        p_ventana_segundos: Math.round(limite.ventanaMs / 1000),
+      },
+    );
+    if (errLimite || dentro !== true) return { estado: "limite" };
     const email = data.email.toLowerCase();
 
     const { data: existente } = await supabaseAdmin

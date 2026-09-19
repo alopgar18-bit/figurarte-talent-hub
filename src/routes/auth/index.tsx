@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { enviarEnlaceAcceso } from "@/lib/acceso.functions";
+import { VerificacionTurnstile } from "@/components/publico/VerificacionTurnstile";
 import { CabeceraPublica, PieLegal } from "@/components/publico/CabeceraPublica";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -477,6 +477,8 @@ function CandidatosPublicos() {
               Quitar filtros
             </Button>
           )}
+
+          <VerificacionTurnstile onListo={registrarTurnstile} />
         </div>
       </section>
 

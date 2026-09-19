@@ -96,12 +96,38 @@ export const listarCandidatosPublicos = createServerFn({ method: "GET" })
   .handler(async ({ data }): Promise<ListadoPublico> => {
     const limit = data.limit ?? 60;
     const offset = data.offset ?? 0;
-    const { dentroDeLimite, LIMITES } = await import("@/lib/rate-limit.server");
-    if (!dentroDeLimite("candidatosPublicos", LIMITES.candidatosPublicos)) {
+    const { ipPeticion, LIMITES } = await import("@/lib/rate-limit.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Capa 1: límite de peticiones persistente en Postgres (no se pierde al reiniciar).
+    const limites = LIMITES.candidatosPublicos;
+    const { data: dentro, error: errorLimite } = await supabaseAdmin.rpc(
+      "fn_verificar_limite",
+      {
+        p_ambito: "candidatosPublicos",
+        p_clave: ipPeticion(),
+        p_max: limites.max,
+        p_ventana_segundos: Math.round(limites.ventanaMs / 1000),
+      },
+    );
+    if (errorLimite || dentro !== true) {
+      if (errorLimite) {
+        console.error("[candidatos-publicos] Fallo al verificar el límite:", errorLimite);
+      }
       return { estado: "limitado" };
     }
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Capa 2: Turnstile obligatorio al paginar o filtrar (la carga inicial queda libre).
+    const requiereVerificacion =
+      offset > 0 ||
+      Boolean(data.categoria) ||
+      Boolean(data.genero) ||
+      data.edadMin != null ||
+      data.edadMax != null;
+    if (requiereVerificacion && !(await tokenTurnstileValido(data.turnstileToken))) {
+      return { estado: "limitado" };
+    }
+
     const { data: filas, error } = await supabaseAdmin.rpc("fn_candidatos_publicos", {
       p_limit: limit,
       p_offset: offset,

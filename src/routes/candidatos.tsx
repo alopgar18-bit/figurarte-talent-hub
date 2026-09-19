@@ -331,8 +331,16 @@ function CandidatosPublicos() {
     setCargandoFiltro(porFiltro);
     setErrorCarga(null);
     try {
+      const filtros = filtrosServidor(cat, gen, fr);
+      const necesitaToken = offset > 0 || Object.keys(filtros).length > 0;
+      const token = necesitaToken ? obtenerToken.current?.() : undefined;
       const res = await cargarPagina({
-        data: { limit: PAGINA, offset, ...filtrosServidor(cat, gen, fr) },
+        data: {
+          limit: PAGINA,
+          offset,
+          ...filtros,
+          ...(token ? { turnstileToken: token } : {}),
+        },
       });
       if (res.estado === "limitado") {
         setErrorCarga("Demasiadas consultas desde tu conexión. Prueba en unos minutos.");

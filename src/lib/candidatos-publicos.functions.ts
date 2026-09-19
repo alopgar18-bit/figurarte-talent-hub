@@ -48,7 +48,35 @@ const entradaListado = z.object({
   genero: z.string().max(40).optional(),
   edadMin: z.number().int().min(0).max(120).optional(),
   edadMax: z.number().int().min(0).max(120).optional(),
+  /** Token de Cloudflare Turnstile; obligatorio al paginar o filtrar. */
+  turnstileToken: z.string().max(4000).optional(),
 });
+
+/**
+ * Verifica un token de Turnstile contra Cloudflare.
+ * Devuelve `false` ante cualquier fallo (sin token, secreto ausente, error de red).
+ */
+async function tokenTurnstileValido(token: string | undefined): Promise<boolean> {
+  if (!token) return false;
+  const secreto = process.env["TURNSTILE_SECRET_KEY"];
+  if (!secreto) {
+    console.error("[candidatos-publicos] Falta TURNSTILE_SECRET_KEY");
+    return false;
+  }
+  try {
+    const cuerpo = new URLSearchParams({ secret: secreto, response: token });
+    const res = await fetch(
+      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+      { method: "POST", body: cuerpo },
+    );
+    if (!res.ok) return false;
+    const datos = (await res.json()) as { success?: boolean };
+    return datos.success === true;
+  } catch (e) {
+    console.error("[candidatos-publicos] Error verificando Turnstile:", e);
+    return false;
+  }
+}
 
 export type EntradaListadoPublico = z.input<typeof entradaListado>;
 

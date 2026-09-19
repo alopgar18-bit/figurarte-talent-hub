@@ -340,7 +340,7 @@ function CandidatosPublicos() {
     try {
       const filtros = filtrosServidor(cat, gen, fr);
       const necesitaToken = offset > 0 || Object.keys(filtros).length > 0;
-      const token = necesitaToken ? obtenerToken.current?.() : undefined;
+      const token = necesitaToken ? await obtenerToken.current?.() : undefined;
       const res = await cargarPagina({
         data: {
           limit: PAGINA,

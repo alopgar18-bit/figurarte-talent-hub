@@ -130,6 +130,7 @@ function AuthPage() {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
+            <VerificacionTurnstile onListo={registrarTurnstile} className="max-w-full" />
             {error && <p className="text-sm text-destructive">{error}</p>}
             <Button type="submit" className="w-full" disabled={estado === "enviando"}>
               {estado === "enviando" ? "Enviando..." : "Enviar enlace de acceso"}

@@ -285,6 +285,11 @@ function CandidatosPublicos() {
   /** true solo mientras espera una recarga por cambio de filtro (offset 0) */
   const [cargandoFiltro, setCargandoFiltro] = useState(false);
   const [errorCarga, setErrorCarga] = useState<string | null>(null);
+  /** Función que devuelve el token actual de Turnstile y resetea el widget. */
+  const obtenerToken = useRef<(() => string | undefined) | null>(null);
+  const registrarTurnstile = useRef((fn: () => string | undefined) => {
+    obtenerToken.current = fn;
+  }).current;
 
   const base = useMemo(
     () =>

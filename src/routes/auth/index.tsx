@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { enviarEnlaceAcceso } from "@/lib/acceso.functions";
+import { VerificacionTurnstile } from "@/components/publico/VerificacionTurnstile";
 import { CabeceraPublica, PieLegal } from "@/components/publico/CabeceraPublica";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,15 +46,29 @@ function AuthPage() {
   const [estado, setEstado] = useState<"idle" | "enviando" | "enviado">("idle");
   const [error, setError] = useState<string | null>(null);
 
+  const pedirEnlace = useServerFn(enviarEnlaceAcceso);
+  /** Espera al token de Turnstile y resetea el widget. */
+  const obtenerToken = useRef<(() => Promise<string | undefined>) | null>(null);
+  const registrarTurnstile = useRef((fn: () => Promise<string | undefined>) => {
+    obtenerToken.current = fn;
+  }).current;
+
   async function enviar(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setEstado("enviando");
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim().toLowerCase(),
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-    });
-    if (error) {
+    const token = await obtenerToken.current?.();
+    const resultado = await pedirEnlace({
+      data: { email: email.trim().toLowerCase(), ...(token ? { turnstileToken: token } : {}) },
+    }).catch(() => ({ estado: "error" as const }));
+    if (resultado.estado === "limitado") {
+      setError(
+        "Has pedido demasiados enlaces a este email. Espera unos minutos e inténtalo de nuevo.",
+      );
+      setEstado("idle");
+      return;
+    }
+    if (resultado.estado !== "ok") {
       setError("No hemos podido enviar el enlace. Revisa el email e inténtalo de nuevo.");
       setEstado("idle");
       return;
@@ -114,6 +130,7 @@ function AuthPage() {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
+            <VerificacionTurnstile onListo={registrarTurnstile} className="max-w-full" />
             {error && <p className="text-sm text-destructive">{error}</p>}
             <Button type="submit" className="w-full" disabled={estado === "enviando"}>
               {estado === "enviando" ? "Enviando..." : "Enviar enlace de acceso"}
